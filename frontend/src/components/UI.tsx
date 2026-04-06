@@ -1,33 +1,10 @@
-import { ReactNode } from 'react'
-import { BookStatus } from '../types'
+export { StatusBadge, statusLabel } from './ui/status-badge'
 
-export const Section = ({ title, children }: { title: string; children: ReactNode }) => (
-  <section className='card'>
-    <h2 className='section-title'>{title}</h2>
-    {children}
-  </section>
-)
-
-export const statusLabel: Record<BookStatus, string> = {
-  inLibrary: 'In Library',
-  currentlyReading: 'Currently Reading',
-  finished: 'Finished',
-  nextToRead: 'Next To Read'
+export function Progress({ value }: { value: number }) {
+  const safe = Math.min(100, Math.max(0, value))
+  return (
+    <div className='h-2 w-full overflow-hidden rounded-full bg-muted'>
+      <div className='h-full rounded-full bg-primary transition-all duration-200 ease-premium' style={{ width: `${safe}%` }} />
+    </div>
+  )
 }
-
-export const StatusBadge = ({ status }: { status: BookStatus }) => {
-  const styles: Record<BookStatus, string> = {
-    inLibrary: 'status-in-library',
-    currentlyReading: 'status-currently-reading',
-    finished: 'status-finished',
-    nextToRead: 'status-next-to-read'
-  }
-
-  return <span className={`badge ${styles[status]}`}>{statusLabel[status]}</span>
-}
-
-export const Progress = ({ value }: { value: number }) => (
-  <div className='progress-track'>
-    <div className='progress-fill' style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
-  </div>
-)

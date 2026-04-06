@@ -2,24 +2,37 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/client'
 import { Book, BookStatus, WishlistItem } from '../types'
-import { Progress, Section, StatusBadge, statusLabel } from '../components/UI'
-import emptyLibrary from '../assets/empty-library.svg'
+import { Progress, StatusBadge, statusLabel } from '../components/UI'
+import { Button } from '../components/ui/button'
+import { Card, SectionCard } from '../components/ui/card'
+import { DataToolbar } from '../components/ui/data-toolbar'
+import { EmptyState } from '../components/ui/empty-state'
+import { Input } from '../components/ui/input'
+import { PageHeader } from '../components/ui/page-header'
+import { Select } from '../components/ui/select'
+import { Separator } from '../components/ui/separator'
+import { Skeleton } from '../components/ui/skeleton'
+import { Textarea } from '../components/ui/textarea'
 
 const statusOptions: BookStatus[] = ['inLibrary', 'currentlyReading', 'finished', 'nextToRead']
-
-function isAxiosError(error: unknown): error is { response?: { data?: { error?: string } } } {
-  return typeof error === 'object' && error !== null && 'response' in error
-}
 
 function asItems<T>(data: T[] | { items: T[] }): T[] {
   return Array.isArray(data) ? data : data.items
 }
 
+function isAxiosError(error: unknown): error is { response?: { data?: { error?: string } } } {
+  return typeof error === 'object' && error !== null && 'response' in error
+}
+
 export function Dashboard() {
   const [books, setBooks] = useState<Book[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    void api.get<Book[] | { items: Book[] }>('/books').then((r) => setBooks(asItems(r.data)))
+    void api
+      .get<Book[] | { items: Book[] }>('/books')
+      .then((r) => setBooks(asItems(r.data)))
+      .finally(() => setLoading(false))
   }, [])
 
   const counts = useMemo(() => {
@@ -33,58 +46,66 @@ export function Dashboard() {
 
   return (
     <div className='space-y-6'>
-      <header className='card'>
-        <p className='mb-2 text-xs uppercase tracking-[0.2em] text-secondary'>Welcome back</p>
-        <h1 className='page-title'>Your Personal Library</h1>
-        <p className='mt-2 max-w-2xl text-sm text-secondary'>
-          Track every title, keep your reading rhythm, and move books through your shelf with clarity.
-        </p>
-      </header>
+      <PageHeader title='Dashboard' description='Track momentum across your reading workflow and quickly resume what matters.' />
 
       <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
         {statusOptions.map((status) => (
-          <div key={status} className='card'>
-            <p className='text-sm text-secondary'>{statusLabel[status]}</p>
-            <p className='mt-3 text-4xl text-primary'>{counts[status]}</p>
-          </div>
+          <Card key={status} className='surface-hover p-5'>
+            <p className='text-small text-mutedForeground'>{statusLabel[status]}</p>
+            <p className='mt-3 text-3xl font-semibold text-foreground'>{loading ? '—' : counts[status]}</p>
+          </Card>
         ))}
       </div>
 
-      <Section title='Current Reading Snapshot'>
-        <div className='space-y-3'>
-          {currentReading.length ? (
-            currentReading.map((b) => (
-              <div key={b.id} className='table-row rounded-xl'>
-                <div className='grow'>
-                  <p className='font-semibold text-primary'>{b.title}</p>
-                  <p className='text-sm text-secondary'>{b.author}</p>
+      <SectionCard>
+        <h2 className='text-section-title'>Current reading snapshot</h2>
+        {loading ? (
+          <div className='space-y-3'>
+            <Skeleton className='h-14' />
+            <Skeleton className='h-14' />
+          </div>
+        ) : currentReading.length ? (
+          <div className='space-y-3'>
+            {currentReading.map((b) => (
+              <div key={b.id} className='rounded-md border border-border p-4'>
+                <div className='mb-3 flex items-center justify-between gap-3'>
+                  <div>
+                    <p className='font-medium'>{b.title}</p>
+                    <p className='text-small text-mutedForeground'>{b.author}</p>
+                  </div>
+                  <p className='text-small text-mutedForeground'>{Math.round(b.progressPercentage)}%</p>
                 </div>
-                <div className='w-44'>
-                  <p className='mb-1 text-right text-xs text-secondary'>{Math.round(b.progressPercentage)}%</p>
-                  <Progress value={b.progressPercentage} />
-                </div>
+                <Progress value={b.progressPercentage} />
               </div>
-            ))
-          ) : (
-            <p className='text-secondary'>No active reading session yet.</p>
-          )}
-        </div>
-      </Section>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon='📖'
+            title='No active books yet'
+            description='Move a title to Currently Reading to start seeing your progress here.'
+            action={<Link to='/library'><Button size='sm'>Go to library</Button></Link>}
+          />
+        )}
+      </SectionCard>
 
-      <Section title='Books Needing Action'>
-        <div className='space-y-2'>
-          {needingAction.length ? (
-            needingAction.map((b) => (
-              <div key={b.id} className='table-row rounded-xl'>
-                <p className='grow font-medium text-primary'>{b.title}</p>
+      <SectionCard>
+        <h2 className='text-section-title'>Needs attention</h2>
+        {loading ? (
+          <Skeleton className='h-28' />
+        ) : needingAction.length ? (
+          <div className='space-y-3'>
+            {needingAction.map((b) => (
+              <div key={b.id} className='flex items-center justify-between gap-3 rounded-md border border-border p-4'>
+                <p className='font-medium'>{b.title}</p>
                 <StatusBadge status={b.status} />
               </div>
-            ))
-          ) : (
-            <p className='text-secondary'>Everything is up to date.</p>
-          )}
-        </div>
-      </Section>
+            ))}
+          </div>
+        ) : (
+          <EmptyState icon='✨' title='Everything is tidy' description='No pending books right now—great reading flow.' />
+        )}
+      </SectionCard>
     </div>
   )
 }
@@ -94,10 +115,13 @@ export function Library() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(true)
 
   const load = async () => {
+    setLoading(true)
     const r = await api.get<Book[] | { items: Book[] }>('/books', { params: { search, status } })
     setBooks(asItems(r.data))
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -120,61 +144,80 @@ export function Library() {
 
   return (
     <div className='space-y-6'>
-      <h1 className='page-title'>Library</h1>
+      <PageHeader title='Library' description='Keep every title organized and route books into your reading pipeline.' />
 
-      <form onSubmit={add} className='card grid gap-3 md:grid-cols-5'>
-        <input className='input' name='title' placeholder='Title' required />
-        <input className='input' name='author' placeholder='Author' required />
-        <input className='input' type='number' min={1} name='totalPages' placeholder='Total pages' required />
-        <select className='input' name='status' defaultValue='inLibrary'>
-          {statusOptions.map((s) => (
-            <option key={s} value={s}>{statusLabel[s]}</option>
-          ))}
-        </select>
-        <button type='submit' className='btn'>Add Book</button>
-      </form>
+      <SectionCard>
+        <h2 className='text-section-title'>Add a new book</h2>
+        <form onSubmit={add} className='grid gap-3 md:grid-cols-5'>
+          <Input name='title' placeholder='Title' required />
+          <Input name='author' placeholder='Author' required />
+          <Input type='number' min={1} name='totalPages' placeholder='Total pages' required />
+          <Select name='status' defaultValue='inLibrary'>
+            {statusOptions.map((s) => (
+              <option key={s} value={s}>{statusLabel[s]}</option>
+            ))}
+          </Select>
+          <Button type='submit'>Add book</Button>
+        </form>
+        {message ? <p className='text-small text-success'>{message}</p> : null}
+      </SectionCard>
 
-      {message && <p className='text-sm text-secondary'>{message}</p>}
-
-      <div className='card flex flex-col gap-3 md:flex-row'>
-        <input className='input' placeholder='Search title or author' value={search} onChange={(e) => setSearch(e.target.value)} />
-        <button type='button' className='btn md:w-32' onClick={() => void load()}>Search</button>
-        <select className='input md:w-56' value={status} onChange={(e) => setStatus(e.target.value)}>
+      <DataToolbar>
+        <Input placeholder='Search title or author' value={search} onChange={(e) => setSearch(e.target.value)} className='md:flex-1' />
+        <Button onClick={() => void load()}>Search</Button>
+        <Select value={status} onChange={(e) => setStatus(e.target.value)} className='md:w-56'>
           <option value=''>All statuses</option>
           {statusOptions.map((s) => (
             <option key={s} value={s}>{statusLabel[s]}</option>
           ))}
-        </select>
-      </div>
+        </Select>
+      </DataToolbar>
 
-      {books.length ? (
-        <div className='table-shell'>
+      {loading ? (
+        <div className='space-y-3'>
+          <Skeleton className='h-24' />
+          <Skeleton className='h-24' />
+        </div>
+      ) : books.length ? (
+        <div className='space-y-3'>
           {books.map((b) => (
-            <div key={b.id} className='table-row'>
-              <div className='grow'>
-                <p className='font-semibold text-primary'>{b.title}</p>
-                <p className='text-sm text-secondary'>{b.author} · {b.totalPages} pages</p>
+            <Card key={b.id} className='surface-hover p-5'>
+              <div className='flex flex-wrap items-center justify-between gap-3'>
+                <div>
+                  <p className='text-lg font-semibold'>{b.title}</p>
+                  <p className='text-small text-mutedForeground'>{b.author} • {b.totalPages} pages</p>
+                </div>
+                <div className='flex items-center gap-3'>
+                  <StatusBadge status={b.status} />
+                  <Link to={`/books/${b.id}`}>
+                    <Button size='sm'>Details</Button>
+                  </Link>
+                </div>
               </div>
-              <StatusBadge status={b.status} />
-              <Link className='btn py-2' to={`/books/${b.id}`}>Details</Link>
-            </div>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className='card text-center'>
-          <img src={emptyLibrary} alt='Empty shelf' className='mx-auto mb-3 h-32 w-auto opacity-85' />
-          <p className='text-secondary'>No books found. Add your first title above.</p>
-        </div>
+        <EmptyState
+          icon='📚'
+          title='No books found'
+          description='Start by adding your first book above, or adjust your search filters.'
+          action={<Button size='sm' onClick={() => { setSearch(''); setStatus(''); void load() }}>Clear filters</Button>}
+        />
       )}
     </div>
   )
 }
 
-function BookListByStatus({ status, title }: { status: BookStatus; title: string }) {
+function BookListByStatus({ status, title, description }: { status: BookStatus; title: string; description: string }) {
   const [books, setBooks] = useState<Book[]>([])
+  const [loading, setLoading] = useState(true)
+
   const load = async () => {
+    setLoading(true)
     const r = await api.get<Book[] | { items: Book[] }>('/books', { params: { status } })
     setBooks(asItems(r.data))
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -182,22 +225,29 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
   }, [status])
 
   return (
-    <div className='space-y-4'>
-      <h1 className='page-title'>{title}</h1>
-      {books.length ? (
+    <div className='space-y-6'>
+      <PageHeader title={title} description={description} />
+      {loading ? (
+        <div className='space-y-3'>
+          <Skeleton className='h-28' />
+          <Skeleton className='h-28' />
+        </div>
+      ) : books.length ? (
         books.map((b) => (
-          <div key={b.id} className='card space-y-4'>
-            <div className='flex items-center justify-between gap-3'>
+          <SectionCard key={b.id} className='surface-hover'>
+            <div className='flex flex-wrap items-center justify-between gap-3'>
               <div>
-                <p className='text-xl font-semibold text-primary'>{b.title}</p>
-                <p className='text-sm text-secondary'>{b.author}</p>
+                <p className='text-lg font-semibold'>{b.title}</p>
+                <p className='text-small text-mutedForeground'>{b.author}</p>
               </div>
-              <p className='text-sm text-secondary'>{b.currentPage}/{b.totalPages}</p>
+              <p className='text-small text-mutedForeground'>
+                {b.currentPage}/{b.totalPages} pages
+              </p>
             </div>
             <Progress value={b.progressPercentage} />
-            {status === 'currentlyReading' && (
+            {status === 'currentlyReading' ? (
               <form
-                className='grid gap-2 md:grid-cols-[1fr_auto_auto]'
+                className='grid gap-3 md:grid-cols-[1fr_auto_auto]'
                 onSubmit={async (e) => {
                   e.preventDefault()
                   const v = Number(new FormData(e.currentTarget).get('currentPage'))
@@ -205,38 +255,46 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
                   void load()
                 }}
               >
-                <input className='input' type='number' name='currentPage' min={0} max={b.totalPages} placeholder='Update page' />
-                <button type='submit' className='btn'>Save Progress</button>
-                <button type='button' className='btn-secondary' onClick={async () => { await api.patch(`/books/${b.id}/status`, { status: 'finished' }); void load() }}>
-                  Mark Finished
-                </button>
+                <Input type='number' name='currentPage' min={0} max={b.totalPages} placeholder='Update current page' />
+                <Button type='submit'>Save progress</Button>
+                <Button variant='secondary' onClick={async () => { await api.patch(`/books/${b.id}/status`, { status: 'finished' }); void load() }}>
+                  Mark finished
+                </Button>
               </form>
-            )}
-            {status === 'nextToRead' && (
-              <button type='button' className='btn' onClick={async () => { await api.patch(`/books/${b.id}/status`, { status: 'currentlyReading' }); void load() }}>
-                Start Reading
-              </button>
-            )}
-          </div>
+            ) : null}
+            {status === 'nextToRead' ? (
+              <Button onClick={async () => { await api.patch(`/books/${b.id}/status`, { status: 'currentlyReading' }); void load() }}>
+                Start reading
+              </Button>
+            ) : null}
+          </SectionCard>
         ))
       ) : (
-        <div className='card text-center text-secondary'>No books in this section yet.</div>
+        <EmptyState
+          icon={status === 'finished' ? '🏁' : status === 'nextToRead' ? '🗂️' : '📘'}
+          title={`No books in ${title.toLowerCase()}`}
+          description='Move books from your Library to keep this queue active.'
+          action={<Link to='/library'><Button size='sm'>Open library</Button></Link>}
+        />
       )}
     </div>
   )
 }
 
-export const Reading = () => <BookListByStatus status='currentlyReading' title='Currently Reading' />
-export const Finished = () => <BookListByStatus status='finished' title='Finished' />
-export const Next = () => <BookListByStatus status='nextToRead' title='Next To Read' />
+export const Reading = () => <BookListByStatus status='currentlyReading' title='Currently Reading' description='Track active books and update progress with minimal friction.' />
+export const Finished = () => <BookListByStatus status='finished' title='Finished' description='Review books you completed and celebrate steady progress.' />
+export const Next = () => <BookListByStatus status='nextToRead' title='Next To Read' description='Curate your upcoming queue and start your next title quickly.' />
 
 export function Wishlist() {
   const [items, setItems] = useState<WishlistItem[]>([])
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   const load = async () => {
+    setLoading(true)
     const r = await api.get<WishlistItem[] | { items: WishlistItem[] }>('/wishlist')
     setItems(asItems(r.data))
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -259,31 +317,43 @@ export function Wishlist() {
 
   return (
     <div className='space-y-6'>
-      <h1 className='page-title'>Wishlist</h1>
-      <form onSubmit={add} className='card grid gap-3 md:grid-cols-5'>
-        <input className='input' name='title' placeholder='Title' required />
-        <input className='input' name='author' placeholder='Author' required />
-        <input className='input' type='number' step='0.01' name='expectedPrice' placeholder='Expected price' />
-        <input className='input' name='notes' placeholder='Notes' />
-        <button type='submit' className='btn'>Add</button>
-      </form>
-      {error && <p className='error-text'>{error}</p>}
-      <div className='grid gap-4 md:grid-cols-2'>
-        {items.length ? (
-          items.map((i) => (
-            <div className='card space-y-3' key={i.id}>
-              <h3 className='text-3xl text-primary'>{i.title}</h3>
-              <p className='text-secondary'>{i.author}</p>
-              <p className='text-sm text-secondary'>{i.notes}</p>
-              <div className='my-1 flex flex-wrap gap-2'>
-                {i.purchaseLinks?.map((l) => (
-                  <a key={l.id} className='badge link-badge hover:underline' href={l.url} target='_blank' rel='noreferrer'>
+      <PageHeader title='Wishlist' description='Collect future purchases and keep reliable links in one organized place.' />
+      <SectionCard>
+        <h2 className='text-section-title'>Add wishlist item</h2>
+        <form onSubmit={add} className='grid gap-3 md:grid-cols-2'>
+          <Input name='title' placeholder='Title' required />
+          <Input name='author' placeholder='Author' required />
+          <Input type='number' step='0.01' name='expectedPrice' placeholder='Expected price' />
+          <Input name='notes' placeholder='Short note' />
+          <Button type='submit' className='md:col-span-2 md:w-fit'>Add to wishlist</Button>
+        </form>
+      </SectionCard>
+      {error ? <p className='text-small text-destructive'>{error}</p> : null}
+      {loading ? (
+        <div className='grid gap-4 md:grid-cols-2'>
+          <Skeleton className='h-56' />
+          <Skeleton className='h-56' />
+        </div>
+      ) : items.length ? (
+        <div className='grid gap-4 md:grid-cols-2'>
+          {items.map((i) => (
+            <SectionCard key={i.id} className='surface-hover'>
+              <div className='space-y-1'>
+                <h3 className='text-section-title'>{i.title}</h3>
+                <p className='text-small text-mutedForeground'>{i.author}</p>
+                {i.expectedPrice ? <p className='text-small text-mutedForeground'>Target: ${i.expectedPrice.toFixed(2)}</p> : null}
+                {i.notes ? <p className='text-small text-mutedForeground'>{i.notes}</p> : null}
+              </div>
+              <Separator />
+              <div className='flex flex-wrap gap-2'>
+                {i.purchaseLinks?.length ? i.purchaseLinks.map((l) => (
+                  <a key={l.id} className='inline-flex rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-foreground hover:bg-accent/20' href={l.url} target='_blank' rel='noreferrer'>
                     {l.alias || l.label}
                   </a>
-                ))}
+                )) : <p className='text-small text-mutedForeground'>No purchase links yet.</p>}
               </div>
               <form
-                className='space-y-2'
+                className='space-y-3'
                 onSubmit={async (e) => {
                   e.preventDefault()
                   const f = new FormData(e.currentTarget)
@@ -297,21 +367,18 @@ export function Wishlist() {
                   }
                 }}
               >
-                <input className='input' name='label' placeholder='Optional label' />
-                <div className='flex gap-2'>
-                  <input className='input' name='url' placeholder='https://example.com/book' required />
-                  <button type='submit' className='btn whitespace-nowrap'>Add Link</button>
+                <Input name='label' placeholder='Optional store label' />
+                <div className='flex flex-col gap-3 sm:flex-row'>
+                  <Input name='url' placeholder='https://example.com/book' required className='sm:flex-1' />
+                  <Button type='submit'>Add link</Button>
                 </div>
               </form>
-            </div>
-          ))
-        ) : (
-          <div className='card text-center md:col-span-2'>
-            <img src={emptyLibrary} alt='No wishlist items' className='mx-auto mb-3 h-32 w-auto opacity-85' />
-            <p className='text-secondary'>Your wishlist is empty.</p>
-          </div>
-        )}
-      </div>
+            </SectionCard>
+          ))}
+        </div>
+      ) : (
+        <EmptyState icon='🛍️' title='Wishlist is empty' description='Add books you plan to buy and attach trusted links for quick checkout.' />
+      )}
     </div>
   )
 }
@@ -328,31 +395,37 @@ export function BookDetails({ id }: { id: string }) {
     void load()
   }, [id])
 
-  if (!book) return <p className='text-secondary'>Loading...</p>
+  if (!book) {
+    return <Skeleton className='h-64' />
+  }
 
   return (
-    <div className='space-y-4'>
-      <h1 className='page-title'>{book.title}</h1>
-      <div className='card space-y-4'>
-        <p className='text-lg text-secondary'>{book.author}</p>
-        <StatusBadge status={book.status} />
-        <div className='grid gap-3 sm:grid-cols-2'>
+    <div className='space-y-6'>
+      <PageHeader title={book.title} description={book.author} action={<StatusBadge status={book.status} />} />
+      <SectionCard>
+        <h2 className='text-section-title'>Reading progress</h2>
+        <div className='grid gap-3 text-small text-mutedForeground sm:grid-cols-3'>
           <p>Total pages: {book.totalPages}</p>
-          <p>Current: {book.currentPage} · Remaining: {book.remainingPages}</p>
+          <p>Current page: {book.currentPage}</p>
+          <p>Remaining: {book.remainingPages}</p>
           <p>Progress: {Math.round(book.progressPercentage)}%</p>
-          <p>Completed: {book.completedAt ? new Date(book.completedAt).toLocaleDateString() : 'Not finished yet'}</p>
+          <p className='sm:col-span-2'>Completed: {book.completedAt ? new Date(book.completedAt).toLocaleDateString() : 'Not finished yet'}</p>
         </div>
         <Progress value={book.progressPercentage} />
+      </SectionCard>
+
+      <SectionCard>
+        <h2 className='text-section-title'>Book actions</h2>
         <div className='flex flex-wrap gap-2'>
           {statusOptions.map((s) => (
-            <button key={s} type='button' className='btn-secondary' onClick={async () => { await api.patch(`/books/${book.id}/status`, { status: s }); void load() }}>
+            <Button key={s} variant='secondary' onClick={async () => { await api.patch(`/books/${book.id}/status`, { status: s }); void load() }}>
               Move to {statusLabel[s]}
-            </button>
+            </Button>
           ))}
         </div>
-        {book.status === 'currentlyReading' && (
+        {book.status === 'currentlyReading' ? (
           <form
-            className='grid gap-2 md:grid-cols-[1fr_auto]'
+            className='grid gap-3 md:grid-cols-[1fr_auto]'
             onSubmit={async (e) => {
               e.preventDefault()
               const currentPage = Number(new FormData(e.currentTarget).get('currentPage'))
@@ -360,49 +433,61 @@ export function BookDetails({ id }: { id: string }) {
               void load()
             }}
           >
-            <input className='input' type='number' min={0} max={book.totalPages} name='currentPage' placeholder='Update current page' />
-            <button type='submit' className='btn'>Update progress</button>
+            <Input type='number' min={0} max={book.totalPages} name='currentPage' placeholder='Update current page' />
+            <Button type='submit'>Update progress</Button>
           </form>
-        )}
-      </div>
+        ) : null}
+      </SectionCard>
     </div>
   )
 }
 
 export function Profile() {
   const [name, setName] = useState('')
+  const [message, setMessage] = useState('')
 
   return (
     <div className='space-y-6'>
-      <h1 className='page-title'>Profile</h1>
-      <form
-        className='card max-w-xl space-y-3'
-        onSubmit={async (e) => {
-          e.preventDefault()
-          await api.put('/users/profile', { name })
-        }}
-      >
-        <h2 className='section-title'>Update name</h2>
-        <input className='input' value={name} onChange={(e) => setName(e.target.value)} placeholder='New name' />
-        <button type='submit' className='btn'>Update Name</button>
-      </form>
-      <form
-        className='card max-w-xl space-y-3'
-        onSubmit={async (e) => {
-          e.preventDefault()
-          const f = new FormData(e.currentTarget)
-          await api.put('/users/password', {
-            currentPassword: f.get('currentPassword'),
-            newPassword: f.get('newPassword')
-          })
-          ;(e.target as HTMLFormElement).reset()
-        }}
-      >
-        <h2 className='section-title'>Update password</h2>
-        <input className='input' type='password' name='currentPassword' placeholder='Current password' required />
-        <input className='input' type='password' name='newPassword' placeholder='New password' minLength={6} required />
-        <button type='submit' className='btn'>Update Password</button>
-      </form>
+      <PageHeader title='Profile' description='Manage account details and security settings.' />
+      <SectionCard className='max-w-2xl'>
+        <h2 className='text-section-title'>Update name</h2>
+        <form
+          className='space-y-3'
+          onSubmit={async (e) => {
+            e.preventDefault()
+            await api.put('/users/profile', { name })
+            setMessage('Name updated successfully.')
+          }}
+        >
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder='New name' />
+          <Button type='submit'>Update name</Button>
+        </form>
+      </SectionCard>
+      <SectionCard className='max-w-2xl'>
+        <h2 className='text-section-title'>Update password</h2>
+        <form
+          className='space-y-3'
+          onSubmit={async (e) => {
+            e.preventDefault()
+            const f = new FormData(e.currentTarget)
+            await api.put('/users/password', {
+              currentPassword: f.get('currentPassword'),
+              newPassword: f.get('newPassword')
+            })
+            ;(e.target as HTMLFormElement).reset()
+            setMessage('Password updated successfully.')
+          }}
+        >
+          <Input type='password' name='currentPassword' placeholder='Current password' required />
+          <Input type='password' name='newPassword' placeholder='New password' minLength={6} required />
+          <Button type='submit'>Update password</Button>
+        </form>
+      </SectionCard>
+      {message ? <Card className='max-w-2xl text-small text-success'>{message}</Card> : null}
+      <SectionCard className='max-w-2xl'>
+        <h2 className='text-section-title'>Notes</h2>
+        <Textarea placeholder='Optional personal reading notes...' />
+      </SectionCard>
     </div>
   )
 }
