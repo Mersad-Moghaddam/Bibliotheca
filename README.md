@@ -1,88 +1,86 @@
-# Libro
+# Libro Backend
 
-Libro is a full-stack personal library manager organized as a clean monorepo with a fully separated Go backend and React frontend.
+Libro is a personal reading tracker backend API for authentication, book management, reading progress, wishlist management, purchase links, and dashboard summaries.
 
-## Monorepo Structure
+## Final Backend Architecture
 
-```text
-.
-├── backend/             # Go API service (single backend architecture)
-│   ├── cmd/
-│   ├── config/
-│   ├── internal/
-│   ├── pkg/
-│   ├── migrations/
-│   ├── Dockerfile
-│   ├── go.mod
-│   └── go.sum
-├── frontend/            # React + Vite SPA
-│   ├── public/
-│   ├── src/
-│   ├── Dockerfile
-│   ├── package.json
-│   └── ...
-├── docs/
-│   └── architecture.md
-├── docker-compose.yml
-├── .env.example
-└── .gitignore
+```
+apiSchema/
+controllers/
+dev.env
+go.mod
+go.sum
+logs/
+middleware/
+migrations/
+models/
+pkg/
+repositories/
+services/
+statics/
+template/
+tests/
+main.go
 ```
 
-## Environment Files
+## Setup
 
-- Backend env template: `backend/.env.example`
-- Frontend env template: `frontend/.env.example`
-- Optional compose override template: `.env.example`
+1. Install Go 1.24+.
+2. Start MySQL and Redis (for local development you can use `docker-compose.yml`).
+3. Copy env values from `dev.env` or update as needed.
+4. Install dependencies:
+   ```bash
+   go mod download
+   ```
 
-Setup:
+## Environment (`dev.env`)
+
+`dev.env` is loaded automatically at startup and controls app port, DB settings, Redis settings, JWT settings, rate limiting, and frontend CORS origin.
+
+## Database and Redis
+
+- MySQL stores users, books, wishlist items, and purchase links.
+- Redis stores refresh tokens and auth rate-limit counters.
+
+## Migrations
+
+Raw SQL migrations are in `migrations/`:
+
+- `000001_create_users_table.*.sql`
+- `000002_create_books_table.*.sql`
+- `000003_create_wishlist_table.*.sql`
+- `000004_create_purchase_links_table.*.sql`
+
+## Run
 
 ```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+go run .
 ```
 
-## Run Backend (local)
+Server health endpoint:
+
+- `GET /health`
+
+## Tests
 
 ```bash
-cd backend
-go mod tidy
-go run ./cmd/api
+go test ./...
 ```
 
-Backend API base URL: `http://localhost:8080/api/v1`
+Test suites are organized under:
 
-## Run Frontend (local)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend app URL: `http://localhost:5173`
-
-## Run with Docker Compose
-
-```bash
-docker compose up --build
-```
-
-Services:
-- Frontend: `http://localhost:5173`
-- Backend: `http://localhost:8080`
-- MySQL: `localhost:3306`
-- Redis: `localhost:6379`
-
-## Database Migrations
-
-SQL migrations are maintained in `backend/migrations`.
-
-Use your preferred migration runner with that directory when applying schema changes externally.
+- `tests/auth`
+- `tests/book`
+- `tests/reading`
+- `tests/testUtils`
+- `tests/user`
+- `tests/wishlist`
 
 ## Architecture Notes
 
-- Only one backend architecture exists, fully isolated in `backend/`.
-- Frontend is fully self-contained in `frontend/` and interacts with backend through HTTP APIs only.
-- Root-level files are monorepo coordination and documentation only.
-
-See `docs/architecture.md` for more detail.
+- **Controllers** are thin and only parse/validate request payloads and return responses.
+- **Services** hold business logic.
+- **Repositories** own persistence access and initialization.
+- **apiSchema** contains request/response contracts.
+- **statics** centralizes configs/constants/errors/translations.
+- **middleware/auth** handles access-token verification.
