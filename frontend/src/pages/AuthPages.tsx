@@ -4,33 +4,38 @@ import api from '../api/client'
 import { authStore } from '../contexts/authStore'
 import heroOpenBook from '../assets/hero-open-book.svg'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
+import { Input } from '../components/ui/input'
 
-const wrap = 'app-shell min-h-screen flex items-center justify-center p-4 md:p-8'
-const card = 'card w-full max-w-md space-y-4'
+const wrap = 'app-shell min-h-screen px-4 py-8 md:px-8 md:py-10'
+const formCard = 'mx-auto w-full max-w-md space-y-4'
 
 export function Landing() {
   return (
-    <div className='app-shell min-h-screen'>
-      <div className='mx-auto flex max-w-6xl justify-end px-4 pt-6 md:px-8'>
+    <div className={wrap}>
+      <div className='mx-auto mb-8 flex max-w-6xl justify-end'>
         <ThemeToggle />
       </div>
-      <div className='mx-auto grid max-w-6xl items-center gap-8 px-4 py-8 md:grid-cols-2 md:px-8 md:py-12'>
-        <div className='card'>
-          <p className='mb-3 text-xs uppercase tracking-[0.2em] text-secondary'>Your Personal Library</p>
-          <h1 className='mb-3 text-5xl text-primary md:text-6xl'>Libro</h1>
-          <p className='mb-6 text-secondary'>A calm, modern space for your books, reading progress, and wishlist.</p>
+      <div className='mx-auto grid max-w-6xl gap-6 md:grid-cols-2'>
+        <Card className='space-y-6 p-8'>
+          <div className='space-y-3'>
+            <p className='text-label uppercase text-mutedForeground'>Personal reading workspace</p>
+            <h1 className='text-hero text-foreground'>Libro</h1>
+            <p className='text-small text-mutedForeground'>Track your library, reading progress, and purchase plans with calm clarity.</p>
+          </div>
           <div className='flex flex-wrap gap-3'>
-            <Link className='btn' to='/register'>
-              Get Started
+            <Link to='/register'>
+              <Button>Get started</Button>
             </Link>
-            <Link className='btn-secondary' to='/login'>
-              Log In
+            <Link to='/login'>
+              <Button variant='secondary'>Log in</Button>
             </Link>
           </div>
-        </div>
-        <div className='card flex justify-center'>
-          <img src={heroOpenBook} alt='Open book illustration' className='w-full max-w-lg rounded-xl' />
-        </div>
+        </Card>
+        <Card className='flex items-center justify-center p-8'>
+          <img src={heroOpenBook} alt='Open book illustration' className='w-full max-w-lg rounded-lg' />
+        </Card>
       </div>
     </div>
   )
@@ -52,30 +57,34 @@ export function Register() {
       })
       nav('/login')
     } catch {
-      setErr('Registration failed')
+      setErr('Registration failed. Please check your details.')
     }
   }
 
   return (
     <div className={wrap}>
-      <div className='fixed right-4 top-4 z-20'>
+      <div className='mx-auto mb-6 flex w-full max-w-md justify-end'>
         <ThemeToggle />
       </div>
-      <form onSubmit={onSubmit} className={card}>
-        <h1 className='text-4xl text-primary'>Create your Libro account</h1>
-        <input className='input' name='name' placeholder='Name' required />
-        <input className='input' type='email' name='email' placeholder='Email' required />
-        <input className='input' type='password' name='password' placeholder='Password' minLength={6} required />
-        <input className='input' type='password' name='confirmPassword' placeholder='Confirm password' minLength={6} required />
-        {err && <p className='error-text text-sm'>{err}</p>}
-        <button className='btn w-full'>Sign up</button>
-        <p className='text-sm text-secondary'>
+      <Card className={formCard}>
+        <h1 className='text-page-title'>Create your account</h1>
+        <form onSubmit={onSubmit} className='space-y-3'>
+          <Input name='name' placeholder='Name' required />
+          <Input type='email' name='email' placeholder='Email' required />
+          <Input type='password' name='password' placeholder='Password' minLength={6} required />
+          <Input type='password' name='confirmPassword' placeholder='Confirm password' minLength={6} required />
+          {err ? <p className='text-small text-destructive'>{err}</p> : null}
+          <Button type='submit' className='w-full'>
+            Sign up
+          </Button>
+        </form>
+        <p className='text-small text-mutedForeground'>
           Already have an account?{' '}
-          <Link to='/login' className='text-primary underline'>
+          <Link to='/login' className='font-medium text-primary'>
             Log in
           </Link>
         </p>
-      </form>
+      </Card>
     </div>
   )
 }
@@ -93,28 +102,32 @@ export function Login() {
       setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken)
       nav('/dashboard')
     } catch {
-      setErr('Invalid credentials')
+      setErr('Invalid credentials. Please try again.')
     }
   }
 
   return (
     <div className={wrap}>
-      <div className='fixed right-4 top-4 z-20'>
+      <div className='mx-auto mb-6 flex w-full max-w-md justify-end'>
         <ThemeToggle />
       </div>
-      <form onSubmit={onSubmit} className={card}>
-        <h1 className='text-4xl text-primary'>Welcome back to Libro</h1>
-        <input className='input' type='email' name='email' placeholder='Email' required />
-        <input className='input' type='password' name='password' placeholder='Password' required />
-        {err && <p className='error-text text-sm'>{err}</p>}
-        <button className='btn w-full'>Log in</button>
-        <p className='text-sm text-secondary'>
+      <Card className={formCard}>
+        <h1 className='text-page-title'>Welcome back</h1>
+        <form onSubmit={onSubmit} className='space-y-3'>
+          <Input type='email' name='email' placeholder='Email' required />
+          <Input type='password' name='password' placeholder='Password' required />
+          {err ? <p className='text-small text-destructive'>{err}</p> : null}
+          <Button type='submit' className='w-full'>
+            Log in
+          </Button>
+        </form>
+        <p className='text-small text-mutedForeground'>
           Need an account?{' '}
-          <Link to='/register' className='text-primary underline'>
+          <Link to='/register' className='font-medium text-primary'>
             Sign up
           </Link>
         </p>
-      </form>
+      </Card>
     </div>
   )
 }
