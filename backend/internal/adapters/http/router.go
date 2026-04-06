@@ -1,9 +1,9 @@
 package http
 
 import (
-	"bibliotheca/backend/internal/adapters/http/handlers"
-	"bibliotheca/backend/internal/adapters/http/middleware"
 	"github.com/gofiber/fiber/v2"
+	"libro-backend/internal/adapters/http/handlers"
+	"libro-backend/internal/adapters/http/middleware"
 )
 
 type RouteDeps struct {

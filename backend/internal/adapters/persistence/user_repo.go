@@ -3,9 +3,9 @@ package persistence
 import (
 	"context"
 
-	"bibliotheca/backend/internal/domain"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"libro-backend/internal/domain"
 )
 
 type UserRepository struct{ db *gorm.DB }

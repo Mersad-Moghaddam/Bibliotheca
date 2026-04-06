@@ -3,9 +3,9 @@ package handlers
 import (
 	"errors"
 
-	"bibliotheca/backend/pkg/apperror"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"libro-backend/pkg/apperror"
 )
 
 func respondError(c *fiber.Ctx, err error) error {

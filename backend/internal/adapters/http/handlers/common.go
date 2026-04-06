@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"bibliotheca/backend/internal/domain"
 	"github.com/google/uuid"
+	"libro-backend/internal/domain"
 )
 
 func parseUUID(id string) uuid.UUID {
@@ -25,7 +25,7 @@ func withBookComputed(book *domain.Book) map[string]interface{} {
 	return map[string]interface{}{
 		"id": book.ID, "user_id": book.UserID, "title": book.Title, "author": book.Author,
 		"total_pages": book.TotalPages, "status": book.Status, "current_page": book.CurrentPage,
-		"remaining_pages": remaining, "progress_percent": progress, "completed_at": book.CompletedAt,
+		"remaining_pages": remaining, "progress_percentage": progress, "completed_at": book.CompletedAt,
 		"created_at": book.CreatedAt, "updated_at": book.UpdatedAt,
 	}
 }

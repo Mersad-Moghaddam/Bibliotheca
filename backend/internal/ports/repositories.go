@@ -3,8 +3,8 @@ package ports
 import (
 	"context"
 
-	"bibliotheca/backend/internal/domain"
 	"github.com/google/uuid"
+	"libro-backend/internal/domain"
 )
 
 type UserRepository interface {

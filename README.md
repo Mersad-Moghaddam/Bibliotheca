@@ -1,6 +1,18 @@
-# Bibliotheca
+# Libro
 
-Bibliotheca is a warm, minimal full-stack book management app for personal reading workflows.
+**Tagline:** _Your Personal Library_
+
+Libro is a minimal personal book tracking application with a warm, library-inspired experience.
+
+## Branding
+- **Name:** Libro
+- **Personality:** warm, minimal, classical, calm, personal
+- **Design language:** paper-like surfaces, deep walnut accents, soft shadows, and low-clutter layouts
+
+## UI Philosophy
+- Fast core actions: add books quickly, update reading progress in one interaction
+- Calm visuals with readable typography and clear page sections
+- Cozy, library-style visual identity with local SVG illustrations and logo assets
 
 ## Stack
 - Backend: Go, Fiber, MySQL, Redis, GORM
@@ -11,10 +23,13 @@ Bibliotheca is a warm, minimal full-stack book management app for personal readi
 - Auth (register/login/refresh/logout/me)
 - Personal library CRUD
 - Status flows: currently reading, finished, next to read
-- Bookmark progress tracking and auto-remaining pages
+- Bookmark progress tracking and auto remaining pages
 - Wishlist with multiple purchase links
 - Dashboard summary and recent books
 - Profile update (name/password)
+
+## Screenshots
+> Add screenshots here after running the app locally.
 
 ## Project Structure
 ```
@@ -60,5 +75,5 @@ Base: `/api/v1`
 - Dashboard: `GET /dashboard/summary`
 - Users: `PUT /users/profile`, `PUT /users/password`
 
-## Why this architecture
-The backend keeps business logic in application services and persistence behind repository interfaces, keeping handlers thin and making the app easy to extend while staying intentionally simple.
+## Backend identity
+The backend service is named **libro-backend** and keeps business logic in application services with repository-driven persistence adapters.

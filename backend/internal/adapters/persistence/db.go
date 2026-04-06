@@ -1,8 +1,8 @@
 package persistence
 
 import (
-	"bibliotheca/backend/internal/domain"
 	"gorm.io/gorm"
+	"libro-backend/internal/domain"
 )
 
 func AutoMigrate(db *gorm.DB) error {

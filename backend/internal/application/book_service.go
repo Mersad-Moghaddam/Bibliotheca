@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"bibliotheca/backend/internal/domain"
-	"bibliotheca/backend/internal/ports"
-	"bibliotheca/backend/pkg/apperror"
 	"github.com/google/uuid"
+	"libro-backend/internal/domain"
+	"libro-backend/internal/ports"
+	"libro-backend/pkg/apperror"
 )
 
 type BookService struct{ repo ports.BookRepository }

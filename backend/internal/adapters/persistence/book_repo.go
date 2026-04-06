@@ -3,11 +3,11 @@ package persistence
 import (
 	"context"
 
-	"bibliotheca/backend/internal/domain"
-	"bibliotheca/backend/internal/ports"
-	"bibliotheca/backend/pkg/apperror"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"libro-backend/internal/domain"
+	"libro-backend/internal/ports"
+	"libro-backend/pkg/apperror"
 )
 
 type BookRepository struct{ db *gorm.DB }

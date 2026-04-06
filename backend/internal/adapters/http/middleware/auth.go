@@ -3,8 +3,8 @@ package middleware
 import (
 	"strings"
 
-	"bibliotheca/backend/pkg/utils"
 	"github.com/gofiber/fiber/v2"
+	"libro-backend/pkg/utils"
 )
 
 func AuthMiddleware(jwtSecret string) fiber.Handler {

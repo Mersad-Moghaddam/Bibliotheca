@@ -3,9 +3,9 @@ package handlers
 import (
 	"strings"
 
-	"bibliotheca/backend/internal/adapters/http/dto"
-	"bibliotheca/backend/internal/application"
 	"github.com/gofiber/fiber/v2"
+	"libro-backend/internal/adapters/http/dto"
+	"libro-backend/internal/application"
 )
 
 type AuthHandler struct {
