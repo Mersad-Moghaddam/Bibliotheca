@@ -3,7 +3,7 @@ import { BookStatus } from '../types'
 
 export const Section = ({ title, children }: { title: string; children: ReactNode }) => (
   <section className='card'>
-    <h2 className='mb-3 text-2xl text-primary'>{title}</h2>
+    <h2 className='section-title'>{title}</h2>
     {children}
   </section>
 )

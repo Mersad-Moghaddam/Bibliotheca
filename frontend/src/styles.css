@@ -4,56 +4,68 @@
 
 :root {
   --color-bg: #f5e9da;
-  --color-surface: #e6d3b3;
-  --color-primary: #4b2e2b;
-  --color-secondary: #6f4e37;
-  --color-accent: #c89f6a;
-  --color-text: #2b1b17;
-  --color-muted: #6f4e37;
-  --color-border: rgba(75, 46, 43, 0.2);
-  --color-input-bg: #fff9f2;
-  --color-input-border: rgba(111, 78, 55, 0.3);
-  --color-progress-track: #e9d9c1;
-  --color-progress-fill: #4b2e2b;
-  --color-link-badge-bg: #f1e1c7;
-  --color-link-badge-text: #6f4e37;
-  --color-danger: #8f2f2f;
-  --shadow-soft: 0 10px 30px rgba(43, 27, 23, 0.12);
+  --color-bg-elevated: #f8efe3;
+  --color-surface: #fffaf2;
+  --color-surface-strong: #f2e2cc;
+  --color-primary: #5a382d;
+  --color-primary-strong: #4b2e24;
+  --color-secondary: #7d5e4b;
+  --color-accent: #ba8c59;
+  --color-text: #241814;
+  --color-muted: #6d5547;
+  --color-border: rgba(90, 56, 45, 0.16);
+  --color-border-strong: rgba(90, 56, 45, 0.24);
+  --color-input-bg: #fffdf8;
+  --color-input-border: rgba(90, 56, 45, 0.22);
+  --color-progress-track: #ead8c0;
+  --color-progress-fill: #9a6f43;
+  --color-link-badge-bg: #f1dfc7;
+  --color-link-badge-text: #5a382d;
+  --color-danger: #9c3e3e;
+  --shadow-soft: 0 2px 10px rgba(34, 20, 16, 0.08);
+  --shadow-card: 0 8px 24px rgba(34, 20, 16, 0.07);
 }
 
 :root[data-theme='dark'] {
   --color-bg: #1e1412;
+  --color-bg-elevated: #231715;
   --color-surface: #2a1b18;
-  --color-primary: #c89f6a;
-  --color-secondary: #a67c52;
-  --color-accent: #e6d3b3;
-  --color-text: #f5e9da;
-  --color-muted: #cbb8a0;
-  --color-border: #3a2a26;
-  --color-input-bg: #2a1b18;
-  --color-input-border: #3a2a26;
-  --color-progress-track: #3a2a26;
+  --color-surface-strong: #33211e;
+  --color-primary: #ddb07f;
+  --color-primary-strong: #e6c299;
+  --color-secondary: #b69477;
+  --color-accent: #c89f6a;
+  --color-text: #f4e8d9;
+  --color-muted: #ccb79f;
+  --color-border: #3b2925;
+  --color-border-strong: #4b3430;
+  --color-input-bg: #2f1f1b;
+  --color-input-border: #4a3530;
+  --color-progress-track: #42302b;
   --color-progress-fill: #c89f6a;
   --color-link-badge-bg: #3a2a26;
-  --color-link-badge-text: #f5e9da;
+  --color-link-badge-text: #f4e8d9;
   --color-danger: #f2b4a8;
-  --shadow-soft: 0 12px 30px rgba(8, 5, 4, 0.35);
+  --shadow-soft: 0 2px 10px rgba(8, 5, 4, 0.25);
+  --shadow-card: 0 10px 26px rgba(5, 3, 3, 0.3);
 }
 
 * {
-  transition: all 0.25s ease;
+  transition: background-color 220ms ease, border-color 220ms ease, color 220ms ease, box-shadow 220ms ease,
+    transform 220ms ease;
 }
 
 :root {
   color: var(--color-text);
-  background: var(--color-bg);
+  background: linear-gradient(175deg, var(--color-bg) 0%, var(--color-bg-elevated) 100%);
 }
 
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: var(--color-bg);
   color: var(--color-text);
+  min-height: 100vh;
+  background: linear-gradient(175deg, var(--color-bg) 0%, var(--color-bg-elevated) 100%);
 }
 
 h1,
@@ -63,93 +75,117 @@ h4,
 h5,
 h6 {
   font-family: 'Playfair Display', Georgia, serif;
-  letter-spacing: 0.01em;
-}
-
-.pattern {
-  background-image: radial-gradient(color-mix(in srgb, var(--color-primary) 18%, transparent) 1px, transparent 1px);
-  background-size: 20px 20px;
+  letter-spacing: 0.012em;
 }
 
 @layer components {
+  .app-shell {
+    @apply min-h-screen;
+    background: linear-gradient(175deg, var(--color-bg) 0%, var(--color-bg-elevated) 100%);
+  }
+
   .input {
-    @apply w-full rounded-xl border px-3 py-2 outline-none focus:ring-2;
+    @apply w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none;
     border-color: var(--color-input-border);
     background: var(--color-input-bg);
     color: var(--color-text);
-    --tw-ring-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .input::placeholder {
+    color: color-mix(in srgb, var(--color-muted) 80%, transparent);
+  }
+
+  .input:focus {
+    border-color: color-mix(in srgb, var(--color-accent) 70%, var(--color-input-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
   }
 
   .btn {
-    @apply rounded-xl px-4 py-2 font-medium;
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium;
     background: var(--color-primary);
-    color: var(--color-bg);
-  }
-
-  .btn:hover {
-    background: var(--color-secondary);
-  }
-
-  .btn-secondary {
-    @apply rounded-xl px-4 py-2 font-medium;
-    background: var(--color-accent);
-    color: var(--color-text);
-  }
-
-  .btn-secondary:hover {
-    background: color-mix(in srgb, var(--color-accent) 85%, var(--color-secondary));
-  }
-
-  .card {
-    @apply rounded-2xl border p-4;
-    border-color: color-mix(in srgb, var(--color-border) 85%, transparent);
-    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    color: #fff8f0;
     box-shadow: var(--shadow-soft);
   }
 
+  .btn:hover {
+    background: var(--color-primary-strong);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl border px-4 py-2.5 text-sm font-medium;
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+    background: transparent;
+  }
+
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-xl border px-4 py-2.5 text-sm font-medium;
+    border-color: color-mix(in srgb, var(--color-danger) 45%, var(--color-border));
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  }
+
+  .btn-danger:hover {
+    background: color-mix(in srgb, var(--color-danger) 16%, transparent);
+  }
+
+  .card {
+    @apply rounded-2xl border p-5 md:p-6;
+    border-color: var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    box-shadow: var(--shadow-card);
+  }
+
   .badge {
-    @apply rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold tracking-wide;
   }
 
   .status-currently-reading {
-    background: color-mix(in srgb, var(--color-accent) 40%, var(--color-surface));
-    color: var(--color-primary);
+    background: color-mix(in srgb, #8ea8c8 35%, var(--color-surface));
+    color: color-mix(in srgb, #2f4d73 70%, var(--color-text));
   }
 
   .status-in-library {
-    background: color-mix(in srgb, var(--color-surface) 84%, var(--color-border));
+    background: color-mix(in srgb, var(--color-surface-strong) 80%, var(--color-border));
     color: var(--color-secondary);
   }
 
   .status-finished {
-    background: color-mix(in srgb, var(--color-secondary) 28%, var(--color-surface));
-    color: var(--color-text);
+    background: color-mix(in srgb, #8bb28f 32%, var(--color-surface));
+    color: color-mix(in srgb, #345d38 70%, var(--color-text));
   }
 
   .status-next-to-read {
-    background: color-mix(in srgb, var(--color-accent) 55%, var(--color-surface));
-    color: var(--color-secondary);
+    background: color-mix(in srgb, #ddba75 45%, var(--color-surface));
+    color: color-mix(in srgb, #78571f 70%, var(--color-text));
   }
 
   .progress-track {
-    @apply h-2.5 w-full rounded-full;
+    @apply h-2 w-full rounded-full;
     background: var(--color-progress-track);
   }
 
   .progress-fill {
-    @apply h-2.5 rounded-full;
+    @apply h-2 rounded-full;
     background: var(--color-progress-fill);
   }
 
   .icon-btn {
-    @apply inline-flex items-center justify-center rounded-xl border p-2;
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl border;
     border-color: var(--color-border);
-    background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
     color: var(--color-text);
   }
 
   .icon-btn:hover {
-    background: color-mix(in srgb, var(--color-surface) 95%, transparent);
+    background: color-mix(in srgb, var(--color-surface-strong) 65%, transparent);
   }
 
   .error-text {
@@ -159,5 +195,34 @@ h6 {
   .link-badge {
     background: var(--color-link-badge-bg);
     color: var(--color-link-badge-text);
+  }
+
+  .page-title {
+    @apply text-4xl md:text-5xl;
+    color: var(--color-primary);
+  }
+
+  .section-title {
+    @apply mb-4 text-2xl md:text-3xl;
+    color: var(--color-primary);
+  }
+
+  .table-shell {
+    @apply overflow-hidden rounded-2xl border;
+    border-color: var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+  }
+
+  .table-row {
+    @apply flex items-center gap-3 px-4 py-4 md:px-5;
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  }
+
+  .table-row:first-child {
+    border-top: none;
+  }
+
+  .table-row:hover {
+    background: color-mix(in srgb, var(--color-surface-strong) 45%, transparent);
   }
 }
