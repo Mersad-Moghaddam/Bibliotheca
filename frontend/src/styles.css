@@ -1,0 +1,7 @@
+@tailwind base;@tailwind components;@tailwind utilities;
+body{font-family:Georgia, 'Times New Roman', serif;background:#f9f3e8;color:#3b2a23}
+.pattern{background-image:radial-gradient(rgba(93,64,50,.08) 1px, transparent 1px);background-size:18px 18px;}
+.input{@apply w-full rounded-lg border border-coffee/25 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-bronze/40}
+.btn{@apply rounded-lg bg-walnut text-cream px-4 py-2 hover:bg-coffee transition}
+.card{@apply bg-white/70 border border-coffee/15 rounded-xl shadow-cozy p-4}
+.badge{@apply text-xs rounded-full px-2 py-1 bg-parchment text-coffee}
