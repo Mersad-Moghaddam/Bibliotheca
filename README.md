@@ -1,64 +1,86 @@
-# Bibliotheca
+# Libro Backend
 
-Bibliotheca is a warm, minimal full-stack book management app for personal reading workflows.
+Libro is a personal reading tracker backend API for authentication, book management, reading progress, wishlist management, purchase links, and dashboard summaries.
 
-## Stack
-- Backend: Go, Fiber, MySQL, Redis, GORM
-- Architecture: clean/hexagonal-ish layers (`domain`, `application`, `ports`, `adapters`)
-- Frontend: React + Vite + TypeScript + Tailwind + Zustand
+## Final Backend Architecture
 
-## Features
-- Auth (register/login/refresh/logout/me)
-- Personal library CRUD
-- Status flows: currently reading, finished, next to read
-- Bookmark progress tracking and auto-remaining pages
-- Wishlist with multiple purchase links
-- Dashboard summary and recent books
-- Profile update (name/password)
-
-## Project Structure
 ```
-/backend
-/frontend
-/docs
+apiSchema/
+controllers/
+dev.env
+go.mod
+go.sum
+logs/
+middleware/
+migrations/
+models/
+pkg/
+repositories/
+services/
+statics/
+template/
+tests/
+main.go
 ```
 
-## Backend Run
+## Setup
+
+1. Install Go 1.24+.
+2. Start MySQL and Redis (for local development you can use `docker-compose.yml`).
+3. Copy env values from `dev.env` or update as needed.
+4. Install dependencies:
+   ```bash
+   go mod download
+   ```
+
+## Environment (`dev.env`)
+
+`dev.env` is loaded automatically at startup and controls app port, DB settings, Redis settings, JWT settings, rate limiting, and frontend CORS origin.
+
+## Database and Redis
+
+- MySQL stores users, books, wishlist items, and purchase links.
+- Redis stores refresh tokens and auth rate-limit counters.
+
+## Migrations
+
+Raw SQL migrations are in `migrations/`:
+
+- `000001_create_users_table.*.sql`
+- `000002_create_books_table.*.sql`
+- `000003_create_wishlist_table.*.sql`
+- `000004_create_purchase_links_table.*.sql`
+
+## Run
+
 ```bash
-cd backend
-cp .env.example .env
-go mod tidy
-go run ./cmd/api
+go run .
 ```
 
-## Frontend Run
+Server health endpoint:
+
+- `GET /health`
+
+## Tests
+
 ```bash
-cd frontend
-cp .env.example .env
-npm install
-npm run dev
+go test ./...
 ```
 
-## Docker Compose
-```bash
-docker compose up --build
-```
-Frontend: http://localhost:5173  
-Backend: http://localhost:8080
+Test suites are organized under:
 
-## Env Variables
-See:
-- `backend/.env.example`
-- `frontend/.env.example`
+- `tests/auth`
+- `tests/book`
+- `tests/reading`
+- `tests/testUtils`
+- `tests/user`
+- `tests/wishlist`
 
-## API Overview
-Base: `/api/v1`
-- Auth: `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/me`
-- Books: `GET/POST /books`, `GET/PUT/DELETE /books/:id`, `PATCH /books/:id/status`, `PATCH /books/:id/bookmark`
-- Wishlist: `GET/POST /wishlist`, `GET/PUT/DELETE /wishlist/:id`
-- Purchase Links: `POST /wishlist/:id/links`, `PUT/DELETE /wishlist/:id/links/:linkId`
-- Dashboard: `GET /dashboard/summary`
-- Users: `PUT /users/profile`, `PUT /users/password`
+## Architecture Notes
 
-## Why this architecture
-The backend keeps business logic in application services and persistence behind repository interfaces, keeping handlers thin and making the app easy to extend while staying intentionally simple.
+- **Controllers** are thin and only parse/validate request payloads and return responses.
+- **Services** hold business logic.
+- **Repositories** own persistence access and initialization.
+- **apiSchema** contains request/response contracts.
+- **statics** centralizes configs/constants/errors/translations.
+- **middleware/auth** handles access-token verification.

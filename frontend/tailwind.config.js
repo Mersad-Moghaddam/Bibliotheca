@@ -1,12 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html','./src/**/*.{ts,tsx}'],
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        walnut:'#3b2a23', coffee:'#5d4032', parchment:'#eadcc8', cream:'#f9f3e8', bronze:'#a67c52'
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        background: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        accent: 'var(--color-accent)',
+        text: 'var(--color-text)',
+        muted: 'var(--color-muted)',
+        border: 'var(--color-border)'
       },
-      boxShadow: { cozy:'0 8px 28px rgba(59,42,35,.12)'}
+      boxShadow: {
+        soft: 'var(--shadow-soft)'
+      }
     }
   },
   plugins: []
