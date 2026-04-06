@@ -1,97 +1,88 @@
 # Libro
 
-Libro is a personal book management backend built with Go, Fiber, GORM, MySQL, and Redis.
+Libro is a full-stack personal library manager organized as a clean monorepo with a fully separated Go backend and React frontend.
 
-## Overview
+## Monorepo Structure
 
-Libro follows a layered modular architecture mirroring the reference project style:
-- `apiSchema` for request/response contracts per module
-- `controllers` as Fiber delivery layer
-- `services` for business logic
-- `repositories` for persistence access and initialization
-- `models` for module data models and support structures
-- `middleware` for auth concerns
-- `pkg` for shared technical utilities
-- `statics` for config/constants/custom errors/messages
-- `migrations` for raw SQL schema changes
-- `tests` for module-based tests
-- `template` for scaffolding conventions
-
-## Folder Structure
-
-```
-/apiSchema
-/controllers
-/middleware
-/migrations
-/models
-/pkg
-/repositories
-/services
-/statics
-/template
-/tests
-main.go
+```text
+.
+├── backend/             # Go API service (single backend architecture)
+│   ├── cmd/
+│   ├── config/
+│   ├── internal/
+│   ├── pkg/
+│   ├── migrations/
+│   ├── Dockerfile
+│   ├── go.mod
+│   └── go.sum
+├── frontend/            # React + Vite SPA
+│   ├── public/
+│   ├── src/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── ...
+├── docs/
+│   └── architecture.md
+├── docker-compose.yml
+├── .env.example
+└── .gitignore
 ```
 
-## Environment Setup
+## Environment Files
 
-1. Copy values from `dev.env` and adjust as needed.
-2. Ensure MySQL and Redis are running.
-3. Create database (default: `libro`).
+- Backend env template: `backend/.env.example`
+- Frontend env template: `frontend/.env.example`
+- Optional compose override template: `.env.example`
 
-## MySQL Setup
-
-- Host, credentials, and DB are loaded from `dev.env`.
-- GORM auto-migration runs on startup.
-- Raw SQL files in `/migrations` are provided for external migration tools.
-
-## Redis Setup
-
-- Redis is used for refresh token storage/invalidation.
-
-## Migration Usage
-
-Use your preferred migration runner against files in `/migrations`.
-
-## Run
+Setup:
 
 ```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+## Run Backend (local)
+
+```bash
+cd backend
 go mod tidy
-go run main.go
+go run ./cmd/api
 ```
 
-## Test
+Backend API base URL: `http://localhost:8080/api/v1`
+
+## Run Frontend (local)
 
 ```bash
-go test ./...
+cd frontend
+npm install
+npm run dev
 ```
 
-## API Summary
+Frontend app URL: `http://localhost:5173`
 
-Public:
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /auth/refresh`
+## Run with Docker Compose
 
-Protected:
-- `POST /auth/logout`
-- `GET /auth/me`
-- `GET/POST/PUT/DELETE /books...`
-- `GET /reading/current`
-- `PATCH /reading/books/:id/progress`
-- `GET/POST/PUT/DELETE /wishlist...`
-- `POST/PUT/DELETE /wishlist/:id/links...`
-- `GET /user/profile`
-- `PUT /user/profile`
-- `PATCH /user/password`
+```bash
+docker compose up --build
+```
 
-Monitoring:
-- `GET /health`
-- `GET /main/dashboard-summary`
+Services:
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:8080`
+- MySQL: `localhost:3306`
+- Redis: `localhost:6379`
 
-## Authentication Notes
+## Database Migrations
 
-- Passwords are hashed with bcrypt.
-- Access and refresh tokens are JWT.
-- Refresh tokens are stored in Redis and invalidated on logout.
+SQL migrations are maintained in `backend/migrations`.
+
+Use your preferred migration runner with that directory when applying schema changes externally.
+
+## Architecture Notes
+
+- Only one backend architecture exists, fully isolated in `backend/`.
+- Frontend is fully self-contained in `frontend/` and interacts with backend through HTTP APIs only.
+- Root-level files are monorepo coordination and documentation only.
+
+See `docs/architecture.md` for more detail.
