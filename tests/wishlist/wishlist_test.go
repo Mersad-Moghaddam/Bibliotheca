@@ -6,8 +6,9 @@ import (
 )
 
 func TestPurchaseLinkRequest(t *testing.T) {
-	req := purchaseLinkSchema.CreatePurchaseLinkRequest{Label: "Store", URL: "https://example.com"}
-	if req.URL == "" || req.Label == "" {
+	label := "Store"
+	req := purchaseLinkSchema.CreatePurchaseLinkRequest{Label: &label, URL: "https://example.com"}
+	if req.URL == "" || req.Label == nil || *req.Label == "" {
 		t.Fatal("invalid purchase link")
 	}
 }

@@ -1,9 +1,10 @@
 package constants
 
 const (
-	BookStatusCurrentlyReading = "currently_reading"
+	BookStatusInLibrary        = "inLibrary"
+	BookStatusCurrentlyReading = "currentlyReading"
 	BookStatusFinished         = "finished"
-	BookStatusNextToRead       = "next_to_read"
+	BookStatusNextToRead       = "nextToRead"
 
 	RedisRefreshPrefix = "refresh_token:"
 )

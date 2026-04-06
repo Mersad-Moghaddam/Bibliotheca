@@ -46,7 +46,7 @@ export function Register() {
         name: f.get('name'),
         email: f.get('email'),
         password: f.get('password'),
-        confirm_password: f.get('confirm_password')
+        confirmPassword: f.get('confirmPassword')
       })
       nav('/login')
     } catch {
@@ -64,7 +64,7 @@ export function Register() {
         <input className='input' name='name' placeholder='Name' required />
         <input className='input' type='email' name='email' placeholder='Email' required />
         <input className='input' type='password' name='password' placeholder='Password' minLength={6} required />
-        <input className='input' type='password' name='confirm_password' placeholder='Confirm password' minLength={6} required />
+        <input className='input' type='password' name='confirmPassword' placeholder='Confirm password' minLength={6} required />
         {err && <p className='error-text text-sm'>{err}</p>}
         <button className='btn w-full'>Sign up</button>
         <p className='text-sm'>
@@ -88,7 +88,7 @@ export function Login() {
     const f = new FormData(e.currentTarget)
     try {
       const res = await api.post('/auth/login', { email: f.get('email'), password: f.get('password') })
-      setAuth(res.data.user, res.data.tokens.access_token, res.data.tokens.refresh_token)
+      setAuth(res.data.user, res.data.accessToken, res.data.refreshToken)
       nav('/dashboard')
     } catch {
       setErr('Invalid credentials')

@@ -1,44 +1,48 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../api/client'
-import { Book, WishlistItem } from '../types'
-import { Progress, Section, StatusBadge } from '../components/UI'
+import { Book, BookStatus, ListResponse, WishlistItem } from '../types'
+import { Progress, Section, StatusBadge, statusLabel } from '../components/UI'
 import emptyLibrary from '../assets/empty-library.svg'
 
-const statusOptions = ['currently_reading', 'finished', 'next_to_read']
+const statusOptions: BookStatus[] = ['inLibrary', 'currentlyReading', 'finished', 'nextToRead']
+
+function isAxiosError(error: unknown): error is { response?: { data?: { error?: string } } } {
+  return typeof error === 'object' && error !== null && 'response' in error
+}
 
 export function Dashboard() {
-  const [data, setData] = useState<any>(null)
+  const [books, setBooks] = useState<Book[]>([])
 
   useEffect(() => {
-    void api.get('/dashboard/summary').then((r) => setData(r.data))
+    void api.get<ListResponse<Book>>('/books', { params: { limit: 200, page: 1 } }).then((r) => setBooks(r.data.items))
   }, [])
 
-  if (!data) return <p>Loading...</p>
+  const counts = useMemo(() => {
+    const base: Record<BookStatus, number> = { inLibrary: 0, currentlyReading: 0, finished: 0, nextToRead: 0 }
+    for (const book of books) base[book.status] += 1
+    return base
+  }, [books])
+
+  const currentReading = books.filter((book) => book.status === 'currentlyReading').slice(0, 3)
+  const needingAction = books.filter((book) => book.status === 'nextToRead' || book.status === 'inLibrary').slice(0, 4)
 
   return (
     <div className='space-y-4'>
       <h1 className='text-4xl text-primary'>Your Personal Library</h1>
-      <div className='grid gap-3 sm:grid-cols-2 md:grid-cols-5'>
-        {Object.entries(data.counts).map(([k, v]) => (
-          <div key={k} className='card'>
-            <p className='text-sm capitalize text-secondary'>{k.replaceAll('_', ' ')}</p>
-            <p className='text-2xl text-primary'>{String(v)}</p>
+      <div className='grid gap-3 sm:grid-cols-2 md:grid-cols-4'>
+        {statusOptions.map((status) => (
+          <div key={status} className='card'>
+            <p className='text-sm text-secondary'>{statusLabel[status]}</p>
+            <p className='text-2xl text-primary'>{counts[status]}</p>
           </div>
         ))}
       </div>
-      <Section title='Recent Books'>
-        {data.recent_books?.length ? (
-          data.recent_books.map((b: Book) => (
-            <p key={b.id}>
-              {b.title} — {b.author}
-            </p>
-          ))
-        ) : (
-          <div className='flex items-center gap-3'>
-            <img src={emptyLibrary} alt='Empty library' className='h-16 w-24 rounded-xl' />
-            <p className='text-secondary'>No books yet. Start building your shelf.</p>
-          </div>
-        )}
+      <Section title='Current Reading Snapshot'>
+        {currentReading.length ? currentReading.map((b) => <p key={b.id}>{b.title} · {Math.round(b.progressPercentage)}%</p>) : <p className='text-secondary'>No active reading session yet.</p>}
+      </Section>
+      <Section title='Books Needing Action'>
+        {needingAction.length ? needingAction.map((b) => <p key={b.id}>{b.title} · {statusLabel[b.status]}</p>) : <p className='text-secondary'>Everything is up to date.</p>}
       </Section>
     </div>
   )
@@ -48,10 +52,11 @@ export function Library() {
   const [books, setBooks] = useState<Book[]>([])
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
+  const [message, setMessage] = useState('')
 
   const load = async () => {
-    const r = await api.get('/books', { params: { search, status } })
-    setBooks(r.data)
+    const r = await api.get<ListResponse<Book>>('/books', { params: { search, status, limit: 200, page: 1 } })
+    setBooks(r.data.items)
   }
 
   useEffect(() => {
@@ -64,10 +69,11 @@ export function Library() {
     await api.post('/books', {
       title: f.get('title'),
       author: f.get('author'),
-      total_pages: Number(f.get('total_pages')),
-      status: f.get('status')
+      totalPages: Number(f.get('totalPages')),
+      status: f.get('status') || 'inLibrary'
     })
     ;(e.target as HTMLFormElement).reset()
+    setMessage('Book added to your library.')
     void load()
   }
 
@@ -77,28 +83,22 @@ export function Library() {
       <form onSubmit={add} className='card grid gap-2 md:grid-cols-5'>
         <input className='input' name='title' placeholder='Title' required />
         <input className='input' name='author' placeholder='Author' required />
-        <input className='input' type='number' min={1} name='total_pages' placeholder='Pages' required />
-        <select className='input' name='status'>
+        <input className='input' type='number' min={1} name='totalPages' placeholder='Total pages' required />
+        <select className='input' name='status' defaultValue='inLibrary'>
           {statusOptions.map((s) => (
-            <option key={s}>{s}</option>
+            <option key={s} value={s}>{statusLabel[s]}</option>
           ))}
         </select>
-        <button className='btn'>Add Book</button>
+        <button type='submit' className='btn'>Add Book</button>
       </form>
+      {message && <p className='text-secondary'>{message}</p>}
       <div className='card flex flex-col gap-2 md:flex-row'>
-        <input
-          className='input'
-          placeholder='Search title or author'
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button className='btn' onClick={() => void load()}>
-          Search
-        </button>
+        <input className='input' placeholder='Search title or author' value={search} onChange={(e) => setSearch(e.target.value)} />
+        <button type='button' className='btn' onClick={() => void load()}>Search</button>
         <select className='input md:w-52' value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value=''>All</option>
+          <option value=''>All statuses</option>
           {statusOptions.map((s) => (
-            <option key={s}>{s}</option>
+            <option key={s} value={s}>{statusLabel[s]}</option>
           ))}
         </select>
       </div>
@@ -108,20 +108,16 @@ export function Library() {
             <div key={b.id} className='card flex items-center gap-3'>
               <div className='grow'>
                 <p className='font-semibold text-primary'>{b.title}</p>
-                <p className='text-sm text-secondary'>
-                  {b.author} · {b.total_pages} pages
-                </p>
+                <p className='text-sm text-secondary'>{b.author} · {b.totalPages} pages</p>
               </div>
               <StatusBadge status={b.status} />
-              <a className='btn py-1.5' href={`/books/${b.id}`}>
-                Details
-              </a>
+              <Link className='btn py-1.5' to={`/books/${b.id}`}>Details</Link>
             </div>
           ))
         ) : (
           <div className='card text-center'>
             <img src={emptyLibrary} alt='Empty shelf' className='mx-auto mb-3 h-32 w-auto' />
-            <p className='text-secondary'>No books found.</p>
+            <p className='text-secondary'>No books found. Add your first title above.</p>
           </div>
         )}
       </div>
@@ -129,16 +125,16 @@ export function Library() {
   )
 }
 
-function BookListByStatus({ status, title }: { status: string; title: string }) {
+function BookListByStatus({ status, title }: { status: BookStatus; title: string }) {
   const [books, setBooks] = useState<Book[]>([])
   const load = async () => {
-    const r = await api.get('/books', { params: { status } })
-    setBooks(r.data)
+    const r = await api.get<ListResponse<Book>>('/books', { params: { status, limit: 200, page: 1 } })
+    setBooks(r.data.items)
   }
 
   useEffect(() => {
     void load()
-  }, [])
+  }, [status])
 
   return (
     <div className='space-y-3'>
@@ -146,43 +142,32 @@ function BookListByStatus({ status, title }: { status: string; title: string }) 
       {books.length ? (
         books.map((b) => (
           <div key={b.id} className='card space-y-2'>
-            <div className='flex justify-between'>
+            <div className='flex justify-between gap-2'>
               <p className='font-semibold text-primary'>{b.title}</p>
-              <p className='text-secondary'>
-                {b.current_page ?? 0}/{b.total_pages}
-              </p>
+              <p className='text-secondary'>{b.currentPage}/{b.totalPages}</p>
             </div>
-            <Progress value={b.progress_percentage} />
-            {status === 'currently_reading' && (
+            <Progress value={b.progressPercentage} />
+            {status === 'currentlyReading' && (
               <form
                 className='flex flex-col gap-2 md:flex-row'
                 onSubmit={async (e) => {
                   e.preventDefault()
-                  const v = Number(new FormData(e.currentTarget).get('current_page'))
-                  await api.patch(`/books/${b.id}/bookmark`, { current_page: v })
+                  const v = Number(new FormData(e.currentTarget).get('currentPage'))
+                  await api.patch(`/books/${b.id}/bookmark`, { currentPage: v })
                   void load()
                 }}
               >
-                <input
-                  className='input'
-                  type='number'
-                  name='current_page'
-                  min={0}
-                  max={b.total_pages}
-                  placeholder='Update page'
-                />
-                <button className='btn'>Save Progress</button>
-                <button
-                  type='button'
-                  className='btn-secondary'
-                  onClick={async () => {
-                    await api.patch(`/books/${b.id}/status`, { status: 'finished' })
-                    void load()
-                  }}
-                >
+                <input className='input' type='number' name='currentPage' min={0} max={b.totalPages} placeholder='Update page' />
+                <button type='submit' className='btn'>Save Progress</button>
+                <button type='button' className='btn-secondary' onClick={async () => { await api.patch(`/books/${b.id}/status`, { status: 'finished' }); void load() }}>
                   Mark Finished
                 </button>
               </form>
+            )}
+            {status === 'nextToRead' && (
+              <button type='button' className='btn-secondary' onClick={async () => { await api.patch(`/books/${b.id}/status`, { status: 'currentlyReading' }); void load() }}>
+                Start Reading
+              </button>
             )}
           </div>
         ))
@@ -193,15 +178,17 @@ function BookListByStatus({ status, title }: { status: string; title: string }) 
   )
 }
 
-export const Reading = () => <BookListByStatus status='currently_reading' title='Reading' />
+export const Reading = () => <BookListByStatus status='currentlyReading' title='Currently Reading' />
 export const Finished = () => <BookListByStatus status='finished' title='Finished' />
-export const Next = () => <BookListByStatus status='next_to_read' title='Next Reads' />
+export const Next = () => <BookListByStatus status='nextToRead' title='Next To Read' />
 
 export function Wishlist() {
   const [items, setItems] = useState<WishlistItem[]>([])
+  const [error, setError] = useState('')
+
   const load = async () => {
-    const r = await api.get('/wishlist')
-    setItems(r.data)
+    const r = await api.get<ListResponse<WishlistItem>>('/wishlist', { params: { limit: 200, page: 1 } })
+    setItems(r.data.items)
   }
 
   useEffect(() => {
@@ -214,10 +201,11 @@ export function Wishlist() {
     await api.post('/wishlist', {
       title: f.get('title'),
       author: f.get('author'),
-      expected_price: f.get('expected_price') ? Number(f.get('expected_price')) : null,
+      expectedPrice: f.get('expectedPrice') ? Number(f.get('expectedPrice')) : null,
       notes: f.get('notes') || null
     })
     ;(e.target as HTMLFormElement).reset()
+    setError('')
     void load()
   }
 
@@ -227,10 +215,11 @@ export function Wishlist() {
       <form onSubmit={add} className='card grid gap-2 md:grid-cols-5'>
         <input className='input' name='title' placeholder='Title' required />
         <input className='input' name='author' placeholder='Author' required />
-        <input className='input' type='number' step='0.01' name='expected_price' placeholder='Expected price' />
+        <input className='input' type='number' step='0.01' name='expectedPrice' placeholder='Expected price' />
         <input className='input' name='notes' placeholder='Notes' />
-        <button className='btn'>Add</button>
+        <button type='submit' className='btn'>Add</button>
       </form>
+      {error && <p className='error-text'>{error}</p>}
       <div className='grid gap-3 md:grid-cols-2'>
         {items.length ? (
           items.map((i) => (
@@ -239,9 +228,9 @@ export function Wishlist() {
               <p className='text-secondary'>{i.author}</p>
               <p className='text-sm text-secondary'>{i.notes}</p>
               <div className='my-2 flex flex-wrap gap-2'>
-                {i.purchase_links?.map((l) => (
-                  <a key={l.id} className='badge link-badge hover:underline' href={l.url} target='_blank'>
-                    {l.label}
+                {i.purchaseLinks?.map((l) => (
+                  <a key={l.id} className='badge link-badge hover:underline' href={l.url} target='_blank' rel='noreferrer'>
+                    {l.alias || l.label}
                   </a>
                 ))}
               </div>
@@ -250,14 +239,19 @@ export function Wishlist() {
                 onSubmit={async (e) => {
                   e.preventDefault()
                   const f = new FormData(e.currentTarget)
-                  await api.post(`/wishlist/${i.id}/links`, { label: f.get('label'), url: f.get('url') })
-                  ;(e.target as HTMLFormElement).reset()
-                  void load()
+                  try {
+                    await api.post(`/wishlist/${i.id}/links`, { label: f.get('label') || null, url: f.get('url') })
+                    ;(e.target as HTMLFormElement).reset()
+                    setError('')
+                    void load()
+                  } catch (err) {
+                    setError(isAxiosError(err) ? err.response?.data?.error || 'Could not add link.' : 'Could not add link.')
+                  }
                 }}
               >
-                <input className='input' name='label' placeholder='Store' />
-                <input className='input' name='url' placeholder='https://' />
-                <button className='btn'>Add Link</button>
+                <input className='input' name='label' placeholder='Optional label' />
+                <input className='input' name='url' placeholder='https://example.com/book' required />
+                <button type='submit' className='btn'>Add Link</button>
               </form>
             </div>
           ))
@@ -275,22 +269,48 @@ export function Wishlist() {
 export function BookDetails({ id }: { id: string }) {
   const [book, setBook] = useState<Book | null>(null)
 
+  const load = async () => {
+    const res = await api.get<{ item: Book }>(`/books/${id}`)
+    setBook(res.data.item)
+  }
+
   useEffect(() => {
-    void api.get(`/books/${id}`).then((r) => setBook(r.data))
+    void load()
   }, [id])
 
   if (!book) return <p>Loading...</p>
 
   return (
-    <div className='card space-y-2'>
+    <div className='card space-y-3'>
       <h1 className='text-4xl text-primary'>{book.title}</h1>
       <p className='text-secondary'>{book.author}</p>
       <StatusBadge status={book.status} />
-      <p>Pages: {book.total_pages}</p>
-      <p>
-        Current: {book.current_page ?? 0} | Remaining: {book.remaining_pages}
-      </p>
-      <Progress value={book.progress_percentage} />
+      <p>Total pages: {book.totalPages}</p>
+      <p>Current: {book.currentPage} · Remaining: {book.remainingPages}</p>
+      <p>Progress: {Math.round(book.progressPercentage)}%</p>
+      <p>Completed: {book.completedAt ? new Date(book.completedAt).toLocaleDateString() : 'Not finished yet'}</p>
+      <Progress value={book.progressPercentage} />
+      <div className='flex flex-wrap gap-2'>
+        {statusOptions.map((s) => (
+          <button key={s} type='button' className='btn-secondary' onClick={async () => { await api.patch(`/books/${book.id}/status`, { status: s }); void load() }}>
+            Move to {statusLabel[s]}
+          </button>
+        ))}
+      </div>
+      {book.status === 'currentlyReading' && (
+        <form
+          className='flex flex-col gap-2 md:flex-row'
+          onSubmit={async (e) => {
+            e.preventDefault()
+            const currentPage = Number(new FormData(e.currentTarget).get('currentPage'))
+            await api.patch(`/books/${book.id}/bookmark`, { currentPage })
+            void load()
+          }}
+        >
+          <input className='input' type='number' min={0} max={book.totalPages} name='currentPage' placeholder='Update current page' />
+          <button type='submit' className='btn'>Update progress</button>
+        </form>
+      )}
     </div>
   )
 }
@@ -305,27 +325,27 @@ export function Profile() {
         className='card max-w-lg space-y-2'
         onSubmit={async (e) => {
           e.preventDefault()
-          await api.put('/users/profile', { name })
+          await api.put('/user/profile', { name })
         }}
       >
         <input className='input' value={name} onChange={(e) => setName(e.target.value)} placeholder='New name' />
-        <button className='btn'>Update Name</button>
+        <button type='submit' className='btn'>Update Name</button>
       </form>
       <form
         className='card max-w-lg space-y-2'
         onSubmit={async (e) => {
           e.preventDefault()
           const f = new FormData(e.currentTarget)
-          await api.put('/users/password', {
-            current_password: f.get('current_password'),
-            new_password: f.get('new_password')
+          await api.patch('/user/password', {
+            currentPassword: f.get('currentPassword'),
+            newPassword: f.get('newPassword')
           })
           ;(e.target as HTMLFormElement).reset()
         }}
       >
-        <input className='input' type='password' name='current_password' placeholder='Current password' required />
-        <input className='input' type='password' name='new_password' placeholder='New password' minLength={6} required />
-        <button className='btn'>Update Password</button>
+        <input className='input' type='password' name='currentPassword' placeholder='Current password' required />
+        <input className='input' type='password' name='newPassword' placeholder='New password' minLength={6} required />
+        <button type='submit' className='btn'>Update Password</button>
       </form>
     </div>
   )
