@@ -90,7 +90,7 @@ export function Login() {
     const f = new FormData(e.currentTarget)
     try {
       const res = await api.post('/auth/login', { email: f.get('email'), password: f.get('password') })
-      setAuth(res.data.user, res.data.accessToken, res.data.refreshToken)
+      setAuth(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken)
       nav('/dashboard')
     } catch {
       setErr('Invalid credentials')

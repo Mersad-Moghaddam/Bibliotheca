@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { authStore } from '../contexts/authStore'
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+const configuredBaseURL = import.meta.env.VITE_API_URL || '/api/v1'
+const baseURL = configuredBaseURL.replace(/\/+$/, '')
 
 const api = axios.create({ baseURL })
 
@@ -21,8 +22,11 @@ api.interceptors.response.use(
       orig._retry = true
       try {
         const res = await axios.post(`${baseURL}/auth/refresh`, { refreshToken })
-        const nextAccess = res.data.accessToken
-        const nextRefresh = res.data.refreshToken
+        const nextAccess = res.data?.tokens?.accessToken
+        const nextRefresh = res.data?.tokens?.refreshToken
+        if (!nextAccess || !nextRefresh) {
+          throw new Error('refresh payload missing tokens')
+        }
         authStore.getState().setTokens(nextAccess, nextRefresh)
         orig.headers.Authorization = `Bearer ${nextAccess}`
         return api(orig)

@@ -1,4 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
+import api from '../api/client'
 import { authStore } from '../contexts/authStore'
 import logoWordmark from '../assets/logo-wordmark.svg'
 import { ThemeToggle } from '../components/ThemeToggle'
@@ -46,7 +47,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <ThemeToggle />
             <button
               className='btn-secondary w-full'
-              onClick={() => {
+              onClick={async () => {
+                const refreshToken = authStore.getState().refreshToken
+                if (refreshToken) {
+                  try {
+                    await api.post('/auth/logout', { refreshToken })
+                  } catch {
+                    // local logout still applies if backend logout fails
+                  }
+                }
                 logout()
                 nav('/login')
               }}

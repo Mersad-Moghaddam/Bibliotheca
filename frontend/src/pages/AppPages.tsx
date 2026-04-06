@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/client'
-import { Book, BookStatus, ListResponse, WishlistItem } from '../types'
+import { Book, BookStatus, WishlistItem } from '../types'
 import { Progress, Section, StatusBadge, statusLabel } from '../components/UI'
 import emptyLibrary from '../assets/empty-library.svg'
 
@@ -11,11 +11,15 @@ function isAxiosError(error: unknown): error is { response?: { data?: { error?: 
   return typeof error === 'object' && error !== null && 'response' in error
 }
 
+function asItems<T>(data: T[] | { items: T[] }): T[] {
+  return Array.isArray(data) ? data : data.items
+}
+
 export function Dashboard() {
   const [books, setBooks] = useState<Book[]>([])
 
   useEffect(() => {
-    void api.get<ListResponse<Book>>('/books', { params: { limit: 200, page: 1 } }).then((r) => setBooks(r.data.items))
+    void api.get<Book[] | { items: Book[] }>('/books').then((r) => setBooks(asItems(r.data)))
   }, [])
 
   const counts = useMemo(() => {
@@ -92,8 +96,8 @@ export function Library() {
   const [message, setMessage] = useState('')
 
   const load = async () => {
-    const r = await api.get<ListResponse<Book>>('/books', { params: { search, status, limit: 200, page: 1 } })
-    setBooks(r.data.items)
+    const r = await api.get<Book[] | { items: Book[] }>('/books', { params: { search, status } })
+    setBooks(asItems(r.data))
   }
 
   useEffect(() => {
@@ -169,8 +173,8 @@ export function Library() {
 function BookListByStatus({ status, title }: { status: BookStatus; title: string }) {
   const [books, setBooks] = useState<Book[]>([])
   const load = async () => {
-    const r = await api.get<ListResponse<Book>>('/books', { params: { status, limit: 200, page: 1 } })
-    setBooks(r.data.items)
+    const r = await api.get<Book[] | { items: Book[] }>('/books', { params: { status } })
+    setBooks(asItems(r.data))
   }
 
   useEffect(() => {
@@ -197,7 +201,7 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
                 onSubmit={async (e) => {
                   e.preventDefault()
                   const v = Number(new FormData(e.currentTarget).get('currentPage'))
-                  await api.patch(`/books/${b.id}/bookmark`, { currentPage: v })
+                  await api.patch(`/books/${b.id}/progress`, { currentPage: v })
                   void load()
                 }}
               >
@@ -231,8 +235,8 @@ export function Wishlist() {
   const [error, setError] = useState('')
 
   const load = async () => {
-    const r = await api.get<ListResponse<WishlistItem>>('/wishlist', { params: { limit: 200, page: 1 } })
-    setItems(r.data.items)
+    const r = await api.get<WishlistItem[] | { items: WishlistItem[] }>('/wishlist')
+    setItems(asItems(r.data))
   }
 
   useEffect(() => {
@@ -316,8 +320,8 @@ export function BookDetails({ id }: { id: string }) {
   const [book, setBook] = useState<Book | null>(null)
 
   const load = async () => {
-    const res = await api.get<{ item: Book }>(`/books/${id}`)
-    setBook(res.data.item)
+    const res = await api.get<Book>(`/books/${id}`)
+    setBook(res.data)
   }
 
   useEffect(() => {
@@ -352,7 +356,7 @@ export function BookDetails({ id }: { id: string }) {
             onSubmit={async (e) => {
               e.preventDefault()
               const currentPage = Number(new FormData(e.currentTarget).get('currentPage'))
-              await api.patch(`/books/${book.id}/bookmark`, { currentPage })
+              await api.patch(`/books/${book.id}/progress`, { currentPage })
               void load()
             }}
           >
@@ -375,7 +379,7 @@ export function Profile() {
         className='card max-w-xl space-y-3'
         onSubmit={async (e) => {
           e.preventDefault()
-          await api.put('/user/profile', { name })
+          await api.put('/users/profile', { name })
         }}
       >
         <h2 className='section-title'>Update name</h2>
@@ -387,7 +391,7 @@ export function Profile() {
         onSubmit={async (e) => {
           e.preventDefault()
           const f = new FormData(e.currentTarget)
-          await api.patch('/user/password', {
+          await api.put('/users/password', {
             currentPassword: f.get('currentPassword'),
             newPassword: f.get('newPassword')
           })
