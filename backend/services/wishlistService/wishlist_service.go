@@ -2,6 +2,8 @@ package wishlistService
 
 import (
 	"context"
+	"net/url"
+	"strings"
 
 	"github.com/google/uuid"
 	"libro-backend/models/purchaseLink"
@@ -41,17 +43,43 @@ func (s *Service) Delete(ctx context.Context, userID, id uuid.UUID) error {
 	return s.wishlist.Delete(ctx, userID, id)
 }
 func (s *Service) AddLink(ctx context.Context, link *purchaseLink.PurchaseLink) error {
-	if link.Label == "" || link.URL == "" {
+	if strings.TrimSpace(link.URL) == "" {
 		return customErr.ErrBadRequest
+	}
+	if strings.TrimSpace(link.Label) == "" {
+		link.Label = deriveLabel(link.URL)
 	}
 	return s.links.Create(ctx, link)
 }
 func (s *Service) UpdateLink(ctx context.Context, userID, wishlistID, linkID uuid.UUID, label, url string) (*purchaseLink.PurchaseLink, error) {
-	if label == "" || url == "" {
+	if strings.TrimSpace(url) == "" {
 		return nil, customErr.ErrBadRequest
+	}
+	if strings.TrimSpace(label) == "" {
+		label = deriveLabel(url)
 	}
 	return s.links.Update(ctx, userID, wishlistID, linkID, label, url)
 }
 func (s *Service) DeleteLink(ctx context.Context, userID, wishlistID, linkID uuid.UUID) error {
 	return s.links.Delete(ctx, userID, wishlistID, linkID)
+}
+
+func deriveLabel(rawURL string) string {
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Host == "" {
+		return "Website"
+	}
+
+	host := strings.TrimPrefix(strings.TrimPrefix(strings.ToLower(parsed.Host), "www."), "m.")
+	if host == "" {
+		return "Website"
+	}
+
+	parts := strings.Split(host, ".")
+	if len(parts) == 0 || parts[0] == "" {
+		return "Website"
+	}
+
+	name := parts[0]
+	return strings.ToUpper(name[:1]) + name[1:]
 }

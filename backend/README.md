@@ -44,7 +44,7 @@ main.go
 
 ## Migrations
 
-Raw SQL migrations are in `migrations/`:
+Raw SQL migrations are in `migrations/` and match the UUID-based schema used by the app:
 
 - `000001_create_users_table.*.sql`
 - `000002_create_books_table.*.sql`
@@ -66,15 +66,6 @@ Server health endpoint:
 ```bash
 go test ./...
 ```
-
-Test suites are organized under:
-
-- `tests/auth`
-- `tests/book`
-- `tests/reading`
-- `tests/testUtils`
-- `tests/user`
-- `tests/wishlist`
 
 ## Architecture Notes
 

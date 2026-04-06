@@ -9,7 +9,6 @@ type InitialRepositories struct {
 	Wishlist     WishlistRepository
 	PurchaseLink PurchaseLinkRepository
 	Reading      ReadingProgressRepository
-	Limiter      RequestLimiterRepository
 }
 
 func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialRepositories {
@@ -25,6 +24,5 @@ func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialReposit
 		Wishlist:     wishlistRepo,
 		PurchaseLink: purchaseRepo,
 		Reading:      NewReadingProgressRepo(bookRepo),
-		Limiter:      NewRequestLimiterRepo(),
 	}
 }

@@ -56,7 +56,3 @@ type PurchaseLinkRepository interface {
 type ReadingProgressRepository interface {
 	UpdateCurrentPage(ctx context.Context, userID, bookID uuid.UUID, currentPage int) (*book.Book, error)
 }
-
-type RequestLimiterRepository interface{}
-type TaskManagerRepository interface{}
-type MonitoringRepository interface{}

@@ -29,7 +29,7 @@ Libro is a full-stack personal reading tracker with a Go/Fiber backend and a Rea
 │   ├── package.json
 │   └── vite.config.ts
 ├── docker-compose.yml
-└── go.work
+└── .gitignore
 ```
 
 ## Run Backend (Local)
@@ -70,4 +70,3 @@ Services:
 
 - Backend environment defaults are defined in `backend/dev.env`.
 - Frontend API target can be overridden with `VITE_API_URL`.
-- Root `go.work` includes `./backend` to keep Go editor/tooling resolution clean in the monorepo.
