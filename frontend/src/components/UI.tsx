@@ -9,12 +9,12 @@ export const Section = ({ title, children }: { title: string; children: ReactNod
 
 export const StatusBadge = ({ status }: { status: string }) => {
   const styles: Record<string, string> = {
-    currently_reading: 'bg-[#dcc8aa] text-primary',
-    finished: 'bg-[#cedfcf] text-[#2d5a34]',
-    next_to_read: 'bg-[#f2dfbf] text-[#7d5721]'
+    currently_reading: 'status-currently-reading',
+    finished: 'status-finished',
+    next_to_read: 'status-next-to-read'
   }
 
-  return <span className={`badge ${styles[status] ?? 'bg-[#dcc8aa] text-primary'}`}>{status.replaceAll('_', ' ')}</span>
+  return <span className={`badge ${styles[status] ?? 'status-currently-reading'}`}>{status.replaceAll('_', ' ')}</span>
 }
 
 export const Progress = ({ value }: { value: number }) => (

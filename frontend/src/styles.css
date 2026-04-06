@@ -3,15 +3,57 @@
 @tailwind utilities;
 
 :root {
-  color: #2b1b17;
-  background: #f5e9da;
+  --color-bg: #f5e9da;
+  --color-surface: #e6d3b3;
+  --color-primary: #4b2e2b;
+  --color-secondary: #6f4e37;
+  --color-accent: #c89f6a;
+  --color-text: #2b1b17;
+  --color-muted: #6f4e37;
+  --color-border: rgba(75, 46, 43, 0.2);
+  --color-input-bg: #fff9f2;
+  --color-input-border: rgba(111, 78, 55, 0.3);
+  --color-progress-track: #e9d9c1;
+  --color-progress-fill: #4b2e2b;
+  --color-link-badge-bg: #f1e1c7;
+  --color-link-badge-text: #6f4e37;
+  --color-danger: #8f2f2f;
+  --shadow-soft: 0 10px 30px rgba(43, 27, 23, 0.12);
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #1e1412;
+  --color-surface: #2a1b18;
+  --color-primary: #c89f6a;
+  --color-secondary: #a67c52;
+  --color-accent: #e6d3b3;
+  --color-text: #f5e9da;
+  --color-muted: #cbb8a0;
+  --color-border: #3a2a26;
+  --color-input-bg: #2a1b18;
+  --color-input-border: #3a2a26;
+  --color-progress-track: #3a2a26;
+  --color-progress-fill: #c89f6a;
+  --color-link-badge-bg: #3a2a26;
+  --color-link-badge-text: #f5e9da;
+  --color-danger: #f2b4a8;
+  --shadow-soft: 0 12px 30px rgba(8, 5, 4, 0.35);
+}
+
+* {
+  transition: all 0.25s ease;
+}
+
+:root {
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: #f5e9da;
-  color: #2b1b17;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 h1,
@@ -25,30 +67,92 @@ h6 {
 }
 
 .pattern {
-  background-image: radial-gradient(rgba(75, 46, 43, 0.08) 1px, transparent 1px);
+  background-image: radial-gradient(color-mix(in srgb, var(--color-primary) 18%, transparent) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
-.input {
-  @apply w-full rounded-xl border border-secondary/25 bg-[#fff9f2] px-3 py-2 outline-none transition focus:ring-2 focus:ring-accent/50;
-}
+@layer components {
+  .input {
+    @apply w-full rounded-xl border px-3 py-2 outline-none focus:ring-2;
+    border-color: var(--color-input-border);
+    background: var(--color-input-bg);
+    color: var(--color-text);
+    --tw-ring-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
 
-.btn {
-  @apply rounded-xl bg-primary px-4 py-2 text-[#fdf6ef] transition hover:bg-secondary;
-}
+  .btn {
+    @apply rounded-xl px-4 py-2 font-medium;
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
 
-.card {
-  @apply rounded-2xl border border-secondary/15 bg-surface/65 p-4 shadow-soft;
-}
+  .btn:hover {
+    background: var(--color-secondary);
+  }
 
-.badge {
-  @apply rounded-full px-2.5 py-1 text-xs font-medium;
-}
+  .btn-secondary {
+    @apply rounded-xl px-4 py-2 font-medium;
+    background: var(--color-accent);
+    color: var(--color-text);
+  }
 
-.progress-track {
-  @apply h-2.5 w-full rounded-full bg-[#e9d9c1];
-}
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--color-accent) 85%, var(--color-secondary));
+  }
 
-.progress-fill {
-  @apply h-2.5 rounded-full bg-primary;
+  .card {
+    @apply rounded-2xl border p-4;
+    border-color: color-mix(in srgb, var(--color-border) 85%, transparent);
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .badge {
+    @apply rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .status-currently-reading {
+    background: color-mix(in srgb, var(--color-accent) 40%, var(--color-surface));
+    color: var(--color-primary);
+  }
+
+  .status-finished {
+    background: color-mix(in srgb, var(--color-secondary) 28%, var(--color-surface));
+    color: var(--color-text);
+  }
+
+  .status-next-to-read {
+    background: color-mix(in srgb, var(--color-accent) 55%, var(--color-surface));
+    color: var(--color-secondary);
+  }
+
+  .progress-track {
+    @apply h-2.5 w-full rounded-full;
+    background: var(--color-progress-track);
+  }
+
+  .progress-fill {
+    @apply h-2.5 rounded-full;
+    background: var(--color-progress-fill);
+  }
+
+  .icon-btn {
+    @apply inline-flex items-center justify-center rounded-xl border p-2;
+    border-color: var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+    color: var(--color-text);
+  }
+
+  .icon-btn:hover {
+    background: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  }
+
+  .error-text {
+    color: var(--color-danger);
+  }
+
+  .link-badge {
+    background: var(--color-link-badge-bg);
+    color: var(--color-link-badge-text);
+  }
 }

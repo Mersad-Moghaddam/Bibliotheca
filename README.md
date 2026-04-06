@@ -28,6 +28,16 @@ Libro is a minimal personal book tracking application with a warm, library-inspi
 - Dashboard summary and recent books
 - Profile update (name/password)
 
+
+## Theme System
+- Libro includes a global warm **Light Mode** and a dim-library **Dark Mode**.
+- Use the top-right toggle to switch instantly between themes:
+  - 🌙 Moon icon switches from Light to Dark
+  - ☀️ Sun icon switches from Dark to Light
+- Theme values are implemented with shared design tokens (CSS variables) and applied across all pages/components.
+- User preference is persisted in `localStorage` under the key `libro-theme`.
+- On first load, Libro defaults to Light Mode.
+
 ## Screenshots
 > Add screenshots here after running the app locally.
 

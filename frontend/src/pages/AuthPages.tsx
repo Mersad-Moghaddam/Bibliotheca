@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import api from '../api/client'
 import { authStore } from '../contexts/authStore'
 import heroOpenBook from '../assets/hero-open-book.svg'
+import { ThemeToggle } from '../components/ThemeToggle'
 
 const wrap = 'min-h-screen flex items-center justify-center pattern p-4'
 const card = 'card max-w-md w-full space-y-3'
@@ -10,7 +11,10 @@ const card = 'card max-w-md w-full space-y-3'
 export function Landing() {
   return (
     <div className='min-h-screen pattern'>
-      <div className='mx-auto grid max-w-6xl items-center gap-8 p-8 md:grid-cols-2'>
+      <div className='mx-auto flex max-w-6xl justify-end p-4 pb-0'>
+        <ThemeToggle />
+      </div>
+      <div className='mx-auto grid max-w-6xl items-center gap-8 p-8 pt-4 md:grid-cols-2'>
         <div>
           <p className='mb-2 text-sm uppercase tracking-[0.2em] text-secondary'>Your Personal Library</p>
           <h1 className='mb-3 text-5xl text-primary'>Libro</h1>
@@ -19,7 +23,7 @@ export function Landing() {
             <Link className='btn' to='/register'>
               Get Started
             </Link>
-            <Link className='btn !bg-accent !text-text hover:!bg-[#d7b07f]' to='/login'>
+            <Link className='btn-secondary' to='/login'>
               Log In
             </Link>
           </div>
@@ -52,13 +56,16 @@ export function Register() {
 
   return (
     <div className={wrap}>
+      <div className='fixed right-4 top-4 z-20'>
+        <ThemeToggle />
+      </div>
       <form onSubmit={onSubmit} className={card}>
         <h1 className='text-3xl text-primary'>Create your Libro account</h1>
         <input className='input' name='name' placeholder='Name' required />
         <input className='input' type='email' name='email' placeholder='Email' required />
         <input className='input' type='password' name='password' placeholder='Password' minLength={6} required />
         <input className='input' type='password' name='confirm_password' placeholder='Confirm password' minLength={6} required />
-        {err && <p className='text-sm text-red-700'>{err}</p>}
+        {err && <p className='error-text text-sm'>{err}</p>}
         <button className='btn w-full'>Sign up</button>
         <p className='text-sm'>
           Already have an account?{' '}
@@ -90,11 +97,14 @@ export function Login() {
 
   return (
     <div className={wrap}>
+      <div className='fixed right-4 top-4 z-20'>
+        <ThemeToggle />
+      </div>
       <form onSubmit={onSubmit} className={card}>
         <h1 className='text-3xl text-primary'>Welcome back to Libro</h1>
         <input className='input' type='email' name='email' placeholder='Email' required />
         <input className='input' type='password' name='password' placeholder='Password' required />
-        {err && <p className='text-sm text-red-700'>{err}</p>}
+        {err && <p className='error-text text-sm'>{err}</p>}
         <button className='btn w-full'>Log in</button>
         <p className='text-sm'>
           Need an account?{' '}

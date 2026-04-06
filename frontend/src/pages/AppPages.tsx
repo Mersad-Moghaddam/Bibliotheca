@@ -113,7 +113,7 @@ export function Library() {
                 </p>
               </div>
               <StatusBadge status={b.status} />
-              <a className='btn !py-1.5' href={`/books/${b.id}`}>
+              <a className='btn py-1.5' href={`/books/${b.id}`}>
                 Details
               </a>
             </div>
@@ -174,7 +174,7 @@ function BookListByStatus({ status, title }: { status: string; title: string }) 
                 <button className='btn'>Save Progress</button>
                 <button
                   type='button'
-                  className='btn !bg-accent !text-text hover:!bg-[#d7b07f]'
+                  className='btn-secondary'
                   onClick={async () => {
                     await api.patch(`/books/${b.id}/status`, { status: 'finished' })
                     void load()
@@ -240,7 +240,7 @@ export function Wishlist() {
               <p className='text-sm text-secondary'>{i.notes}</p>
               <div className='my-2 flex flex-wrap gap-2'>
                 {i.purchase_links?.map((l) => (
-                  <a key={l.id} className='badge bg-[#f1e1c7] text-secondary hover:underline' href={l.url} target='_blank'>
+                  <a key={l.id} className='badge link-badge hover:underline' href={l.url} target='_blank'>
                     {l.label}
                   </a>
                 ))}
@@ -262,7 +262,7 @@ export function Wishlist() {
             </div>
           ))
         ) : (
-          <div className='card md:col-span-2 text-center'>
+          <div className='card text-center md:col-span-2'>
             <img src={emptyLibrary} alt='No wishlist items' className='mx-auto mb-3 h-32 w-auto' />
             <p className='text-secondary'>Your wishlist is empty.</p>
           </div>

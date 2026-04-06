@@ -4,15 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#4B2E2B',
-        secondary: '#6F4E37',
-        background: '#F5E9DA',
-        surface: '#E6D3B3',
-        accent: '#C89F6A',
-        text: '#2B1B17'
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        background: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        accent: 'var(--color-accent)',
+        text: 'var(--color-text)',
+        muted: 'var(--color-muted)',
+        border: 'var(--color-border)'
       },
       boxShadow: {
-        soft: '0 10px 30px rgba(43, 27, 23, 0.12)'
+        soft: 'var(--shadow-soft)'
       }
     }
   },
