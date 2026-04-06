@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { BookStatus } from '../types'
 
 export const Section = ({ title, children }: { title: string; children: ReactNode }) => (
   <section className='card'>
@@ -7,14 +8,22 @@ export const Section = ({ title, children }: { title: string; children: ReactNod
   </section>
 )
 
-export const StatusBadge = ({ status }: { status: string }) => {
-  const styles: Record<string, string> = {
-    currently_reading: 'status-currently-reading',
+export const statusLabel: Record<BookStatus, string> = {
+  inLibrary: 'In Library',
+  currentlyReading: 'Currently Reading',
+  finished: 'Finished',
+  nextToRead: 'Next To Read'
+}
+
+export const StatusBadge = ({ status }: { status: BookStatus }) => {
+  const styles: Record<BookStatus, string> = {
+    inLibrary: 'status-in-library',
+    currentlyReading: 'status-currently-reading',
     finished: 'status-finished',
-    next_to_read: 'status-next-to-read'
+    nextToRead: 'status-next-to-read'
   }
 
-  return <span className={`badge ${styles[status] ?? 'status-currently-reading'}`}>{status.replaceAll('_', ' ')}</span>
+  return <span className={`badge ${styles[status]}`}>{statusLabel[status]}</span>
 }
 
 export const Progress = ({ value }: { value: number }) => (

@@ -2,6 +2,7 @@ package pagination
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"libro/models/commonPagination"
@@ -16,7 +17,7 @@ func Parse(c *fiber.Ctx) commonPagination.PageRequest {
 	if limit < 1 || limit > 100 {
 		limit = 10
 	}
-	return commonPagination.PageRequest{Page: page, Limit: limit}
+	return commonPagination.PageRequest{Page: page, Limit: limit, Search: strings.TrimSpace(c.Query("search")), Status: strings.TrimSpace(c.Query("status"))}
 }
 
 func Offset(req commonPagination.PageRequest) int {

@@ -1,8 +1,10 @@
 package commonPagination
 
 type PageRequest struct {
-	Page  int
-	Limit int
+	Page   int
+	Limit  int
+	Search string
+	Status string
 }
 
 type PageResult struct {

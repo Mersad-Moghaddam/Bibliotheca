@@ -116,6 +116,11 @@ h6 {
     color: var(--color-primary);
   }
 
+  .status-in-library {
+    background: color-mix(in srgb, var(--color-surface) 84%, var(--color-border));
+    color: var(--color-secondary);
+  }
+
   .status-finished {
     background: color-mix(in srgb, var(--color-secondary) 28%, var(--color-surface));
     color: var(--color-text);

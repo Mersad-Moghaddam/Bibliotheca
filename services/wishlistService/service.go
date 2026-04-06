@@ -2,6 +2,7 @@ package wishlistService
 
 import (
 	"net/url"
+	"strings"
 	"time"
 
 	"libro/apiSchema/purchaseLinkSchema"
@@ -74,14 +75,19 @@ func (s *Service) DeleteWishlistItem(userID, id uint) error {
 }
 
 func (s *Service) AddPurchaseLink(userID, wishlistID uint, req purchaseLinkSchema.CreatePurchaseLinkRequest) (*purchaseLinkSchema.PurchaseLinkResponse, error) {
-	if !validURL(req.URL) {
+	normalizedURL, ok := normalizeURL(req.URL)
+	if !ok {
 		return nil, customErr.ErrInvalidInput
 	}
 	w, err := s.repos.WishlistRepo.FindByIDAndUser(wishlistID, userID)
 	if err != nil {
 		return nil, customErr.ErrNotFound
 	}
-	p := &purchaseLink.PurchaseLink{WishlistID: w.ID, Label: req.Label, URL: req.URL}
+	label := strings.TrimSpace(valueOrEmpty(req.Label))
+	if label == "" {
+		label = deriveAliasFromURL(normalizedURL)
+	}
+	p := &purchaseLink.PurchaseLink{WishlistID: w.ID, Label: label, URL: normalizedURL}
 	if err := s.repos.PurchaseLinkRepo.Create(p); err != nil {
 		return nil, err
 	}
@@ -89,7 +95,8 @@ func (s *Service) AddPurchaseLink(userID, wishlistID uint, req purchaseLinkSchem
 	return &resp, nil
 }
 func (s *Service) UpdatePurchaseLink(userID, wishlistID, linkID uint, req purchaseLinkSchema.UpdatePurchaseLinkRequest) (*purchaseLinkSchema.PurchaseLinkResponse, error) {
-	if !validURL(req.URL) {
+	normalizedURL, ok := normalizeURL(req.URL)
+	if !ok {
 		return nil, customErr.ErrInvalidInput
 	}
 	if _, err := s.repos.WishlistRepo.FindByIDAndUser(wishlistID, userID); err != nil {
@@ -99,8 +106,12 @@ func (s *Service) UpdatePurchaseLink(userID, wishlistID, linkID uint, req purcha
 	if err != nil || p.WishlistID != wishlistID {
 		return nil, customErr.ErrNotFound
 	}
-	p.Label = req.Label
-	p.URL = req.URL
+	label := strings.TrimSpace(valueOrEmpty(req.Label))
+	if label == "" {
+		label = deriveAliasFromURL(normalizedURL)
+	}
+	p.Label = label
+	p.URL = normalizedURL
 	if err := s.repos.PurchaseLinkRepo.Save(p); err != nil {
 		return nil, err
 	}
@@ -118,9 +129,57 @@ func (s *Service) DeletePurchaseLink(userID, wishlistID, linkID uint) error {
 	return s.repos.PurchaseLinkRepo.Delete(p)
 }
 
-func validURL(v string) bool { _, err := url.ParseRequestURI(v); return err == nil }
+func valueOrEmpty(v *string) string {
+	if v == nil {
+		return ""
+	}
+	return *v
+}
+
+func normalizeURL(v string) (string, bool) {
+	raw := strings.TrimSpace(v)
+	if raw == "" {
+		return "", false
+	}
+	if !strings.Contains(raw, "://") {
+		raw = "https://" + raw
+	}
+	u, err := url.ParseRequestURI(raw)
+	if err != nil || u.Host == "" {
+		return "", false
+	}
+	return u.String(), true
+}
+
+func deriveAliasFromURL(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return "Store"
+	}
+	host := strings.ToLower(u.Hostname())
+	host = strings.TrimPrefix(host, "www.")
+	parts := strings.Split(host, ".")
+	if len(parts) == 0 {
+		return "Store"
+	}
+	brand := parts[0]
+	known := map[string]string{
+		"amazon":         "Amazon",
+		"fidibo":         "Fidibo",
+		"digikala":       "Digikala",
+		"ketabrah":       "Ketabrah",
+		"barnesandnoble": "Barnes & Noble",
+		"bookdepository": "Book Depository",
+	}
+	if mapped, ok := known[brand]; ok {
+		return mapped
+	}
+	return strings.ToUpper(brand[:1]) + brand[1:]
+}
+
 func toPurchaseLinkResponse(p purchaseLink.PurchaseLink) purchaseLinkSchema.PurchaseLinkResponse {
-	return purchaseLinkSchema.PurchaseLinkResponse{ID: p.ID, Label: p.Label, URL: p.URL, CreatedAt: p.CreatedAt.Format(time.RFC3339), UpdatedAt: p.UpdatedAt.Format(time.RFC3339)}
+	alias := deriveAliasFromURL(p.URL)
+	return purchaseLinkSchema.PurchaseLinkResponse{ID: p.ID, Label: p.Label, Alias: alias, URL: p.URL, CreatedAt: p.CreatedAt.Format(time.RFC3339), UpdatedAt: p.UpdatedAt.Format(time.RFC3339)}
 }
 func toWishlistResponse(w wishlist.Wishlist) wishlistSchema.WishlistResponse {
 	links := make([]purchaseLinkSchema.PurchaseLinkResponse, 0, len(w.PurchaseLinks))

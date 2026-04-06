@@ -1,21 +1,42 @@
+export type BookStatus = 'inLibrary' | 'currentlyReading' | 'finished' | 'nextToRead'
+
 export type User = { id: string; name: string; email: string }
+
 export type Book = {
   id: string
   title: string
   author: string
-  total_pages: number
-  status: string
-  current_page: number | null
-  remaining_pages: number
-  progress_percentage: number
-  completed_at: string | null
+  totalPages: number
+  status: BookStatus
+  currentPage: number
+  remainingPages: number
+  progressPercentage: number
+  completedAt: string | null
+  createdAt: string
+  updatedAt: string
 }
-export type PurchaseLink = { id: string; label: string; url: string }
+
+export type PurchaseLink = {
+  id: string
+  label: string
+  alias: string
+  url: string
+  createdAt: string
+  updatedAt: string
+}
+
 export type WishlistItem = {
   id: string
   title: string
   author: string
-  expected_price: number | null
+  expectedPrice: number | null
   notes: string | null
-  purchase_links: PurchaseLink[]
+  purchaseLinks: PurchaseLink[]
+  createdAt: string
+  updatedAt: string
+}
+
+export type ListResponse<T> = {
+  items: T[]
+  total: number
 }

@@ -1,6 +1,7 @@
 package bookService
 
 import (
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -22,10 +23,14 @@ func (s *Service) CreateBook(userID uint, req bookSchema.CreateBookRequest) (*bo
 	if req.TotalPages <= 0 {
 		return nil, customErr.ErrInvalidInput
 	}
-	if !validStatus(req.Status) {
+	status := normalizeStatus(req.Status)
+	if status == "" {
+		status = constants.BookStatusInLibrary
+	}
+	if !validStatus(status) {
 		return nil, customErr.ErrInvalidInput
 	}
-	b := &book.Book{UserID: userID, Title: req.Title, Author: req.Author, TotalPages: req.TotalPages, Status: req.Status, CurrentPage: 0}
+	b := &book.Book{UserID: userID, Title: req.Title, Author: req.Author, TotalPages: req.TotalPages, Status: status, CurrentPage: 0}
 	applyStatusSideEffects(b)
 	if err := s.repos.BookRepo.Create(b); err != nil {
 		return nil, err
@@ -35,11 +40,12 @@ func (s *Service) CreateBook(userID uint, req bookSchema.CreateBookRequest) (*bo
 }
 
 func (s *Service) GetBooks(userID uint, req commonPagination.PageRequest) (*bookSchema.BookListResponse, error) {
-	total, err := s.repos.BookRepo.CountByUser(userID)
+	status := normalizeStatus(req.Status)
+	total, err := s.repos.BookRepo.CountByUser(userID, status, req.Search)
 	if err != nil {
 		return nil, err
 	}
-	items, err := s.repos.BookRepo.ListByUser(userID, req.Limit, (req.Page-1)*req.Limit)
+	items, err := s.repos.BookRepo.ListByUser(userID, req.Limit, (req.Page-1)*req.Limit, status, req.Search)
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +95,12 @@ func (s *Service) DeleteBook(userID, id uint) error {
 	return s.repos.BookRepo.Delete(b)
 }
 
-func (s *Service) UpdateBookStatus(userID, id uint, status string) (*bookSchema.BookResponse, error) {
+func (s *Service) UpdateBookStatus(userID, id uint, rawStatus string) (*bookSchema.BookResponse, error) {
 	b, err := s.repos.BookRepo.FindByIDAndUser(id, userID)
 	if err != nil {
 		return nil, customErr.ErrNotFound
 	}
+	status := normalizeStatus(rawStatus)
 	if !validStatus(status) {
 		return nil, customErr.ErrInvalidInput
 	}
@@ -119,6 +126,9 @@ func (s *Service) UpdateBookBookmark(userID, id uint, currentPage int) (*bookSch
 		b.Status = constants.BookStatusFinished
 		now := time.Now()
 		b.CompletedAt = &now
+	} else if b.Status == constants.BookStatusFinished {
+		b.Status = constants.BookStatusCurrentlyReading
+		b.CompletedAt = nil
 	}
 	if err := s.repos.BookRepo.Save(b); err != nil {
 		return nil, err
@@ -128,13 +138,29 @@ func (s *Service) UpdateBookBookmark(userID, id uint, currentPage int) (*bookSch
 }
 
 func validStatus(s string) bool {
-	return s == constants.BookStatusCurrentlyReading || s == constants.BookStatusFinished || s == constants.BookStatusNextToRead
+	return s == constants.BookStatusInLibrary || s == constants.BookStatusCurrentlyReading || s == constants.BookStatusFinished || s == constants.BookStatusNextToRead
+}
+
+func normalizeStatus(s string) string {
+	v := strings.TrimSpace(s)
+	switch v {
+	case "inLibrary", "in_library", "inlibrary":
+		return constants.BookStatusInLibrary
+	case "currentlyReading", "currently_reading", "currentlyreading":
+		return constants.BookStatusCurrentlyReading
+	case "finished":
+		return constants.BookStatusFinished
+	case "nextToRead", "next_to_read", "nexttoread":
+		return constants.BookStatusNextToRead
+	default:
+		return v
+	}
 }
 
 func applyStatusSideEffects(b *book.Book) {
 	now := time.Now()
 	switch b.Status {
-	case constants.BookStatusNextToRead:
+	case constants.BookStatusInLibrary, constants.BookStatusNextToRead:
 		b.CurrentPage = 0
 		b.CompletedAt = nil
 	case constants.BookStatusFinished:
@@ -142,6 +168,11 @@ func applyStatusSideEffects(b *book.Book) {
 			b.CurrentPage = b.TotalPages
 		}
 		b.CompletedAt = &now
+	case constants.BookStatusCurrentlyReading:
+		if b.CurrentPage >= b.TotalPages {
+			b.CurrentPage = 0
+		}
+		b.CompletedAt = nil
 	}
 }
 
@@ -159,5 +190,5 @@ func toResponse(b book.Book) bookSchema.BookResponse {
 		v := b.CompletedAt.Format(time.RFC3339)
 		completed = &v
 	}
-	return bookSchema.BookResponse{ID: b.ID, Title: b.Title, Author: b.Author, TotalPages: b.TotalPages, Status: b.Status, CurrentPage: b.CurrentPage, RemainingPages: remaining, ProgressPercentage: progress, CompletedAt: completed, CreatedAt: b.CreatedAt.Format(time.RFC3339), UpdatedAt: b.UpdatedAt.Format(time.RFC3339)}
+	return bookSchema.BookResponse{ID: b.ID, Title: b.Title, Author: b.Author, TotalPages: b.TotalPages, Status: normalizeStatus(b.Status), CurrentPage: b.CurrentPage, RemainingPages: remaining, ProgressPercentage: progress, CompletedAt: completed, CreatedAt: b.CreatedAt.Format(time.RFC3339), UpdatedAt: b.UpdatedAt.Format(time.RFC3339)}
 }
