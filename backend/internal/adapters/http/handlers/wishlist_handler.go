@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"bibliotheca/backend/internal/adapters/http/dto"
-	"bibliotheca/backend/internal/application"
-	"bibliotheca/backend/internal/domain"
 	"github.com/gofiber/fiber/v2"
+	"libro-backend/internal/adapters/http/dto"
+	"libro-backend/internal/application"
+	"libro-backend/internal/domain"
 )
 
 type WishlistHandler struct{ service *application.WishlistService }

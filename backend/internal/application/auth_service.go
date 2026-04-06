@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"bibliotheca/backend/internal/domain"
-	"bibliotheca/backend/internal/ports"
-	"bibliotheca/backend/pkg/apperror"
-	"bibliotheca/backend/pkg/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"libro-backend/internal/domain"
+	"libro-backend/internal/ports"
+	"libro-backend/pkg/apperror"
+	"libro-backend/pkg/utils"
 )
 
 type AuthService struct {

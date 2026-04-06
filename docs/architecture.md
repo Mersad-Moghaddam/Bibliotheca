@@ -1,4 +1,4 @@
-# Bibliotheca Architecture
+# Libro Architecture
 
 - **Domain**: `internal/domain` holds entities and enums.
 - **Ports**: repository/session interfaces.

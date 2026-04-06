@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"bibliotheca/backend/internal/adapters/http/dto"
-	"bibliotheca/backend/internal/application"
-	"bibliotheca/backend/internal/domain"
 	"github.com/gofiber/fiber/v2"
+	"libro-backend/internal/adapters/http/dto"
+	"libro-backend/internal/application"
+	"libro-backend/internal/domain"
 )
 
 type BookHandler struct{ service *application.BookService }
@@ -18,7 +18,12 @@ func (h *BookHandler) List(c *fiber.Ctx) error {
 	if err != nil {
 		return respondError(c, err)
 	}
-	return c.JSON(books)
+	responses := make([]map[string]interface{}, 0, len(books))
+	for i := range books {
+		b := books[i]
+		responses = append(responses, withBookComputed(&b))
+	}
+	return c.JSON(responses)
 }
 func (h *BookHandler) Create(c *fiber.Ctx) error {
 	var req dto.BookRequest

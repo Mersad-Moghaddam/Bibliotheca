@@ -3,11 +3,11 @@ package application
 import (
 	"context"
 
-	"bibliotheca/backend/internal/domain"
-	"bibliotheca/backend/internal/ports"
-	"bibliotheca/backend/pkg/apperror"
-	"bibliotheca/backend/pkg/utils"
 	"github.com/google/uuid"
+	"libro-backend/internal/domain"
+	"libro-backend/internal/ports"
+	"libro-backend/pkg/apperror"
+	"libro-backend/pkg/utils"
 )
 
 type UserService struct{ repo ports.UserRepository }

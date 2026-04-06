@@ -3,9 +3,9 @@ package application
 import (
 	"context"
 
-	"bibliotheca/backend/internal/domain"
-	"bibliotheca/backend/internal/ports"
 	"github.com/google/uuid"
+	"libro-backend/internal/domain"
+	"libro-backend/internal/ports"
 )
 
 type DashboardSummary struct {

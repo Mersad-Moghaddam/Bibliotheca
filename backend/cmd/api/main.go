@@ -5,16 +5,16 @@ import (
 	"log"
 	"time"
 
-	"bibliotheca/backend/config"
-	"bibliotheca/backend/internal/adapters/cache"
-	httpadapter "bibliotheca/backend/internal/adapters/http"
-	"bibliotheca/backend/internal/adapters/http/handlers"
-	"bibliotheca/backend/internal/adapters/persistence"
-	"bibliotheca/backend/internal/application"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"libro-backend/config"
+	"libro-backend/internal/adapters/cache"
+	httpadapter "libro-backend/internal/adapters/http"
+	"libro-backend/internal/adapters/http/handlers"
+	"libro-backend/internal/adapters/persistence"
+	"libro-backend/internal/application"
 )
 
 func main() {
@@ -58,7 +58,7 @@ func main() {
 		User:      handlers.NewUserHandler(userSvc),
 	})
 
-	log.Printf("bibliotheca backend running on :%s", cfg.AppPort)
+	log.Printf("libro-backend running on :%s", cfg.AppPort)
 	if err = app.Listen(":" + cfg.AppPort); err != nil {
 		log.Fatal(err)
 	}

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"bibliotheca/backend/internal/application"
 	"github.com/gofiber/fiber/v2"
+	"libro-backend/internal/application"
 )
 
 type DashboardHandler struct{ service *application.DashboardService }
