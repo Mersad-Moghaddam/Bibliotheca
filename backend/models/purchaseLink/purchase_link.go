@@ -17,6 +17,10 @@ type PurchaseLink struct {
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
+func (PurchaseLink) TableName() string {
+	return "purchase_links"
+}
+
 func (p *PurchaseLink) BeforeCreate(tx *gorm.DB) error {
 	if p.ID == uuid.Nil {
 		p.ID = uuid.New()

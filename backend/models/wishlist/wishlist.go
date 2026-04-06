@@ -20,6 +20,10 @@ type Wishlist struct {
 	UpdatedAt     time.Time                   `json:"updatedAt"`
 }
 
+func (Wishlist) TableName() string {
+	return "wishlist"
+}
+
 func (w *Wishlist) BeforeCreate(tx *gorm.DB) error {
 	if w.ID == uuid.Nil {
 		w.ID = uuid.New()

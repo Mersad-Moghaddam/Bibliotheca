@@ -42,10 +42,14 @@ func (s *Service) Update(ctx context.Context, w *wishlist.Wishlist) error {
 func (s *Service) Delete(ctx context.Context, userID, id uuid.UUID) error {
 	return s.wishlist.Delete(ctx, userID, id)
 }
-func (s *Service) AddLink(ctx context.Context, link *purchaseLink.PurchaseLink) error {
+func (s *Service) AddLink(ctx context.Context, userID, wishlistID uuid.UUID, link *purchaseLink.PurchaseLink) error {
 	if strings.TrimSpace(link.URL) == "" {
 		return customErr.ErrBadRequest
 	}
+	if _, err := s.wishlist.GetByID(ctx, userID, wishlistID); err != nil {
+		return err
+	}
+	link.WishlistID = wishlistID
 	if strings.TrimSpace(link.Label) == "" {
 		link.Label = deriveLabel(link.URL)
 	}
