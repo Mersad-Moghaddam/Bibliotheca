@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -62,7 +64,8 @@
   }
 
   body {
-    @apply bg-background font-[Inter] text-body text-foreground antialiased;
+    @apply bg-background text-body text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     text-rendering: optimizeLegibility;
   }
@@ -102,4 +105,13 @@
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.08em] text-mutedForeground;
   }
+}
+
+
+html[lang='fa'] body {
+  font-family: 'Vazirmatn', system-ui, sans-serif;
+}
+
+html[dir='rtl'] .rtl-flip {
+  flex-direction: row-reverse;
 }

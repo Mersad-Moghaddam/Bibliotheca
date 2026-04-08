@@ -5,26 +5,29 @@ import logoWordmark from '../assets/logo-wordmark.svg'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/button'
 import { cn } from '../lib/cn'
+import { useI18n } from '../shared/i18n/i18n-provider'
+import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 
-const links: { to: string; label: string; icon: string; section: 'core' | 'queue' | 'account' }[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: '◉', section: 'core' },
-  { to: '/library', label: 'Library', icon: '◉', section: 'core' },
-  { to: '/reading', label: 'Reading', icon: '◉', section: 'queue' },
-  { to: '/finished', label: 'Finished', icon: '◉', section: 'queue' },
-  { to: '/next', label: 'Next To Read', icon: '◉', section: 'queue' },
-  { to: '/wishlist', label: 'Wishlist', icon: '◉', section: 'queue' },
-  { to: '/profile', label: 'Profile', icon: '◉', section: 'account' }
-]
+const links = [
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: '◉', section: 'core' },
+  { to: '/library', labelKey: 'nav.library', icon: '◉', section: 'core' },
+  { to: '/reading', labelKey: 'nav.reading', icon: '◉', section: 'queue' },
+  { to: '/finished', labelKey: 'nav.finished', icon: '◉', section: 'queue' },
+  { to: '/next', labelKey: 'nav.nextToRead', icon: '◉', section: 'queue' },
+  { to: '/wishlist', labelKey: 'nav.wishlist', icon: '◉', section: 'queue' },
+  { to: '/profile', labelKey: 'nav.profile', icon: '◉', section: 'account' }
+] as const
 
-const groups: Array<{ key: 'core' | 'queue' | 'account'; title: string }> = [
-  { key: 'core', title: 'Workspace' },
-  { key: 'queue', title: 'Reading flow' },
-  { key: 'account', title: 'Account' }
-]
+const groups = [
+  { key: 'core', titleKey: 'nav.workspace' },
+  { key: 'queue', titleKey: 'nav.readingFlow' },
+  { key: 'account', titleKey: 'nav.account' }
+] as const
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const nav = useNavigate()
   const logout = authStore((s) => s.logout)
+  const { t } = useI18n()
 
   return (
     <div className='app-shell'>
@@ -37,9 +40,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className='space-y-5 overflow-y-auto pr-1'>
             {groups.map((group) => (
               <div key={group.key} className='space-y-2'>
-                <p className='eyebrow px-2'>{group.title}</p>
+                <p className='eyebrow px-2'>{t(group.titleKey)}</p>
                 <nav className='grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1'>
-                  {links.filter((item) => item.section === group.key).map(({ to, label, icon }) => (
+                  {links.filter((item) => item.section === group.key).map(({ to, labelKey, icon }) => (
                     <NavLink
                       key={to}
                       to={to}
@@ -53,7 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       }
                     >
                       <span className='text-[10px] opacity-70 group-hover:opacity-100'>{icon}</span>
-                      <span>{label}</span>
+                      <span>{t(labelKey)}</span>
                     </NavLink>
                   ))}
                 </nav>
@@ -63,6 +66,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           <div className='mt-4 flex items-center gap-2 border-t border-border pt-4 lg:mt-auto'>
             <ThemeToggle />
+            <LanguageToggle />
             <Button
               variant='secondary'
               className='flex-1'
@@ -79,7 +83,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 nav('/login')
               }}
             >
-              Sign out
+              {t('nav.signOut')}
             </Button>
           </div>
         </aside>
@@ -87,10 +91,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className='space-y-6 pb-8'>
           <div className='glass-panel flex flex-wrap items-center justify-between gap-2 px-5 py-3'>
             <div>
-              <p className='eyebrow'>Libro platform</p>
-              <p className='text-sm text-mutedForeground'>Focused reading operations for your personal workspace.</p>
+              <p className='eyebrow'>{t('nav.platformTitle')}</p>
+              <p className='text-sm text-mutedForeground'>{t('nav.platformSubtitle')}</p>
             </div>
-            <p className='rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-mutedForeground'>Phase 1 foundation</p>
           </div>
           {children}
         </main>

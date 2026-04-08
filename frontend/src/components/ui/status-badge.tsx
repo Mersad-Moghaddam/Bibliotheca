@@ -1,12 +1,6 @@
 import { Badge } from './badge'
 import { BookStatus } from '../../types'
-
-export const statusLabel: Record<BookStatus, string> = {
-  inLibrary: 'In Library',
-  currentlyReading: 'Currently Reading',
-  finished: 'Finished',
-  nextToRead: 'Next To Read'
-}
+import { useI18n } from '../../shared/i18n/i18n-provider'
 
 const statusStyles: Record<BookStatus, string> = {
   inLibrary: 'border border-border bg-secondary text-secondaryForeground',
@@ -16,5 +10,6 @@ const statusStyles: Record<BookStatus, string> = {
 }
 
 export function StatusBadge({ status }: { status: BookStatus }) {
-  return <Badge className={statusStyles[status]}>{statusLabel[status]}</Badge>
+  const { t } = useI18n()
+  return <Badge className={statusStyles[status]}>{t(`status.${status}`)}</Badge>
 }
