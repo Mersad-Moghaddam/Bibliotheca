@@ -1,4 +1,4 @@
-export { StatusBadge, statusLabel } from './ui/status-badge'
+export { StatusBadge } from './ui/status-badge'
 
 export function Progress({ value }: { value: number }) {
   const safe = Math.min(100, Math.max(0, value))
