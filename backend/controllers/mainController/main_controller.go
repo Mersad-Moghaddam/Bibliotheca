@@ -18,6 +18,7 @@ func NewMainController(service *MainService) *MainController {
 func (c *MainController) Health(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{"status": constants.HealthStatusOK})
 }
+
 func (c *MainController) DashboardSummary(ctx *fiber.Ctx) error {
 	uid := parseUUID(ctx.Locals("userID").(string))
 	counts, recent, reading, err := c.service.books.Summary(ctx.Context(), uid)
@@ -25,4 +26,22 @@ func (c *MainController) DashboardSummary(ctx *fiber.Ctx) error {
 		return apiErrCode.RespondError(ctx, err)
 	}
 	return ctx.JSON(fiber.Map{"counts": counts, "recentBooks": withBooksComputed(recent), "currentlyReading": withBooksComputed(reading)})
+}
+
+func (c *MainController) DashboardAnalytics(ctx *fiber.Ctx) error {
+	uid := parseUUID(ctx.Locals("userID").(string))
+	analytics, err := c.service.books.Analytics(ctx.Context(), uid)
+	if err != nil {
+		return apiErrCode.RespondError(ctx, err)
+	}
+	return ctx.JSON(analytics)
+}
+
+func (c *MainController) DashboardInsights(ctx *fiber.Ctx) error {
+	uid := parseUUID(ctx.Locals("userID").(string))
+	insights, err := c.service.books.Insights(ctx.Context(), uid)
+	if err != nil {
+		return apiErrCode.RespondError(ctx, err)
+	}
+	return ctx.JSON(fiber.Map{"items": insights})
 }

@@ -39,3 +39,25 @@ func (h *UserController) UpdatePassword(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{"message": "password updated"})
 }
+
+func (h *UserController) GetReminderSettings(c *fiber.Ctx) error {
+	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	u, err := h.service.User.Get(c.Context(), uid)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	return c.JSON(fiber.Map{"enabled": u.ReminderEnabled, "time": u.ReminderTime, "frequency": u.ReminderFrequency})
+}
+
+func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
+	var req userSchema.ReminderSettingsRequest
+	if err := c.BodyParser(&req); err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	u, err := h.service.User.UpdateReminderSettings(c.Context(), uid, req.Enabled, req.Time, req.Frequency)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	return c.JSON(fiber.Map{"enabled": u.ReminderEnabled, "time": u.ReminderTime, "frequency": u.ReminderFrequency})
+}

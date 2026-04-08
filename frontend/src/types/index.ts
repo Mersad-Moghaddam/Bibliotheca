@@ -36,6 +36,29 @@ export type WishlistItem = {
   updatedAt: string
 }
 
+export type AnalyticsPoint = { label: string; count: number }
+
+export type ReadingAnalytics = {
+  booksCompleted: number
+  activeReading: number
+  totalBooks: number
+  totalPagesRead: number
+  completionRate: number
+  readingPacePerMonth: number
+  currentStreakWeeks: number
+  statusDistribution: Record<BookStatus, number>
+  monthlyActivity: AnalyticsPoint[]
+  weeklyActivity: AnalyticsPoint[]
+}
+
+export type ReadingInsight = { tone: string; message: string }
+
+export type ReminderSettings = {
+  enabled: boolean
+  time: string
+  frequency: 'daily' | 'weekdays' | 'weekends'
+}
+
 export type ListResponse<T> = {
   items: T[]
   total: number
