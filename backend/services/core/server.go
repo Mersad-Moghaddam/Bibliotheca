@@ -38,6 +38,8 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps) *fiber.A
 	protected := api.Group("", auth.AuthMiddleware(cfg.JWTSecret))
 	protected.Get("/auth/me", authCtrl.Me)
 	protected.Get("/dashboard/summary", mainCtrl.DashboardSummary)
+	protected.Get("/dashboard/analytics", mainCtrl.DashboardAnalytics)
+	protected.Get("/dashboard/insights", mainCtrl.DashboardInsights)
 	protected.Get("/books", bookCtrl.List)
 	protected.Post("/books", bookCtrl.Create)
 	protected.Get("/books/:id", bookCtrl.Get)
@@ -55,6 +57,8 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps) *fiber.A
 	protected.Delete("/wishlist/:id/links/:linkId", wishCtrl.DeleteLink)
 	protected.Put("/users/profile", userCtrl.UpdateProfile)
 	protected.Put("/users/password", userCtrl.UpdatePassword)
+	protected.Get("/users/reminders", userCtrl.GetReminderSettings)
+	protected.Put("/users/reminders", userCtrl.UpdateReminderSettings)
 
 	return app
 }

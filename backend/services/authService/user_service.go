@@ -45,3 +45,17 @@ func (s *UserService) UpdatePassword(ctx context.Context, userID uuid.UUID, curr
 	u.PasswordHash = h
 	return s.repo.Update(ctx, u)
 }
+
+func (s *UserService) UpdateReminderSettings(ctx context.Context, userID uuid.UUID, enabled bool, reminderTime, frequency string) (*user.User, error) {
+	if reminderTime == "" || frequency == "" {
+		return nil, customErr.ErrBadRequest
+	}
+	u, err := s.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	u.ReminderEnabled = enabled
+	u.ReminderTime = reminderTime
+	u.ReminderFrequency = frequency
+	return u, s.repo.Update(ctx, u)
+}
