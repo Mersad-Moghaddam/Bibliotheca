@@ -7,13 +7,13 @@ import { Button } from '../components/ui/button'
 import { cn } from '../lib/cn'
 
 const links: { to: string; label: string; icon: string; section: 'core' | 'queue' | 'account' }[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: '◌', section: 'core' },
-  { to: '/library', label: 'Library', icon: '◌', section: 'core' },
-  { to: '/reading', label: 'Reading', icon: '◌', section: 'queue' },
-  { to: '/finished', label: 'Finished', icon: '◌', section: 'queue' },
-  { to: '/next', label: 'Next To Read', icon: '◌', section: 'queue' },
-  { to: '/wishlist', label: 'Wishlist', icon: '◌', section: 'queue' },
-  { to: '/profile', label: 'Profile', icon: '◌', section: 'account' }
+  { to: '/dashboard', label: 'Dashboard', icon: '◉', section: 'core' },
+  { to: '/library', label: 'Library', icon: '◉', section: 'core' },
+  { to: '/reading', label: 'Reading', icon: '◉', section: 'queue' },
+  { to: '/finished', label: 'Finished', icon: '◉', section: 'queue' },
+  { to: '/next', label: 'Next To Read', icon: '◉', section: 'queue' },
+  { to: '/wishlist', label: 'Wishlist', icon: '◉', section: 'queue' },
+  { to: '/profile', label: 'Profile', icon: '◉', section: 'account' }
 ]
 
 const groups: Array<{ key: 'core' | 'queue' | 'account'; title: string }> = [
@@ -28,16 +28,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className='app-shell'>
-      <div className='container grid min-h-screen grid-cols-1 gap-6 py-6 lg:grid-cols-[272px_1fr] lg:py-8'>
+      <div className='container grid min-h-screen grid-cols-1 gap-6 py-6 lg:grid-cols-[280px_1fr] lg:py-8'>
         <aside className='surface p-4 lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)] lg:flex lg:flex-col'>
-          <Link to='/dashboard' className='mb-4 block rounded-md p-2'>
+          <Link to='/dashboard' className='mb-5 block rounded-md p-2'>
             <img src={logoWordmark} alt='Libro' className='h-8 w-auto' />
           </Link>
 
-          <div className='space-y-4 overflow-y-auto pr-1'>
+          <div className='space-y-5 overflow-y-auto pr-1'>
             {groups.map((group) => (
               <div key={group.key} className='space-y-2'>
-                <p className='px-2 text-xs font-semibold uppercase tracking-[0.08em] text-mutedForeground'>{group.title}</p>
+                <p className='eyebrow px-2'>{group.title}</p>
                 <nav className='grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1'>
                   {links.filter((item) => item.section === group.key).map(({ to, label, icon }) => (
                     <NavLink
@@ -45,12 +45,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       to={to}
                       className={({ isActive }) =>
                         cn(
-                          'flex items-center gap-2 rounded-md px-3 py-2.5 text-sm transition-colors duration-200 ease-premium',
-                          isActive ? 'bg-primary text-primaryForeground shadow-sm' : 'text-mutedForeground hover:bg-secondary hover:text-foreground'
+                          'group flex items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors duration-200 ease-premium',
+                          isActive
+                            ? 'border-primary/20 bg-primary text-primaryForeground shadow-sm'
+                            : 'border-transparent text-mutedForeground hover:border-border hover:bg-secondary hover:text-foreground'
                         )
                       }
                     >
-                      <span className='text-xs'>{icon}</span>
+                      <span className='text-[10px] opacity-70 group-hover:opacity-100'>{icon}</span>
                       <span>{label}</span>
                     </NavLink>
                   ))}
@@ -81,10 +83,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         </aside>
+
         <main className='space-y-6 pb-8'>
-          <div className='glass-panel flex items-center justify-between px-5 py-3'>
-            <p className='text-sm text-mutedForeground'>Focused reading operations for your personal workspace.</p>
-            <p className='text-xs font-medium uppercase tracking-[0.08em] text-mutedForeground'>Libro SaaS</p>
+          <div className='glass-panel flex flex-wrap items-center justify-between gap-2 px-5 py-3'>
+            <div>
+              <p className='eyebrow'>Libro platform</p>
+              <p className='text-sm text-mutedForeground'>Focused reading operations for your personal workspace.</p>
+            </div>
+            <p className='rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-medium text-mutedForeground'>Phase 1 foundation</p>
           </div>
           {children}
         </main>

@@ -13,23 +13,23 @@ const formCard = 'glass-panel mx-auto w-full max-w-md space-y-4 p-6 md:p-7'
 
 const highlights = [
   {
-    title: 'Focused planning',
-    description: 'Organize backlog, current titles, and next reads with a clean queue model.'
+    title: 'Editorial hierarchy',
+    description: 'Readable pages with intentional spacing that keep your attention on the next useful action.'
   },
   {
-    title: 'Frictionless tracking',
-    description: 'Update page progress in seconds and maintain momentum with minimal clicks.'
+    title: 'Structured reading flow',
+    description: 'Move titles from library to reading to finished with a clear operational model.'
   },
   {
-    title: 'Smart purchasing',
-    description: 'Capture wishlist links and expected prices before you buy your next title.'
+    title: 'Purchase readiness',
+    description: 'Capture wishlist intent, target prices, and reliable links before you buy.'
   }
 ]
 
 const metrics = [
-  { label: 'Dashboard clarity', value: '4 views' },
-  { label: 'Status pipeline', value: 'Library → Reading → Finished' },
-  { label: 'Built for focus', value: 'Low-noise UI' }
+  { label: 'Workspace views', value: 'Dashboard, Library, Queue, Profile' },
+  { label: 'Progress updates', value: 'Fast page-level tracking' },
+  { label: 'Design tone', value: 'Neutral, calm, low-noise' }
 ]
 
 export function Landing() {
@@ -38,20 +38,22 @@ export function Landing() {
       <div className='mx-auto mb-8 flex max-w-6xl justify-end'>
         <ThemeToggle />
       </div>
-      <div className='mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]'>
-        <Card className='space-y-7 p-7 md:p-9'>
+
+      <div className='mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.08fr_0.92fr]'>
+        <Card className='space-y-7 p-7 md:p-10'>
           <div className='space-y-4'>
-            <p className='text-label uppercase text-mutedForeground'>Modern reading workspace</p>
-            <h1 className='text-hero text-foreground'>Reading operations, designed like premium software.</h1>
+            <p className='eyebrow'>Reading OS for individuals</p>
+            <h1 className='max-w-3xl text-hero text-foreground'>A premium workspace for serious reading habits.</h1>
             <p className='max-w-2xl text-body text-mutedForeground'>
-              Libro helps serious readers run their personal reading system with calm structure, excellent readability, and an intentional workflow from backlog to completion.
+              Libro turns your personal reading stack into an intentional operating system: plan your backlog, track current momentum,
+              and finish more books with less friction.
             </p>
           </div>
 
           <div className='grid gap-3 sm:grid-cols-3'>
             {metrics.map((metric) => (
-              <div key={metric.label} className='rounded-lg border border-border bg-surface p-3'>
-                <p className='text-xs uppercase tracking-[0.08em] text-mutedForeground'>{metric.label}</p>
+              <div key={metric.label} className='metric-tile'>
+                <p className='eyebrow'>{metric.label}</p>
                 <p className='mt-1 text-sm font-semibold text-foreground'>{metric.value}</p>
               </div>
             ))}
@@ -67,8 +69,11 @@ export function Landing() {
           </div>
         </Card>
 
-        <Card className='space-y-4 p-7 md:p-9'>
-          <img src={heroOpenBook} alt='Open book illustration' className='w-full rounded-lg border border-border bg-surface p-4' />
+        <Card className='space-y-5 p-7 md:p-10'>
+          <div className='rounded-lg border border-border bg-surface p-4'>
+            <img src={heroOpenBook} alt='Open book illustration' className='w-full rounded-md' />
+          </div>
+
           <div className='space-y-3'>
             {highlights.map((item) => (
               <div key={item.title} className='rounded-lg border border-border bg-card p-4'>

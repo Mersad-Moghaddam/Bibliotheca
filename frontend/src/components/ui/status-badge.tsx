@@ -9,10 +9,10 @@ export const statusLabel: Record<BookStatus, string> = {
 }
 
 const statusStyles: Record<BookStatus, string> = {
-  inLibrary: 'bg-muted text-mutedForeground',
-  currentlyReading: 'bg-accent/25 text-accentForeground',
-  finished: 'bg-success/20 text-success',
-  nextToRead: 'bg-warning/20 text-warning'
+  inLibrary: 'border border-border bg-secondary text-secondaryForeground',
+  currentlyReading: 'border border-accent/60 bg-accent/35 text-accentForeground',
+  finished: 'border border-success/30 bg-success/15 text-success',
+  nextToRead: 'border border-warning/30 bg-warning/12 text-warning'
 }
 
 export function StatusBadge({ status }: { status: BookStatus }) {

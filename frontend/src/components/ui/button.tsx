@@ -10,10 +10,10 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-primaryForeground hover:brightness-110 shadow-sm hover:shadow-md',
+  primary: 'border border-primary/80 bg-primary text-primaryForeground hover:brightness-110 shadow-sm hover:shadow-md',
   secondary: 'border border-border bg-card text-foreground hover:bg-secondary',
-  ghost: 'text-foreground hover:bg-secondary',
-  destructive: 'border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20'
+  ghost: 'border border-transparent text-foreground hover:bg-secondary',
+  destructive: 'border border-destructive/35 bg-destructive/10 text-destructive hover:bg-destructive/20'
 }
 
 const sizes: Record<ButtonSize, string> = {
@@ -31,7 +31,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={type}
       className={cn(
-        'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-all duration-200 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 disabled:pointer-events-none disabled:opacity-60',
+        'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium tracking-[-0.01em] transition-all duration-200 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-60',
         variants[variant],
         sizes[size],
         className
