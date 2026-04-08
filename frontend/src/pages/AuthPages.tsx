@@ -9,7 +9,28 @@ import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 
 const wrap = 'app-shell min-h-screen px-4 py-8 md:px-8 md:py-10'
-const formCard = 'mx-auto w-full max-w-md space-y-4'
+const formCard = 'glass-panel mx-auto w-full max-w-md space-y-4 p-6 md:p-7'
+
+const highlights = [
+  {
+    title: 'Focused planning',
+    description: 'Organize backlog, current titles, and next reads with a clean queue model.'
+  },
+  {
+    title: 'Frictionless tracking',
+    description: 'Update page progress in seconds and maintain momentum with minimal clicks.'
+  },
+  {
+    title: 'Smart purchasing',
+    description: 'Capture wishlist links and expected prices before you buy your next title.'
+  }
+]
+
+const metrics = [
+  { label: 'Dashboard clarity', value: '4 views' },
+  { label: 'Status pipeline', value: 'Library → Reading → Finished' },
+  { label: 'Built for focus', value: 'Low-noise UI' }
+]
 
 export function Landing() {
   return (
@@ -17,24 +38,45 @@ export function Landing() {
       <div className='mx-auto mb-8 flex max-w-6xl justify-end'>
         <ThemeToggle />
       </div>
-      <div className='mx-auto grid max-w-6xl gap-6 md:grid-cols-2'>
-        <Card className='space-y-6 p-8'>
-          <div className='space-y-3'>
-            <p className='text-label uppercase text-mutedForeground'>Personal reading workspace</p>
-            <h1 className='text-hero text-foreground'>Libro</h1>
-            <p className='text-small text-mutedForeground'>Track your library, reading progress, and purchase plans with calm clarity.</p>
+      <div className='mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]'>
+        <Card className='space-y-7 p-7 md:p-9'>
+          <div className='space-y-4'>
+            <p className='text-label uppercase text-mutedForeground'>Modern reading workspace</p>
+            <h1 className='text-hero text-foreground'>Reading operations, designed like premium software.</h1>
+            <p className='max-w-2xl text-body text-mutedForeground'>
+              Libro helps serious readers run their personal reading system with calm structure, excellent readability, and an intentional workflow from backlog to completion.
+            </p>
           </div>
+
+          <div className='grid gap-3 sm:grid-cols-3'>
+            {metrics.map((metric) => (
+              <div key={metric.label} className='rounded-lg border border-border bg-surface p-3'>
+                <p className='text-xs uppercase tracking-[0.08em] text-mutedForeground'>{metric.label}</p>
+                <p className='mt-1 text-sm font-semibold text-foreground'>{metric.value}</p>
+              </div>
+            ))}
+          </div>
+
           <div className='flex flex-wrap gap-3'>
             <Link to='/register'>
-              <Button>Get started</Button>
+              <Button>Start for free</Button>
             </Link>
             <Link to='/login'>
               <Button variant='secondary'>Log in</Button>
             </Link>
           </div>
         </Card>
-        <Card className='flex items-center justify-center p-8'>
-          <img src={heroOpenBook} alt='Open book illustration' className='w-full max-w-lg rounded-lg' />
+
+        <Card className='space-y-4 p-7 md:p-9'>
+          <img src={heroOpenBook} alt='Open book illustration' className='w-full rounded-lg border border-border bg-surface p-4' />
+          <div className='space-y-3'>
+            {highlights.map((item) => (
+              <div key={item.title} className='rounded-lg border border-border bg-card p-4'>
+                <h2 className='text-sm font-semibold'>{item.title}</h2>
+                <p className='mt-1 text-small text-mutedForeground'>{item.description}</p>
+              </div>
+            ))}
+          </div>
         </Card>
       </div>
     </div>

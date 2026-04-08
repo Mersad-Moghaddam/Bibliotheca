@@ -10,7 +10,7 @@ export function PageHeader({
   action?: ReactNode
 }) {
   return (
-    <header className='flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-sm md:flex-row md:items-start md:justify-between'>
+    <header className='surface flex flex-col gap-4 p-6 md:flex-row md:items-start md:justify-between'>
       <div className='space-y-2'>
         <h1 className='text-page-title text-foreground'>{title}</h1>
         {description ? <p className='max-w-2xl text-small text-mutedForeground'>{description}</p> : null}
