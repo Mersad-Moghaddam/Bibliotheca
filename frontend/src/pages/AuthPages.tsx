@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowRight, BookOpenText, Quote, Sparkles } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -20,7 +21,7 @@ import { useToast } from '../shared/toast/toast-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 
 const wrap = 'app-shell min-h-screen px-4 py-8 md:px-8 md:py-10'
-const formCard = 'glass-panel mx-auto w-full max-w-md space-y-4 p-6 md:p-7'
+const formCard = 'glass-panel mx-auto w-full max-w-md space-y-5 p-6 md:p-7'
 
 const FieldError = ({ message }: { message?: string }) =>
   message ? <p className="text-xs text-destructive">{message}</p> : null
@@ -33,24 +34,28 @@ export function Landing() {
   return (
     <div className={wrap}>
       <div className="mx-auto mb-8 flex max-w-6xl items-center justify-between gap-3">
-        <p className="text-lg font-semibold tracking-tight text-primary">Libro</p>
+        <div>
+          <p className="text-xl font-semibold tracking-tight text-primary">Libro</p>
+          <p className="text-xs text-mutedForeground">{t('landing.eyebrow')}</p>
+        </div>
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <ThemeToggle />
         </div>
       </div>
 
-      <section className="mx-auto max-w-6xl space-y-14">
-        <div className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
+      <section className="mx-auto max-w-6xl space-y-10">
+        <div className="grid items-start gap-8 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="space-y-6">
-            <Badge className="border border-border bg-secondary text-secondaryForeground">
-              {t('landing.eyebrow')}
-            </Badge>
+            <Badge className="w-fit border border-border bg-secondary text-secondaryForeground">{t('landing.productPreview')}</Badge>
             <h1 className="max-w-2xl text-hero text-foreground">{t('landing.title')}</h1>
             <p className="max-w-xl text-body text-mutedForeground">{t('landing.subtitle')}</p>
             <div className="flex flex-wrap gap-3">
               <Link to="/register">
-                <Button>{t('landing.ctaPrimary')}</Button>
+                <Button className="gap-2">
+                  {t('landing.ctaPrimary')}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </Link>
               <Link to="/login">
                 <Button variant="secondary">{t('landing.ctaSecondary')}</Button>
@@ -67,7 +72,10 @@ export function Landing() {
           </div>
 
           <Card className="space-y-4 p-6">
-            <p className="eyebrow">{t('landing.productPreview')}</p>
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <BookOpenText className="h-4 w-4 text-primary" />
+              {t('landing.productPreview')}
+            </div>
             <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
               <div className="rounded-xl border border-border bg-card p-4">
                 <p className="text-sm text-mutedForeground">{t('landing.previewCard1Title')}</p>
@@ -91,7 +99,8 @@ export function Landing() {
         <div className="grid gap-4 md:grid-cols-3">
           {testimonials.map((item, idx) => (
             <Card key={idx} className="space-y-3 p-5">
-              <p className="text-sm">“{item.quote}”</p>
+              <Quote className="h-4 w-4 text-mutedForeground" />
+              <p className="text-sm">{item.quote}</p>
               <p className="text-xs text-mutedForeground">{item.author}</p>
             </Card>
           ))}
@@ -103,10 +112,22 @@ export function Landing() {
             <p className="mt-1 text-sm text-mutedForeground">{t('landing.finalCtaSubtitle')}</p>
           </div>
           <Link to="/register">
-            <Button size="lg">{t('landing.ctaPrimary')}</Button>
+            <Button size="lg" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              {t('landing.ctaPrimary')}
+            </Button>
           </Link>
         </Card>
       </section>
+    </div>
+  )
+}
+
+function AuthHeader() {
+  return (
+    <div className="mx-auto mb-6 flex w-full max-w-md justify-end gap-2">
+      <LanguageToggle />
+      <ThemeToggle />
     </div>
   )
 }
@@ -129,30 +150,19 @@ export function Register() {
       nav('/login')
     } catch (error) {
       const apiError = parseApiError(error)
-      if (apiError.code === 'email_already_exists') {
-        toast.error(t('auth.emailAlreadyExists'))
-        return
-      }
-      if (apiError.code === 'validation_error') {
-        toast.error(t('auth.missingFields'))
-        return
-      }
-      if (apiError.code === 'network_error') {
-        toast.error(t('auth.networkFailure'))
-        return
-      }
+      if (apiError.code === 'email_already_exists') return toast.error(t('auth.emailAlreadyExists'))
+      if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
+      if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
       toast.error(apiError.message ?? t('auth.unexpectedServerError'))
     }
   })
 
   return (
     <div className={wrap}>
-      <div className="mx-auto mb-6 flex w-full max-w-md justify-end gap-2">
-        <LanguageToggle />
-        <ThemeToggle />
-      </div>
+      <AuthHeader />
       <Card className={formCard}>
         <h1 className="text-page-title">{t('auth.createAccount')}</h1>
+        <p className="text-small text-mutedForeground">{t('auth.registerSubtitle')}</p>
         <form onSubmit={onSubmit} className="space-y-3">
           <div>
             <Input placeholder={t('auth.name')} {...form.register('name')} />
@@ -167,16 +177,18 @@ export function Register() {
             <FieldError message={form.formState.errors.password?.message} />
           </div>
           <div>
-            <Input
-              type="password"
-              placeholder={t('auth.confirmPassword')}
-              {...form.register('confirmPassword')}
-            />
+            <Input type="password" placeholder={t('auth.confirmPassword')} {...form.register('confirmPassword')} />
             <FieldError message={form.formState.errors.confirmPassword?.message} />
           </div>
           <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
             {registerMutation.isPending ? t('common.save') : t('auth.signUp')}
           </Button>
+          <p className="text-small text-mutedForeground">
+            {t('auth.hasAccount')}{' '}
+            <Link to="/login" className="font-medium text-primary underline-offset-2 hover:underline">
+              {t('auth.logIn')}
+            </Link>
+          </p>
         </form>
       </Card>
     </div>
@@ -201,30 +213,19 @@ export function Login() {
       nav('/dashboard')
     } catch (error) {
       const apiError = parseApiError(error)
-      if (apiError.code === 'invalid_credentials') {
-        toast.error(t('auth.invalidCredentials'))
-        return
-      }
-      if (apiError.code === 'validation_error') {
-        toast.error(t('auth.missingFields'))
-        return
-      }
-      if (apiError.code === 'network_error') {
-        toast.error(t('auth.networkFailure'))
-        return
-      }
+      if (apiError.code === 'invalid_credentials') return toast.error(t('auth.invalidCredentials'))
+      if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
+      if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
       toast.error(apiError.message ?? t('auth.unexpectedServerError'))
     }
   })
 
   return (
     <div className={wrap}>
-      <div className="mx-auto mb-6 flex w-full max-w-md justify-end gap-2">
-        <LanguageToggle />
-        <ThemeToggle />
-      </div>
+      <AuthHeader />
       <Card className={formCard}>
         <h1 className="text-page-title">{t('auth.welcomeBack')}</h1>
+        <p className="text-small text-mutedForeground">{t('auth.loginSubtitle')}</p>
         <form onSubmit={onSubmit} className="space-y-3">
           <div>
             <Input type="email" placeholder={t('auth.email')} {...form.register('email')} />
@@ -239,8 +240,8 @@ export function Login() {
           </Button>
         </form>
         <p className="text-small text-mutedForeground">
-          {t('auth.noAccount')}{' '}
-          <Link to="/register" className="font-medium text-primary">
+          {t('auth.needAccount')}{' '}
+          <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
             {t('auth.signUp')}
           </Link>
         </p>

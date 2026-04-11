@@ -26,7 +26,8 @@ export const messages = {
       readingFlow: 'Reading flow',
       account: 'Account',
       platformTitle: 'Libro platform',
-      platformSubtitle: 'Focused reading operations for your personal workspace.'
+      platformSubtitle: 'Focused reading operations for your personal workspace.',
+      focusMode: 'Focus mode'
     },
     landing: {
       eyebrow: 'Reading intelligence, without clutter',
@@ -124,6 +125,8 @@ export const messages = {
       confirmPassword: 'Confirm password',
       signUp: 'Sign up',
       logIn: 'Log in',
+      registerSubtitle: 'Create a calm reading home for your books, notes, and momentum.',
+      loginSubtitle: 'Continue where you left off and return to your current reading flow.',
       hasAccount: 'Already have an account?',
       needAccount: 'Need an account?',
       registrationFailed: 'Registration failed. Please check your details.',
@@ -144,6 +147,16 @@ export const messages = {
       currentStreak: 'Weekly streak',
       reminderOn: 'Reminder is on at {time}.',
       reminderOff: 'Reminder is currently off.',
+      logSession: 'Log quick session',
+      noInsights: 'Insights will appear as you read and update progress.',
+      sessionsCount: '{count} recent sessions',
+      emptyAnalyticsTitle: 'No analytics yet',
+      emptyAnalyticsDescription: 'Add books and track progress to unlock reading analytics.',
+      consistency: 'Consistency',
+      goalsTitle: 'Reading goals',
+      goalSummary: 'Pages {pagesRead}/{pagesGoal} · Books {booksRead}/{booksGoal}',
+      setWeekly: 'Set weekly',
+      setMonthly: 'Set monthly',
       currentSnapshot: 'Current reading snapshot',
       noActiveTitle: 'No active books yet',
       noActiveDescription: 'Move a title to Currently Reading to start seeing your progress here.',
@@ -160,8 +173,14 @@ export const messages = {
       authorPlaceholder: 'Author',
       totalPages: 'Total pages',
       add: 'Add book',
+      coverUrlOptional: 'Cover URL (optional)',
+      genreOptional: 'Genre (optional)',
+      isbnOptional: 'ISBN (optional)',
       added: 'Book added to your library.',
       searchPlaceholder: 'Search title or author',
+      genre: 'Genre',
+      sortRecent: 'Recently updated',
+      sortTitle: 'Title',
       allStatuses: 'All statuses',
       noBooksTitle: 'No books found',
       noBooksDescription: 'Start by adding your first book above, or adjust your search filters.',
@@ -173,7 +192,14 @@ export const messages = {
     },
     wishlist: {
       title: 'Wishlist',
-      description: 'Collect future purchases and keep reliable links in one organized place.'
+      description: 'Collect future purchases and keep reliable links in one organized place.',
+      addTitle: 'Add to wishlist',
+      expectedPrice: 'Expected price',
+      notes: 'Short note',
+      addAction: 'Add to wishlist',
+      emptyTitle: 'Wishlist is empty',
+      emptyDescription: 'Save books you may want to buy or read next.',
+      linkLabel: 'Optional store label'
     },
     profile: {
       title: 'Profile',
@@ -194,7 +220,9 @@ export const messages = {
       weekends: 'Weekends',
       weekly: 'Weekly',
       saveReminders: 'Save reminder settings',
-      reminderSuccess: 'Reminder settings updated.'
+      reminderSuccess: 'Reminder settings updated.',
+      notesTitle: 'Personal notes',
+      notesPlaceholder: 'Optional personal reading notes...'
     },
     status: {
       inLibrary: 'In library',
@@ -217,7 +245,19 @@ export const messages = {
       readingProgress: 'Reading progress',
       completed: 'Completed',
       notFinished: 'Not finished yet',
-      delete: 'Delete book'
+      delete: 'Delete book',
+      collection: 'Reading collection',
+      emptyTitle: 'No books found',
+      emptyDescription: 'Move books from your library to continue.',
+      notesTitle: 'Notes & highlights',
+      notePlaceholder: 'Your note',
+      highlightPlaceholder: 'Optional quote/highlight',
+      saveNote: 'Save note'
+    },
+    query: {
+      errorTitle: 'Something went wrong',
+      errorDescription: 'We could not load this section.',
+      retry: 'Retry'
     }
   },
   fa: {
@@ -245,7 +285,8 @@ export const messages = {
       readingFlow: 'جریان مطالعه',
       account: 'حساب کاربری',
       platformTitle: 'پلتفرم لیبرو',
-      platformSubtitle: 'مدیریت متمرکز مطالعه برای فضای شخصی شما.'
+      platformSubtitle: 'مدیریت متمرکز مطالعه برای فضای شخصی شما.',
+      focusMode: 'حالت تمرکز'
     },
     landing: {
       eyebrow: 'هوشمندی مطالعه، بدون شلوغی',
@@ -336,6 +377,8 @@ export const messages = {
       confirmPassword: 'تکرار رمز عبور',
       signUp: 'ثبت‌نام',
       logIn: 'ورود',
+      registerSubtitle: 'برای کتاب‌ها، یادداشت‌ها و پیشرفت مطالعه‌ات یک فضای آرام بساز.',
+      loginSubtitle: 'به جریان مطالعه‌ات برگرد و از همان‌جا ادامه بده.',
       hasAccount: 'حساب دارید؟',
       needAccount: 'حساب ندارید؟',
       registrationFailed: 'ثبت‌نام ناموفق بود. اطلاعات را بررسی کنید.',
@@ -356,6 +399,16 @@ export const messages = {
       currentStreak: 'رشته هفتگی',
       reminderOn: 'یادآور در ساعت {time} فعال است.',
       reminderOff: 'یادآور غیرفعال است.',
+      logSession: 'ثبت جلسه کوتاه',
+      noInsights: 'با ثبت پیشرفت، بینش‌های شخصی اینجا نمایش داده می‌شود.',
+      sessionsCount: '{count} جلسه اخیر',
+      emptyAnalyticsTitle: 'هنوز تحلیلی ندارید',
+      emptyAnalyticsDescription: 'با افزودن کتاب و ثبت پیشرفت، تحلیل‌ها فعال می‌شوند.',
+      consistency: 'ثبات مطالعه',
+      goalsTitle: 'اهداف مطالعه',
+      goalSummary: 'صفحه {pagesRead}/{pagesGoal} · کتاب {booksRead}/{booksGoal}',
+      setWeekly: 'هدف هفتگی',
+      setMonthly: 'هدف ماهانه',
       currentSnapshot: 'وضعیت مطالعه فعلی',
       noActiveTitle: 'کتاب فعالی ندارید',
       noActiveDescription: 'یک کتاب را به در حال مطالعه منتقل کنید.',
@@ -372,8 +425,14 @@ export const messages = {
       authorPlaceholder: 'نویسنده',
       totalPages: 'تعداد صفحات',
       add: 'افزودن کتاب',
+      coverUrlOptional: 'آدرس جلد (اختیاری)',
+      genreOptional: 'ژانر (اختیاری)',
+      isbnOptional: 'شابک (اختیاری)',
       added: 'کتاب به کتابخانه اضافه شد.',
       searchPlaceholder: 'جستجوی عنوان یا نویسنده',
+      genre: 'ژانر',
+      sortRecent: 'آخرین به‌روزرسانی',
+      sortTitle: 'عنوان',
       allStatuses: 'همه وضعیت‌ها',
       noBooksTitle: 'کتابی پیدا نشد',
       noBooksDescription: 'یک کتاب اضافه کنید یا فیلترها را تغییر دهید.',
@@ -385,7 +444,14 @@ export const messages = {
     },
     wishlist: {
       title: 'لیست خرید',
-      description: 'کتاب‌های خرید آینده و لینک‌های معتبر را یکجا نگه دارید.'
+      description: 'کتاب‌های خرید آینده و لینک‌های معتبر را یکجا نگه دارید.',
+      addTitle: 'افزودن به لیست خرید',
+      expectedPrice: 'قیمت تقریبی',
+      notes: 'یادداشت کوتاه',
+      addAction: 'ثبت در لیست خرید',
+      emptyTitle: 'لیست خرید خالی است',
+      emptyDescription: 'کتاب‌هایی که قصد خرید یا مطالعه‌شان را دارید اینجا نگه دارید.',
+      linkLabel: 'برچسب فروشگاه (اختیاری)'
     },
     profile: {
       title: 'پروفایل',
@@ -406,7 +472,9 @@ export const messages = {
       weekends: 'آخر هفته',
       weekly: 'هفتگی',
       saveReminders: 'ذخیره تنظیمات یادآور',
-      reminderSuccess: 'تنظیمات یادآور ذخیره شد.'
+      reminderSuccess: 'تنظیمات یادآور ذخیره شد.',
+      notesTitle: 'یادداشت‌های شخصی',
+      notesPlaceholder: 'یادداشت شخصی درباره برنامه مطالعه‌ات...'
     },
     status: {
       inLibrary: 'در کتابخانه',
@@ -429,7 +497,19 @@ export const messages = {
       readingProgress: 'پیشرفت مطالعه',
       completed: 'تکمیل‌شده',
       notFinished: 'هنوز تمام نشده',
-      delete: 'حذف کتاب'
+      delete: 'حذف کتاب',
+      collection: 'مجموعه مطالعه',
+      emptyTitle: 'کتابی پیدا نشد',
+      emptyDescription: 'کتاب‌ها را از کتابخانه به این بخش منتقل کنید.',
+      notesTitle: 'یادداشت‌ها و هایلایت‌ها',
+      notePlaceholder: 'یادداشت شما',
+      highlightPlaceholder: 'نقل‌قول یا هایلایت (اختیاری)',
+      saveNote: 'ذخیره یادداشت'
+    },
+    query: {
+      errorTitle: 'مشکلی پیش آمد',
+      errorDescription: 'بارگذاری این بخش ممکن نبود.',
+      retry: 'تلاش دوباره'
     }
   }
 } as const

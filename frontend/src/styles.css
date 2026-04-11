@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,47 +6,47 @@
 
 @layer base {
   :root {
-    --background: 220 20% 98%;
-    --foreground: 220 15% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 14% 13%;
-    --surface: 220 19% 96%;
-    --surface-foreground: 220 13% 20%;
-    --primary: 223 27% 16%;
-    --primary-foreground: 210 25% 98%;
-    --secondary: 220 16% 94%;
-    --secondary-foreground: 220 13% 28%;
-    --muted: 220 14% 92%;
-    --muted-foreground: 220 9% 43%;
-    --accent: 219 18% 89%;
-    --accent-foreground: 221 17% 24%;
-    --border: 220 13% 85%;
-    --input: 220 13% 82%;
-    --ring: 223 21% 39%;
+    --background: 36 35% 97%;
+    --foreground: 22 20% 15%;
+    --card: 38 45% 99%;
+    --card-foreground: 24 18% 16%;
+    --surface: 36 27% 94%;
+    --surface-foreground: 22 15% 26%;
+    --primary: 18 26% 22%;
+    --primary-foreground: 34 45% 97%;
+    --secondary: 34 29% 90%;
+    --secondary-foreground: 22 18% 28%;
+    --muted: 34 22% 89%;
+    --muted-foreground: 20 10% 41%;
+    --accent: 21 31% 85%;
+    --accent-foreground: 20 22% 22%;
+    --border: 30 20% 81%;
+    --input: 32 21% 79%;
+    --ring: 20 24% 36%;
     --success: 152 34% 34%;
-    --warning: 33 85% 42%;
-    --destructive: 3 70% 47%;
-    --shadow: 220 35% 12%;
+    --warning: 33 78% 42%;
+    --destructive: 3 65% 47%;
+    --shadow: 24 30% 16%;
   }
 
   .dark {
-    --background: 222 21% 8%;
-    --foreground: 220 20% 92%;
-    --card: 223 18% 11%;
-    --card-foreground: 220 20% 91%;
-    --surface: 223 16% 14%;
-    --surface-foreground: 220 17% 90%;
-    --primary: 220 19% 88%;
-    --primary-foreground: 223 24% 14%;
-    --secondary: 223 13% 18%;
-    --secondary-foreground: 220 13% 84%;
-    --muted: 223 12% 17%;
-    --muted-foreground: 220 10% 69%;
-    --accent: 223 13% 24%;
-    --accent-foreground: 220 17% 92%;
-    --border: 223 11% 26%;
-    --input: 223 11% 28%;
-    --ring: 218 18% 72%;
+    --background: 20 15% 10%;
+    --foreground: 32 32% 90%;
+    --card: 20 14% 13%;
+    --card-foreground: 30 28% 90%;
+    --surface: 22 12% 16%;
+    --surface-foreground: 30 22% 86%;
+    --primary: 36 48% 88%;
+    --primary-foreground: 19 20% 16%;
+    --secondary: 20 10% 20%;
+    --secondary-foreground: 30 20% 84%;
+    --muted: 20 8% 19%;
+    --muted-foreground: 28 10% 66%;
+    --accent: 20 12% 28%;
+    --accent-foreground: 34 26% 89%;
+    --border: 20 9% 28%;
+    --input: 20 9% 30%;
+    --ring: 34 30% 72%;
     --success: 151 34% 50%;
     --warning: 35 86% 58%;
     --destructive: 355 76% 63%;
@@ -83,7 +83,7 @@
 @layer components {
   .app-shell {
     @apply min-h-screen bg-background;
-    background-image: radial-gradient(circle at top, hsl(var(--muted) / 0.72), transparent 62%);
+    background-image: radial-gradient(circle at top, hsl(var(--muted) / 0.56), transparent 58%);
   }
 
   .surface {
@@ -95,11 +95,11 @@
   }
 
   .glass-panel {
-    @apply rounded-2xl border border-border/70 bg-card/[0.88] shadow-md backdrop-blur-sm;
+    @apply rounded-2xl border border-border/80 bg-card/[0.9] shadow-md backdrop-blur-sm;
   }
 
   .metric-tile {
-    @apply rounded-xl border border-border bg-surface px-3 py-3;
+    @apply rounded-xl border border-border bg-surface px-3 py-3 text-sm;
   }
 
   .eyebrow {
@@ -147,8 +147,4 @@ html[lang='fa'] body {
 
 html[dir='rtl'] .container {
   direction: rtl;
-}
-
-html[dir='rtl'] .rtl-flip {
-  flex-direction: row-reverse;
 }

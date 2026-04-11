@@ -1,8 +1,10 @@
+import { AlertTriangle, Inbox } from 'lucide-react'
 import { ReactNode } from 'react'
 
 import { Button } from '../../components/ui/button'
 import { EmptyState } from '../../components/ui/empty-state'
 import { Skeleton } from '../../components/ui/skeleton'
+import { useI18n } from '../i18n/i18n-provider'
 
 export function QueryState({
   isLoading,
@@ -21,6 +23,8 @@ export function QueryState({
   emptyTitle: string
   emptyDescription: string
 }) {
+  const { t } = useI18n()
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -33,13 +37,13 @@ export function QueryState({
   if (isError) {
     return (
       <EmptyState
-        icon="⚠️"
-        title="Something went wrong"
-        description="We could not load this section."
+        icon={<AlertTriangle className="h-5 w-5" />}
+        title={t('query.errorTitle')}
+        description={t('query.errorDescription')}
         action={
           onRetry ? (
             <Button size="sm" onClick={onRetry}>
-              Retry
+              {t('query.retry')}
             </Button>
           ) : undefined
         }
@@ -48,7 +52,7 @@ export function QueryState({
   }
 
   if (isEmpty) {
-    return <EmptyState icon="📭" title={emptyTitle} description={emptyDescription} />
+    return <EmptyState icon={<Inbox className="h-5 w-5" />} title={emptyTitle} description={emptyDescription} />
   }
 
   return <>{children}</>
