@@ -4,7 +4,7 @@ export const queryKeys = {
   },
   books: {
     all: ['books'] as const,
-    list: (params?: { search?: string; status?: string }) => ['books', 'list', params] as const,
+    list: (params?: { search?: string; status?: string; genre?: string; sortBy?: string; order?: 'asc' | 'desc' }) => ['books', 'list', params] as const,
     detail: (id: string) => ['books', 'detail', id] as const
   },
   wishlist: {

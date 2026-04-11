@@ -32,7 +32,7 @@ func DepsFromInitialRepositories(ir *repositories.InitialRepositories) Controlle
 	wishSvc := wishlistService.New(ir.Wishlist, ir.PurchaseLink)
 
 	return ControllerDeps{
-		Main:     &MainService{books: bookSvc},
+		Main:     &MainService{books: bookSvc, reading: readSvc, users: userSvc},
 		Auth:     &authController.ServiceBridge{Auth: authSvc, User: userSvc},
 		Book:     &bookController.ServiceBridge{Book: bookSvc},
 		Reading:  &readingController.ServiceBridge{Reading: readSvc},

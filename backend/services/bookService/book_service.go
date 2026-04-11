@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"libro-backend/models/book"
+	"libro-backend/models/bookNote"
 	"libro-backend/repositories"
 	"libro-backend/statics/constants"
 	"libro-backend/statics/customErr"
@@ -206,6 +207,24 @@ func (s *Service) Analytics(ctx context.Context, userID uuid.UUID) (*Analytics, 
 		MonthlyActivity:     monthly,
 		WeeklyActivity:      weekly,
 	}, nil
+}
+
+func (s *Service) ListNotes(ctx context.Context, userID, bookID uuid.UUID) ([]bookNote.BookNote, error) {
+	if _, err := s.repo.GetByID(ctx, userID, bookID); err != nil {
+		return nil, err
+	}
+	return s.repo.ListNotes(ctx, userID, bookID)
+}
+
+func (s *Service) CreateNote(ctx context.Context, userID, bookID uuid.UUID, note string, highlight *string) (*bookNote.BookNote, error) {
+	if note == "" {
+		return nil, customErr.ErrBadRequest
+	}
+	if _, err := s.repo.GetByID(ctx, userID, bookID); err != nil {
+		return nil, err
+	}
+	n := &bookNote.BookNote{UserID: userID, BookID: bookID, Note: note, Highlight: highlight}
+	return n, s.repo.CreateNote(ctx, n)
 }
 
 func (s *Service) Insights(ctx context.Context, userID uuid.UUID) ([]map[string]string, error) {

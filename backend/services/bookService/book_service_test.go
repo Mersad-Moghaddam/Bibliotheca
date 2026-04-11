@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"libro-backend/models/book"
+	"libro-backend/models/bookNote"
 	"libro-backend/repositories"
 	"libro-backend/statics/constants"
 	"libro-backend/statics/customErr"
@@ -52,6 +53,12 @@ func (f *fakeBookRepo) SummaryCounts(_ context.Context, _ uuid.UUID) (map[string
 }
 func (f *fakeBookRepo) Recent(_ context.Context, _ uuid.UUID, _ int) ([]book.Book, error) {
 	return nil, nil
+}
+func (f *fakeBookRepo) ListNotes(_ context.Context, _, _ uuid.UUID) ([]bookNote.BookNote, error) {
+	return nil, nil
+}
+func (f *fakeBookRepo) CreateNote(_ context.Context, _ *bookNote.BookNote) error {
+	return nil
 }
 
 func TestUpdateStatusTransitions(t *testing.T) {

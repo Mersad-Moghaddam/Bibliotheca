@@ -5,7 +5,10 @@ import (
 
 	"github.com/google/uuid"
 	"libro-backend/models/book"
+	"libro-backend/models/bookNote"
 	"libro-backend/models/purchaseLink"
+	"libro-backend/models/readingGoal"
+	"libro-backend/models/readingSession"
 	"libro-backend/models/user"
 	"libro-backend/models/wishlist"
 )
@@ -18,6 +21,7 @@ type PageFilter struct {
 type BookFilter struct {
 	Search string
 	Status string
+	Genre  string
 	SortBy string
 	Order  string
 	PageFilter
@@ -53,6 +57,8 @@ type BookRepository interface {
 	Delete(ctx context.Context, userID, bookID uuid.UUID) error
 	SummaryCounts(ctx context.Context, userID uuid.UUID) (map[string]int64, error)
 	Recent(ctx context.Context, userID uuid.UUID, limit int) ([]book.Book, error)
+	ListNotes(ctx context.Context, userID, bookID uuid.UUID) ([]bookNote.BookNote, error)
+	CreateNote(ctx context.Context, n *bookNote.BookNote) error
 }
 
 type WishlistRepository interface {
@@ -71,4 +77,8 @@ type PurchaseLinkRepository interface {
 
 type ReadingProgressRepository interface {
 	UpdateCurrentPage(ctx context.Context, userID, bookID uuid.UUID, currentPage int) (*book.Book, error)
+	CreateSession(ctx context.Context, session *readingSession.ReadingSession) error
+	ListSessions(ctx context.Context, userID uuid.UUID, limit int) ([]readingSession.ReadingSession, error)
+	UpsertGoal(ctx context.Context, goal *readingGoal.ReadingGoal) error
+	ListGoals(ctx context.Context, userID uuid.UUID) ([]readingGoal.ReadingGoal, error)
 }

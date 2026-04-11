@@ -15,6 +15,9 @@ type Book struct {
 	TotalPages  int        `gorm:"not null" json:"totalPages"`
 	Status      string     `gorm:"type:varchar(30);not null;index" json:"status"`
 	CurrentPage *int       `json:"currentPage"`
+	CoverURL    *string    `gorm:"size:500" json:"coverUrl"`
+	Genre       *string    `gorm:"size:120" json:"genre"`
+	ISBN        *string    `gorm:"size:40" json:"isbn"`
 	CompletedAt *time.Time `json:"completedAt"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`

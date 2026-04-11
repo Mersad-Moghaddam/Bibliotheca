@@ -1,6 +1,8 @@
 package userController
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"libro-backend/apiSchema/userSchema"
@@ -61,7 +63,7 @@ func (h *UserController) GetReminderSettings(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, fiber.Map{"enabled": u.ReminderEnabled, "time": u.ReminderTime, "frequency": u.ReminderFrequency}, nil)
+	return apiresponse.OK(c, fiber.Map{"enabled": u.ReminderEnabled, "time": u.ReminderTime, "frequency": u.ReminderFrequency, "nextReminderAt": nextReminderAt(u.ReminderEnabled, u.ReminderTime)}, nil)
 }
 
 func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
@@ -72,7 +74,7 @@ func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
 	errs := validation.Errors{}
 	req.Time = validation.Required(req.Time, "time", errs)
 	req.Frequency = validation.Required(req.Frequency, "frequency", errs)
-	allowed := map[string]struct{}{"daily": {}, "weekly": {}}
+	allowed := map[string]struct{}{"daily": {}, "weekly": {}, "weekdays": {}, "weekends": {}}
 	validation.Enum(req.Frequency, "frequency", allowed, errs)
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
@@ -82,5 +84,22 @@ func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, fiber.Map{"enabled": u.ReminderEnabled, "time": u.ReminderTime, "frequency": u.ReminderFrequency}, nil)
+	return apiresponse.OK(c, fiber.Map{"enabled": u.ReminderEnabled, "time": u.ReminderTime, "frequency": u.ReminderFrequency, "nextReminderAt": nextReminderAt(u.ReminderEnabled, u.ReminderTime)}, nil)
+}
+
+func nextReminderAt(enabled bool, reminderTime string) *string {
+	if !enabled {
+		return nil
+	}
+	now := time.Now()
+	candidate, err := time.ParseInLocation("15:04", reminderTime, now.Location())
+	if err != nil {
+		return nil
+	}
+	next := time.Date(now.Year(), now.Month(), now.Day(), candidate.Hour(), candidate.Minute(), 0, 0, now.Location())
+	if !next.After(now) {
+		next = next.Add(24 * time.Hour)
+	}
+	formatted := next.Format(time.RFC3339)
+	return &formatted
 }

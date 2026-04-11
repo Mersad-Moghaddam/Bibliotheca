@@ -21,7 +21,7 @@ type ServiceBridge struct{ Book *bookService.Service }
 
 type BookController struct{ service *ServiceBridge }
 
-var allowedBookSort = map[string]struct{}{"title": {}, "created_at": {}, "updated_at": {}, "status": {}}
+var allowedBookSort = map[string]struct{}{"title": {}, "author": {}, "created_at": {}, "updated_at": {}, "status": {}, "total_pages": {}}
 var allowedBookStatus = map[string]struct{}{constants.BookStatusInLibrary: {}, constants.BookStatusCurrentlyRead: {}, constants.BookStatusFinished: {}, constants.BookStatusNextToRead: {}}
 
 func NewBookController(service *ServiceBridge) *BookController {
@@ -41,7 +41,7 @@ func (h *BookController) List(c *fiber.Ctx) error {
 	if order != "asc" {
 		order = "desc"
 	}
-	books, total, err := h.service.Book.List(c.Context(), uid, repositories.BookFilter{Search: c.Query("search"), Status: c.Query("status"), SortBy: sortBy, Order: order, PageFilter: repositories.PageFilter{Page: page, Limit: limit}})
+	books, total, err := h.service.Book.List(c.Context(), uid, repositories.BookFilter{Search: c.Query("search"), Status: c.Query("status"), Genre: c.Query("genre"), SortBy: sortBy, Order: order, PageFilter: repositories.PageFilter{Page: page, Limit: limit}})
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -57,7 +57,7 @@ func (h *BookController) Create(c *fiber.Ctx) error {
 		return apiresponse.ValidationError(c, errs)
 	}
 	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	b := &book.Book{UserID: uid, Title: req.Title, Author: req.Author, TotalPages: req.TotalPages, Status: req.Status}
+	b := &book.Book{UserID: uid, Title: req.Title, Author: req.Author, TotalPages: req.TotalPages, Status: req.Status, CoverURL: req.CoverURL, Genre: req.Genre, ISBN: req.ISBN}
 	if err := h.service.Book.Create(c.Context(), b); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -87,6 +87,7 @@ func (h *BookController) Update(c *fiber.Ctx) error {
 		return apiresponse.ValidationError(c, errs)
 	}
 	b.Title, b.Author, b.TotalPages, b.Status = req.Title, req.Author, req.TotalPages, req.Status
+	b.CoverURL, b.Genre, b.ISBN = req.CoverURL, req.Genre, req.ISBN
 	if err = h.service.Book.Update(c.Context(), b); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -118,6 +119,35 @@ func (h *BookController) UpdateStatus(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	return apiresponse.OK(c, withBookComputed(b), nil)
+}
+
+func (h *BookController) ListNotes(c *fiber.Ctx) error {
+	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	id, _ := uuid.Parse(c.Params("id"))
+	notes, err := h.service.Book.ListNotes(c.Context(), uid, id)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	return apiresponse.OK(c, fiber.Map{"items": notes}, nil)
+}
+
+func (h *BookController) AddNote(c *fiber.Ctx) error {
+	var req bookSchema.BookNoteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	errs := validation.Errors{}
+	req.Note = validation.Required(req.Note, "note", errs)
+	if errs.HasAny() {
+		return apiresponse.ValidationError(c, errs)
+	}
+	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	id, _ := uuid.Parse(c.Params("id"))
+	note, err := h.service.Book.CreateNote(c.Context(), uid, id, req.Note, req.Highlight)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	return apiresponse.Created(c, note)
 }
 
 func validateBookRequest(req bookSchema.BookRequest) validation.Errors {
@@ -152,5 +182,5 @@ func withBookComputed(b *book.Book) map[string]any {
 	if b.CurrentPage != nil && b.TotalPages > 0 {
 		progress = int(float64(*b.CurrentPage) / float64(b.TotalPages) * 100)
 	}
-	return map[string]any{"id": b.ID, "userId": b.UserID, "title": b.Title, "author": b.Author, "totalPages": b.TotalPages, "status": b.Status, "currentPage": b.CurrentPage, "remainingPages": remaining, "progressPercentage": progress, "completedAt": b.CompletedAt, "createdAt": b.CreatedAt, "updatedAt": b.UpdatedAt}
+	return map[string]any{"id": b.ID, "userId": b.UserID, "title": b.Title, "author": b.Author, "totalPages": b.TotalPages, "status": b.Status, "currentPage": b.CurrentPage, "remainingPages": remaining, "progressPercentage": progress, "coverUrl": b.CoverURL, "genre": b.Genre, "isbn": b.ISBN, "completedAt": b.CompletedAt, "createdAt": b.CreatedAt, "updatedAt": b.UpdatedAt}
 }

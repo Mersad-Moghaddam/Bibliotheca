@@ -4,14 +4,16 @@ import { queryKeys } from '../../../shared/query/query-keys'
 import { BookStatus } from '../../../types'
 import {
   createBook,
+  createBookNote,
   deleteBook,
   fetchBook,
+  fetchBookNotes,
   fetchBooks,
   updateBookProgress,
   updateBookStatus
 } from '../api/books-api'
 
-export function useBooksQuery(params?: { search?: string; status?: string }) {
+export function useBooksQuery(params?: { search?: string; status?: string; genre?: string; sortBy?: string; order?: 'asc' | 'desc' }) {
   return useQuery({
     queryKey: queryKeys.books.list(params),
     queryFn: () => fetchBooks(params)
@@ -23,6 +25,20 @@ export function useBookQuery(id: string) {
     queryKey: queryKeys.books.detail(id),
     queryFn: () => fetchBook(id),
     enabled: Boolean(id)
+  })
+}
+
+export function useBookNotesQuery(id: string) {
+  return useQuery({ queryKey: [...queryKeys.books.detail(id), 'notes'], queryFn: () => fetchBookNotes(id), enabled: Boolean(id) })
+}
+
+export function useCreateBookNoteMutation(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: { note: string; highlight?: string }) => createBookNote(id, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...queryKeys.books.detail(id), 'notes'] })
+    }
   })
 }
 

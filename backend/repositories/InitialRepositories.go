@@ -23,6 +23,6 @@ func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialReposit
 		Book:         bookRepo,
 		Wishlist:     wishlistRepo,
 		PurchaseLink: purchaseRepo,
-		Reading:      NewReadingProgressRepo(bookRepo),
+		Reading:      NewReadingProgressRepo(deps.DB, bookRepo),
 	}
 }

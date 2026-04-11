@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"libro-backend/models/book"
+	"libro-backend/models/bookNote"
 	"libro-backend/statics/constants"
 	"libro-backend/statics/customErr"
 )
@@ -22,6 +23,9 @@ func (r *bookRepo) List(ctx context.Context, userID uuid.UUID, filter BookFilter
 	}
 	if filter.Status != "" {
 		q = q.Where("status = ?", filter.Status)
+	}
+	if filter.Genre != "" {
+		q = q.Where("genre = ?", filter.Genre)
 	}
 	var total int64
 	if err := q.Count(&total).Error; err != nil {
@@ -86,4 +90,14 @@ func (r *bookRepo) SummaryCounts(ctx context.Context, userID uuid.UUID) (map[str
 func (r *bookRepo) Recent(ctx context.Context, userID uuid.UUID, limit int) ([]book.Book, error) {
 	var b []book.Book
 	return b, r.db.WithContext(ctx).Where("user_id = ?", userID).Order("updated_at DESC").Limit(limit).Find(&b).Error
+}
+
+func (r *bookRepo) ListNotes(ctx context.Context, userID, bookID uuid.UUID) ([]bookNote.BookNote, error) {
+	var notes []bookNote.BookNote
+	err := r.db.WithContext(ctx).Where("user_id = ? AND book_id = ?", userID, bookID).Order("created_at DESC").Find(&notes).Error
+	return notes, err
+}
+
+func (r *bookRepo) CreateNote(ctx context.Context, n *bookNote.BookNote) error {
+	return r.db.WithContext(ctx).Create(n).Error
 }

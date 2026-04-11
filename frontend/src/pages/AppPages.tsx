@@ -18,11 +18,13 @@ import {
   useBookQuery,
   useBooksQuery,
   useCreateBookMutation,
+  useCreateBookNoteMutation,
   useDeleteBookMutation,
+  useBookNotesQuery,
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
 } from '../features/books/queries/use-books'
-import { useDashboardAnalytics, useDashboardInsights, useDashboardReminder } from '../features/dashboard/queries/use-dashboard'
+import { useCreateSessionMutation, useDashboardAnalytics, useDashboardInsights, useDashboardReminder, useGoalProgress, useSaveGoalMutation, useSessions } from '../features/dashboard/queries/use-dashboard'
 import { passwordSchema, PasswordValues, reminderSchema, ReminderValues, nameSchema, NameValues } from '../features/profile/forms/profile-schemas'
 import {
   useReminderSettingsQuery,
@@ -93,11 +95,17 @@ export function Dashboard() {
   const analyticsQuery = useDashboardAnalytics()
   const insightsQuery = useDashboardInsights()
   const reminderQuery = useDashboardReminder()
+  const goalsQuery = useGoalProgress()
+  const sessionsQuery = useSessions()
+  const saveGoal = useSaveGoalMutation()
+  const createSession = useCreateSessionMutation()
 
   const books = booksQuery.data ?? []
   const analytics = analyticsQuery.data
   const insights = insightsQuery.data ?? []
   const reminder = reminderQuery.data
+  const goals = goalsQuery.data ?? []
+  const sessions = sessionsQuery.data ?? []
 
   const counts = useMemo(() => {
     const base: Record<BookStatus, number> = {
@@ -139,18 +147,18 @@ export function Dashboard() {
               <>
                 <LineChart
                   values={[
-                    Math.max(analytics.readingPacePerMonth - 1, 0),
-                    analytics.readingPacePerMonth,
-                    analytics.readingPacePerMonth + 1,
-                    analytics.readingPacePerMonth,
-                    analytics.readingPacePerMonth + 2
+                    Math.max(analytics.base.readingPacePerMonth - 1, 0),
+                    analytics.base.readingPacePerMonth,
+                    analytics.base.readingPacePerMonth + 1,
+                    analytics.base.readingPacePerMonth,
+                    analytics.base.readingPacePerMonth + 2
                   ]}
                 />
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  <div className="metric-tile"><p>{t('dashboard.totalPagesRead')}</p><p>{analytics.totalPagesRead}</p></div>
-                  <div className="metric-tile"><p>{t('dashboard.completionRate')}</p><p>{analytics.completionRate}%</p></div>
-                  <div className="metric-tile"><p>{t('dashboard.readingPace')}</p><p>{analytics.readingPacePerMonth}</p></div>
-                  <div className="metric-tile"><p>{t('dashboard.currentStreak')}</p><p>{analytics.currentStreakWeeks}</p></div>
+                  <div className="metric-tile"><p>{t('dashboard.totalPagesRead')}</p><p>{analytics.base.totalPagesRead}</p></div>
+                  <div className="metric-tile"><p>{t('dashboard.completionRate')}</p><p>{analytics.base.completionRate}%</p></div>
+                  <div className="metric-tile"><p>{t('dashboard.readingPace')}</p><p>{analytics.base.readingPacePerMonth}</p></div>
+                  <div className="metric-tile"><p>Consistency</p><p>{analytics.consistencyScore}%</p></div>
                 </div>
               </>
             ) : null}
@@ -165,6 +173,30 @@ export function Dashboard() {
         </SectionCard>
       </div>
 
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <SectionCard>
+          <h2 className="text-section-title">Reading goals</h2>
+          <div className="space-y-3">
+            {goals.map((goal) => (
+              <div key={goal.period} className="rounded-xl border border-border bg-surface p-3">
+                <p className="font-medium capitalize">{goal.period}</p>
+                <p className="text-xs text-mutedForeground">Pages {goal.pagesRead}/{goal.pagesGoal} · Books {goal.booksRead}/{goal.booksGoal}</p>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <Button size="sm" variant="secondary" onClick={() => saveGoal.mutate({ period: 'weekly', pages: 120, books: 1 })}>Set weekly</Button>
+              <Button size="sm" variant="secondary" onClick={() => saveGoal.mutate({ period: 'monthly', pages: 500, books: 2 })}>Set monthly</Button>
+            </div>
+          </div>
+        </SectionCard>
+        <SectionCard>
+          <h2 className="text-section-title">Reading sessions</h2>
+          <p className="text-small text-mutedForeground">Recent sessions: {sessions.length}</p>
+          <Button size="sm" className="mt-3" onClick={() => activeBook && createSession.mutate({ bookId: activeBook.id, date: new Date().toISOString().slice(0, 10), duration: 25, pages: 12 })}>Log quick session</Button>
+          {analytics ? <p className="mt-3 text-small text-mutedForeground">Backlog health: {analytics.backlogHealth}</p> : null}
+        </SectionCard>
+      </div>
       <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
         <SectionCard>
           <h2 className="text-section-title">{t('dashboard.currentSnapshot')}</h2>
@@ -209,13 +241,15 @@ export function Library() {
   const toast = useToast()
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
-  const booksQuery = useBooksQuery({ search, status })
+  const [genre, setGenre] = useState('')
+  const [sortBy, setSortBy] = useState<'updated_at' | 'title'>('updated_at')
+  const booksQuery = useBooksQuery({ search, status, genre, sortBy, order: 'desc' })
   const createBookMutation = useCreateBookMutation()
   const deleteBookMutation = useDeleteBookMutation()
 
   const addBookForm = useForm<AddBookValues>({
     resolver: zodResolver(addBookSchema),
-    defaultValues: { title: '', author: '', totalPages: 1, status: 'inLibrary' }
+    defaultValues: { title: '', author: '', totalPages: 1, status: 'inLibrary', coverUrl: '', genre: '', isbn: '' }
   })
 
   const onAddBook = addBookForm.handleSubmit(async (values) => {
@@ -233,13 +267,16 @@ export function Library() {
       <PageHeader title={t('library.title')} description={t('library.description')} />
       <SectionCard>
         <h2 className="text-section-title">{t('library.addBook')}</h2>
-        <form onSubmit={onAddBook} className="grid gap-3 md:grid-cols-5">
+        <form onSubmit={onAddBook} className="grid gap-3 md:grid-cols-8">
           <Input placeholder={t('library.titlePlaceholder')} {...addBookForm.register('title')} />
           <Input placeholder={t('library.authorPlaceholder')} {...addBookForm.register('author')} />
           <Input type="number" min={1} placeholder={t('library.totalPages')} {...addBookForm.register('totalPages', { valueAsNumber: true })} />
           <Select {...addBookForm.register('status')}>
             {statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
           </Select>
+          <Input placeholder="Cover URL (optional)" {...addBookForm.register('coverUrl')} />
+          <Input placeholder="Genre (optional)" {...addBookForm.register('genre')} />
+          <Input placeholder="ISBN (optional)" {...addBookForm.register('isbn')} />
           <Button type="submit" disabled={createBookMutation.isPending}>{t('library.add')}</Button>
         </form>
       </SectionCard>
@@ -249,8 +286,13 @@ export function Library() {
           <option value="">{t('library.allStatuses')}</option>
           {statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
         </Select>
-        {(search || status) && (
-          <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatus('') }}>
+        <Input placeholder="Genre" value={genre} onChange={(e) => setGenre(e.target.value)} />
+        <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'updated_at' | 'title')}>
+          <option value="updated_at">Recently updated</option>
+          <option value="title">Title</option>
+        </Select>
+        {(search || status || genre) && (
+          <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatus(''); setGenre('') }}>
             {t('library.clearFilters')}
           </Button>
         )}
@@ -387,8 +429,11 @@ export function BookDetails({ id }: { id: string }) {
   const updateStatus = useUpdateBookStatusMutation()
   const updateProgress = useUpdateBookProgressMutation()
   const deleteBook = useDeleteBookMutation()
+  const notesQuery = useBookNotesQuery(id)
+  const addNote = useCreateBookNoteMutation(id)
 
   const form = useForm<ProgressValues>({ resolver: zodResolver(progressSchema), defaultValues: { currentPage: 0 } })
+  const noteForm = useForm<{ note: string; highlight: string }>({ defaultValues: { note: '', highlight: '' } })
 
   if (!query.data) return <Card className="p-6">Loading…</Card>
   const book = query.data
@@ -399,6 +444,23 @@ export function BookDetails({ id }: { id: string }) {
       <SectionCard>
         <p>Progress: {Math.round(book.progressPercentage)}%</p>
         <Progress value={book.progressPercentage} />
+      </SectionCard>
+
+      <SectionCard>
+        <h2 className="text-section-title">Notes & highlights</h2>
+        <form className="space-y-2" onSubmit={noteForm.handleSubmit(async (values) => { await addNote.mutateAsync(values); noteForm.reset() })}>
+          <Textarea placeholder="Your note" {...noteForm.register('note')} />
+          <Input placeholder="Optional quote/highlight" {...noteForm.register('highlight')} />
+          <Button type="submit" size="sm">Save note</Button>
+        </form>
+        <div className="mt-3 space-y-2">
+          {notesQuery.data?.map((n) => (
+            <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
+              <p>{n.note}</p>
+              {n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}
+            </div>
+          ))}
+        </div>
       </SectionCard>
       <SectionCard>
         <div className="flex flex-wrap gap-2">
