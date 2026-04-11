@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+
 import { User } from '../types'
 
 type State = {
@@ -25,7 +26,10 @@ export const authStore = create<State>((set, get) => ({
   },
   setTokens: (accessToken, refreshToken) => {
     const state = get()
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: state.user, accessToken, refreshToken }))
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ user: state.user, accessToken, refreshToken })
+    )
     set({ accessToken, refreshToken })
   },
   logout: () => {
@@ -40,7 +44,12 @@ export const authStore = create<State>((set, get) => ({
         return
       }
       const parsed = JSON.parse(raw)
-      set({ user: parsed.user ?? null, accessToken: parsed.accessToken ?? null, refreshToken: parsed.refreshToken ?? null, hydrated: true })
+      set({
+        user: parsed.user ?? null,
+        accessToken: parsed.accessToken ?? null,
+        refreshToken: parsed.refreshToken ?? null,
+        hydrated: true
+      })
     } catch {
       localStorage.removeItem(STORAGE_KEY)
       set({ hydrated: true })

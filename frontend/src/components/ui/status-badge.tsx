@@ -1,6 +1,7 @@
-import { Badge } from './badge'
-import { BookStatus } from '../../types'
 import { useI18n } from '../../shared/i18n/i18n-provider'
+import { BookStatus } from '../../types'
+
+import { Badge } from './badge'
 
 const statusStyles: Record<BookStatus, string> = {
   inLibrary: 'border border-border bg-secondary text-secondaryForeground',

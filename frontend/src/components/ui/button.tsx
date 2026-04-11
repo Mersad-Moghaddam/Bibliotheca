@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react'
+
 import { cn } from '../../lib/cn'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
@@ -10,10 +11,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'border border-primary/80 bg-primary text-primaryForeground hover:brightness-110 shadow-sm hover:shadow-md',
+  primary:
+    'border border-primary/80 bg-primary text-primaryForeground hover:brightness-110 shadow-sm hover:shadow-md',
   secondary: 'border border-border bg-card text-foreground hover:bg-secondary',
   ghost: 'border border-transparent text-foreground hover:bg-secondary',
-  destructive: 'border border-destructive/35 bg-destructive/10 text-destructive hover:bg-destructive/20'
+  destructive:
+    'border border-destructive/35 bg-destructive/10 text-destructive hover:bg-destructive/20'
 }
 
 const sizes: Record<ButtonSize, string> = {

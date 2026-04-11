@@ -107,10 +107,11 @@
   }
 }
 
-
 html[lang='fa'] body {
   font-family: 'Vazirmatn', system-ui, sans-serif;
-  font-feature-settings: 'ss01' on, 'calt' on;
+  font-feature-settings:
+    'ss01' on,
+    'calt' on;
   letter-spacing: 0;
 }
 

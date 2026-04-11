@@ -1,0 +1,110 @@
+package bookService
+
+import (
+	"context"
+	"errors"
+	"testing"
+
+	"github.com/google/uuid"
+	"libro-backend/models/book"
+	"libro-backend/repositories"
+	"libro-backend/statics/constants"
+	"libro-backend/statics/customErr"
+)
+
+type fakeBookRepo struct {
+	items map[uuid.UUID]book.Book
+}
+
+func (f *fakeBookRepo) List(_ context.Context, _ uuid.UUID, _ repositories.BookFilter) ([]book.Book, error) {
+	result := make([]book.Book, 0, len(f.items))
+	for _, b := range f.items {
+		result = append(result, b)
+	}
+	return result, nil
+}
+
+func (f *fakeBookRepo) Create(_ context.Context, b *book.Book) error {
+	if f.items == nil {
+		f.items = map[uuid.UUID]book.Book{}
+	}
+	f.items[b.ID] = *b
+	return nil
+}
+
+func (f *fakeBookRepo) GetByID(_ context.Context, _, bookID uuid.UUID) (*book.Book, error) {
+	b, ok := f.items[bookID]
+	if !ok {
+		return nil, errors.New("not found")
+	}
+	copyBook := b
+	return &copyBook, nil
+}
+
+func (f *fakeBookRepo) Update(_ context.Context, b *book.Book) error {
+	f.items[b.ID] = *b
+	return nil
+}
+
+func (f *fakeBookRepo) Delete(_ context.Context, _, _ uuid.UUID) error { return nil }
+func (f *fakeBookRepo) SummaryCounts(_ context.Context, _ uuid.UUID) (map[string]int64, error) {
+	return map[string]int64{}, nil
+}
+func (f *fakeBookRepo) Recent(_ context.Context, _ uuid.UUID, _ int) ([]book.Book, error) {
+	return nil, nil
+}
+
+func TestUpdateStatusTransitions(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	bookID := uuid.New()
+	repo := &fakeBookRepo{items: map[uuid.UUID]book.Book{
+		bookID: {
+			ID:         bookID,
+			UserID:     userID,
+			Title:      "Libro",
+			Author:     "Author",
+			TotalPages: 220,
+			Status:     constants.BookStatusInLibrary,
+		},
+	}}
+	svc := New(repo)
+
+	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusCurrentlyRead)
+	if err != nil {
+		t.Fatalf("expected no error moving to reading, got %v", err)
+	}
+	if reading.CurrentPage == nil || *reading.CurrentPage != 0 {
+		t.Fatal("expected current page to initialize at zero")
+	}
+
+	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusFinished)
+	if err != nil {
+		t.Fatalf("expected no error moving to finished, got %v", err)
+	}
+	if finished.CurrentPage == nil || *finished.CurrentPage != 220 {
+		t.Fatal("expected current page to equal total pages")
+	}
+	if finished.CompletedAt == nil {
+		t.Fatal("expected completedAt to be set")
+	}
+
+	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusNextToRead)
+	if err != nil {
+		t.Fatalf("expected no error moving to backlog, got %v", err)
+	}
+	if backlog.CurrentPage != nil || backlog.CompletedAt != nil {
+		t.Fatal("expected progress fields to be reset")
+	}
+}
+
+func TestCreateRejectsInvalidPages(t *testing.T) {
+	t.Parallel()
+
+	svc := New(&fakeBookRepo{})
+	err := svc.Create(context.Background(), &book.Book{Title: "", Author: "", TotalPages: 0})
+	if !errors.Is(err, customErr.ErrBadRequest) {
+		t.Fatalf("expected bad request, got %v", err)
+	}
+}

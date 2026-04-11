@@ -1,8 +1,9 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
+
 import api from '../api/client'
-import { authStore } from '../contexts/authStore'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Button } from '../components/ui/button'
+import { authStore } from '../contexts/authStore'
 import { cn } from '../lib/cn'
 import { useI18n } from '../shared/i18n/i18n-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
@@ -29,56 +30,76 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { t } = useI18n()
 
   return (
-    <div className='app-shell'>
-      <div className='container grid min-h-screen grid-cols-1 gap-6 py-6 lg:grid-cols-[280px_1fr] lg:py-8'>
-        <aside className='surface p-4 lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)] lg:flex lg:flex-col'>
-          <Link to='/dashboard' className='mb-5 block rounded-md p-2'>
-            <p className='text-xl font-semibold tracking-tight text-primary'>Libro</p>
+    <div className="app-shell">
+      <div className="container grid min-h-screen grid-cols-1 gap-6 py-6 lg:grid-cols-[280px_1fr] lg:py-8">
+        <aside className="surface p-4 lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)] lg:flex lg:flex-col">
+          <Link to="/dashboard" className="mb-5 block rounded-md p-2">
+            <p className="text-xl font-semibold tracking-tight text-primary">Libro</p>
           </Link>
 
-          <div className='space-y-5 overflow-y-auto pr-1'>
+          <div className="space-y-5 overflow-y-auto pr-1">
             {groups.map((group) => (
-              <div key={group.key} className='space-y-2'>
-                <p className='eyebrow px-2'>{t(group.titleKey)}</p>
-                <nav className='grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1'>
-                  {links.filter((item) => item.section === group.key).map(({ to, labelKey, icon }) => (
-                    <NavLink
-                      key={to}
-                      to={to}
-                      className={({ isActive }) => cn('group flex min-w-0 items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors duration-200 ease-premium', isActive ? 'border-primary/20 bg-primary text-primaryForeground shadow-sm' : 'border-transparent text-mutedForeground hover:border-border hover:bg-secondary hover:text-foreground')}
-                    >
-                      <span className='text-[10px] opacity-70 group-hover:opacity-100'>{icon}</span>
-                      <span className='truncate'>{t(labelKey)}</span>
-                    </NavLink>
-                  ))}
+              <div key={group.key} className="space-y-2">
+                <p className="eyebrow px-2">{t(group.titleKey)}</p>
+                <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+                  {links
+                    .filter((item) => item.section === group.key)
+                    .map(({ to, labelKey, icon }) => (
+                      <NavLink
+                        key={to}
+                        to={to}
+                        className={({ isActive }) =>
+                          cn(
+                            'group flex min-w-0 items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors duration-200 ease-premium',
+                            isActive
+                              ? 'border-primary/20 bg-primary text-primaryForeground shadow-sm'
+                              : 'border-transparent text-mutedForeground hover:border-border hover:bg-secondary hover:text-foreground'
+                          )
+                        }
+                      >
+                        <span className="text-[10px] opacity-70 group-hover:opacity-100">
+                          {icon}
+                        </span>
+                        <span className="truncate">{t(labelKey)}</span>
+                      </NavLink>
+                    ))}
                 </nav>
               </div>
             ))}
           </div>
 
-          <div className='mt-4 border-t border-border pt-4 lg:mt-auto'>
-            <div className='grid gap-2 sm:grid-cols-2 lg:grid-cols-1'>
+          <div className="mt-4 border-t border-border pt-4 lg:mt-auto">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
               <ThemeToggle />
               <LanguageToggle />
-              <Button variant='secondary' className='w-full' onClick={async () => {
-                const refreshToken = authStore.getState().refreshToken
-                if (refreshToken) {
-                  try { await api.post('/auth/logout', { refreshToken }) } catch {
-                    // fallback local logout
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={async () => {
+                  const refreshToken = authStore.getState().refreshToken
+                  if (refreshToken) {
+                    try {
+                      await api.post('/auth/logout', { refreshToken })
+                    } catch {
+                      // fallback local logout
+                    }
                   }
-                }
-                logout()
-                nav('/login')
-              }}>
+                  logout()
+                  nav('/login')
+                }}
+              >
                 {t('nav.signOut')}
               </Button>
             </div>
           </div>
         </aside>
 
-        <main className='space-y-6 pb-8'>
-          <div className='glass-panel flex flex-wrap items-center justify-between gap-2 px-5 py-3'>
-            <div><p className='eyebrow'>{t('nav.platformTitle')}</p><p className='text-sm text-mutedForeground'>{t('nav.platformSubtitle')}</p></div>
+        <main className="space-y-6 pb-8">
+          <div className="glass-panel flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+            <div>
+              <p className="eyebrow">{t('nav.platformTitle')}</p>
+              <p className="text-sm text-mutedForeground">{t('nav.platformSubtitle')}</p>
+            </div>
           </div>
           {children}
         </main>

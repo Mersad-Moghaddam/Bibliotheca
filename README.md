@@ -2,71 +2,97 @@
 
 Libro is a full-stack personal reading tracker with a Go/Fiber backend and a React/Vite frontend.
 
-## Repository Structure
+## Architecture Overview
 
-```text
-.
-├── backend/            # Go backend application
-│   ├── apiSchema/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── migrations/
-│   ├── models/
-│   ├── pkg/
-│   ├── repositories/
-│   ├── services/
-│   ├── statics/
-│   ├── template/
-│   ├── tests/
-│   ├── dev.env
-│   ├── go.mod
-│   ├── go.sum
-│   ├── main.go
-│   └── README.md
-├── frontend/           # React frontend application
-│   ├── public/
-│   ├── src/
-│   ├── package.json
-│   └── vite.config.ts
-├── docker-compose.yml
-└── .gitignore
-```
+- **Frontend (`frontend/`)**: React 19 + Vite + TypeScript + Zustand + Tailwind.
+  - Routing/UI composition in `src/pages`, `src/components`, and `src/layouts`.
+  - API access in `src/api` and feature-level API adapters in `src/features`.
+- **Backend (`backend/`)**: Go + Fiber + GORM + MySQL + Redis.
+  - HTTP controllers in `controllers`, business logic in `services`, persistence in `repositories`.
+  - Shared utilities and static concerns in `pkg` and `statics`.
+- **Infrastructure**:
+  - `docker-compose.yml` provides MySQL + Redis + app services.
+  - Root `.env.example` centralizes local development defaults.
 
-## Run Backend (Local)
+## Development Setup
+
+### Prerequisites
+
+- Go `1.24+`
+- Node.js `20+` and npm
+- Docker (optional, for full stack dependencies)
+
+### Local development
 
 ```bash
+# Backend
 cd backend
 go mod download
 go run .
-```
 
-Backend runs on `http://localhost:8080` by default.
-
-## Run Frontend (Local)
-
-```bash
+# Frontend (in another terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5173` by default.
+### Monorepo shortcuts
 
-## Run with Docker Compose
-
-From repo root:
+Use root make targets for consistent workflows:
 
 ```bash
-docker compose up --build
+make build
+make test
+make lint
 ```
 
-Services:
-- Backend: `http://localhost:8080`
-- Frontend: `http://localhost:5173`
-- MySQL: `localhost:3306`
-- Redis: `localhost:6379`
+## Test Strategy
 
-## Notes
+Libro now applies layered tests:
 
-- Backend environment defaults are defined in `backend/dev.env`.
-- Frontend API target can be overridden with `VITE_API_URL`.
+- **Frontend**
+  - Unit/state tests (e.g., Zustand auth store)
+  - Component interaction tests (React Testing Library)
+  - Page-level tests with mocked API boundaries
+- **Backend**
+  - Service unit tests for auth and book transitions
+  - Integration-style test wiring service + real repository over in-memory SQLite
+
+Run all tests from root:
+
+```bash
+make test
+```
+
+## Quality Gates
+
+- Frontend linting/formatting/type safety:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run test`
+- Backend linting/testing:
+  - `golangci-lint run ./...`
+  - `go test ./...`
+
+## Consistency Rules
+
+- **Error handling style**
+  - Return domain errors from services (`customErr`) for predictable controller responses.
+  - Avoid panics in request flows; propagate errors with context from repository/service boundaries.
+- **Folder naming conventions**
+  - Keep feature folders lowercase (`bookService`, `authService`, `language-toggle`).
+  - Place tests next to the package they validate whenever possible.
+- **Code hygiene**
+  - Keep lint checks green before merge.
+  - Remove unused imports/dependencies and dead code as part of each PR.
+
+## Repository Structure
+
+```text
+.
+├── backend/
+├── frontend/
+├── docs/
+├── Makefile
+└── docker-compose.yml
+```
