@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { ThemeToggle } from '../components/ThemeToggle'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -25,6 +26,8 @@ const FieldError = ({ message }: { message?: string }) =>
 
 export function Landing() {
   const { t } = useI18n()
+  const valueCards = t('landing.valueCards') as unknown as Array<{ title: string; text: string }>
+  const testimonials = t('landing.testimonials') as unknown as Array<{ quote: string; author: string }>
 
   return (
     <div className={wrap}>
@@ -36,10 +39,12 @@ export function Landing() {
         </div>
       </div>
 
-      <section className="mx-auto max-w-6xl space-y-20">
-        <div className="grid items-start gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+      <section className="mx-auto max-w-6xl space-y-14">
+        <div className="grid items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <div className="space-y-6">
-            <p className="eyebrow">{t('landing.eyebrow')}</p>
+            <Badge className="border border-border bg-secondary text-secondaryForeground">
+              {t('landing.eyebrow')}
+            </Badge>
             <h1 className="max-w-2xl text-hero text-foreground">{t('landing.title')}</h1>
             <p className="max-w-xl text-body text-mutedForeground">{t('landing.subtitle')}</p>
             <div className="flex flex-wrap gap-3">
@@ -50,18 +55,56 @@ export function Landing() {
                 <Button variant="secondary">{t('landing.ctaSecondary')}</Button>
               </Link>
             </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {valueCards.map((item) => (
+                <Card key={item.title} className="surface-hover space-y-2 p-4">
+                  <p className="text-sm font-semibold">{item.title}</p>
+                  <p className="text-xs text-mutedForeground">{item.text}</p>
+                </Card>
+              ))}
+            </div>
           </div>
 
           <Card className="space-y-4 p-6">
             <p className="eyebrow">{t('landing.productPreview')}</p>
-            <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
-              <div className="flex items-center justify-between rounded-md border border-border bg-card p-3">
-                <p className="font-medium">{t('landing.previewCard1Title')}</p>
-                <p className="text-sm text-success">{t('landing.previewCard1Value')}</p>
+            <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
+              <div className="rounded-xl border border-border bg-card p-4">
+                <p className="text-sm text-mutedForeground">{t('landing.previewCard1Title')}</p>
+                <p className="mt-2 text-3xl font-semibold text-success">{t('landing.previewCard1Value')}</p>
               </div>
+              <div className="rounded-xl border border-border/70 bg-card p-4">
+                <p className="text-sm font-medium">{t('landing.previewCard2Title')}</p>
+                <div className="mt-3 space-y-2">
+                  {[72, 45, 88].map((v) => (
+                    <div key={v} className="h-2 rounded-full bg-secondary">
+                      <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${v}%` }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="text-sm text-mutedForeground">{t('landing.previewCard3')}</p>
             </div>
           </Card>
         </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {testimonials.map((item, idx) => (
+            <Card key={idx} className="space-y-3 p-5">
+              <p className="text-sm">“{item.quote}”</p>
+              <p className="text-xs text-mutedForeground">{item.author}</p>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="flex flex-col items-start justify-between gap-4 p-6 md:flex-row md:items-center">
+          <div>
+            <h2 className="text-section-title">{t('landing.finalCtaTitle')}</h2>
+            <p className="mt-1 text-sm text-mutedForeground">{t('landing.finalCtaSubtitle')}</p>
+          </div>
+          <Link to="/register">
+            <Button size="lg">{t('landing.ctaPrimary')}</Button>
+          </Link>
+        </Card>
       </section>
     </div>
   )

@@ -7,5 +7,5 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
 }
 
 export function SectionCard({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <Card className={cn('space-y-4 p-5 md:p-6', className)} {...props} />
+  return <Card className={cn('space-y-5 p-5 md:p-6', className)} {...props} />
 }

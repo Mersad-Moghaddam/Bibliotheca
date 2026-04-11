@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { Progress, StatusBadge } from '../components/UI'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card, SectionCard } from '../components/ui/card'
 import { DataToolbar } from '../components/ui/data-toolbar'
@@ -42,6 +43,50 @@ import { BookStatus } from '../types'
 
 const statusOptions: BookStatus[] = ['inLibrary', 'currentlyReading', 'finished', 'nextToRead']
 
+function LineChart({ values }: { values: number[] }) {
+  const max = Math.max(...values, 1)
+  const points = values
+    .map((v, idx) => `${(idx / (values.length - 1 || 1)) * 100},${100 - (v / max) * 100}`)
+    .join(' ')
+
+  return (
+    <svg viewBox="0 0 100 100" className="h-32 w-full">
+      <polyline fill="none" stroke="hsl(var(--primary))" strokeWidth="3" points={points} />
+      {values.map((v, idx) => (
+        <circle
+          key={`${idx}-${v}`}
+          cx={(idx / (values.length - 1 || 1)) * 100}
+          cy={100 - (v / max) * 100}
+          r="1.8"
+          fill="hsl(var(--primary))"
+        />
+      ))}
+    </svg>
+  )
+}
+
+function BarChart({ values }: { values: { label: string; value: number }[] }) {
+  const max = Math.max(...values.map((v) => v.value), 1)
+  return (
+    <div className="space-y-3">
+      {values.map((item) => (
+        <div key={item.label} className="space-y-1">
+          <div className="flex items-center justify-between text-xs text-mutedForeground">
+            <span>{item.label}</span>
+            <span>{item.value}</span>
+          </div>
+          <div className="h-2 rounded-full bg-secondary">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-500"
+              style={{ width: `${(item.value / max) * 100}%` }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function Dashboard() {
   const { t } = useI18n()
   const booksQuery = useBooksQuery()
@@ -65,43 +110,96 @@ export function Dashboard() {
     return base
   }, [books])
 
+  const activeBook = books.find((book) => book.status === 'currentlyReading')
+
   return (
     <div className="space-y-6">
       <PageHeader title={t('dashboard.title')} description={t('dashboard.description')} />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statusOptions.map((status) => (
-          <Card key={status} className="p-5">
+          <Card key={status} className="surface-hover p-5">
             <p className="text-small text-mutedForeground">{t(`status.${status}`)}</p>
             <p className="mt-3 text-3xl font-semibold">{counts[status]}</p>
           </Card>
         ))}
       </div>
-      <SectionCard>
-        <QueryState
-          isLoading={analyticsQuery.isLoading}
-          isError={analyticsQuery.isError}
-          isEmpty={!analytics}
-          emptyTitle="No analytics"
-          emptyDescription="Your analytics will appear after adding books."
-          onRetry={() => void analyticsQuery.refetch()}
-        >
-          {analytics ? (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="metric-tile"><p>{t('dashboard.totalPagesRead')}</p><p>{analytics.totalPagesRead}</p></div>
-              <div className="metric-tile"><p>{t('dashboard.completionRate')}</p><p>{analytics.completionRate}%</p></div>
-              <div className="metric-tile"><p>{t('dashboard.readingPace')}</p><p>{analytics.readingPacePerMonth}</p></div>
-              <div className="metric-tile"><p>{t('dashboard.currentStreak')}</p><p>{analytics.currentStreakWeeks}</p></div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.35fr_1fr]">
+        <SectionCard>
+          <p className="eyebrow">Reading momentum</p>
+          <QueryState
+            isLoading={analyticsQuery.isLoading}
+            isError={analyticsQuery.isError}
+            isEmpty={!analytics}
+            emptyTitle="No analytics"
+            emptyDescription="Your analytics will appear after adding books."
+            onRetry={() => void analyticsQuery.refetch()}
+          >
+            {analytics ? (
+              <>
+                <LineChart
+                  values={[
+                    Math.max(analytics.readingPacePerMonth - 1, 0),
+                    analytics.readingPacePerMonth,
+                    analytics.readingPacePerMonth + 1,
+                    analytics.readingPacePerMonth,
+                    analytics.readingPacePerMonth + 2
+                  ]}
+                />
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="metric-tile"><p>{t('dashboard.totalPagesRead')}</p><p>{analytics.totalPagesRead}</p></div>
+                  <div className="metric-tile"><p>{t('dashboard.completionRate')}</p><p>{analytics.completionRate}%</p></div>
+                  <div className="metric-tile"><p>{t('dashboard.readingPace')}</p><p>{analytics.readingPacePerMonth}</p></div>
+                  <div className="metric-tile"><p>{t('dashboard.currentStreak')}</p><p>{analytics.currentStreakWeeks}</p></div>
+                </div>
+              </>
+            ) : null}
+          </QueryState>
+        </SectionCard>
+
+        <SectionCard>
+          <p className="eyebrow">Status distribution</p>
+          <BarChart
+            values={statusOptions.map((status) => ({ label: t(`status.${status}`), value: counts[status] }))}
+          />
+        </SectionCard>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
+        <SectionCard>
+          <h2 className="text-section-title">{t('dashboard.currentSnapshot')}</h2>
+          {activeBook ? (
+            <div className="space-y-3 rounded-2xl border border-border/80 bg-surface p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold">{activeBook.title}</p>
+                  <p className="text-small text-mutedForeground">{activeBook.author}</p>
+                </div>
+                <Badge className="border border-primary/20 bg-primary/10 text-foreground">
+                  {Math.round(activeBook.progressPercentage)}%
+                </Badge>
+              </div>
+              <Progress value={activeBook.progressPercentage} />
+              <p className="text-xs text-mutedForeground">
+                {activeBook.currentPage} / {activeBook.totalPages}
+              </p>
             </div>
-          ) : null}
-        </QueryState>
-      </SectionCard>
-      <SectionCard>
-        <h2 className="text-section-title">{t('dashboard.intelligenceTitle')}</h2>
-        {insights.map((item, idx) => (
-          <div key={idx} className="rounded-md border p-3 text-sm">{item.message}</div>
-        ))}
-        {reminder ? <p className="text-small text-mutedForeground">{reminder.enabled ? reminder.time : t('dashboard.reminderOff')}</p> : null}
-      </SectionCard>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border bg-surface/60 p-5 text-sm text-mutedForeground">
+              {t('dashboard.noActiveDescription')}
+            </div>
+          )}
+        </SectionCard>
+        <SectionCard>
+          <h2 className="text-section-title">{t('dashboard.intelligenceTitle')}</h2>
+          <div className="space-y-3">
+            {insights.map((item, idx) => (
+              <div key={idx} className="rounded-xl border border-border bg-surface px-4 py-3 text-sm transition-all duration-200 hover:bg-secondary">{item.message}</div>
+            ))}
+          </div>
+          {reminder ? <p className="text-small text-mutedForeground">{reminder.enabled ? reminder.time : t('dashboard.reminderOff')}</p> : null}
+        </SectionCard>
+      </div>
     </div>
   )
 }
@@ -151,6 +249,11 @@ export function Library() {
           <option value="">{t('library.allStatuses')}</option>
           {statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}
         </Select>
+        {(search || status) && (
+          <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatus('') }}>
+            {t('library.clearFilters')}
+          </Button>
+        )}
       </DataToolbar>
       <QueryState
         isLoading={booksQuery.isLoading}
@@ -160,16 +263,19 @@ export function Library() {
         emptyDescription={t('library.noBooksDescription')}
         onRetry={() => void booksQuery.refetch()}
       >
-        <div className="space-y-3">
+        <div className="grid gap-4 md:grid-cols-2">
           {booksQuery.data?.map((book) => (
-            <Card key={book.id} className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{book.title}</p>
-                  <p className="text-small text-mutedForeground">{book.author}</p>
-                </div>
-                <div className="flex gap-2">
+            <Card key={book.id} className="surface-hover p-5 list-item-enter">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold">{book.title}</p>
+                    <p className="text-small text-mutedForeground">{book.author}</p>
+                  </div>
                   <StatusBadge status={book.status} />
+                </div>
+                <Progress value={book.progressPercentage} />
+                <div className="flex flex-wrap gap-2">
                   <Link to={`/books/${book.id}`}><Button size="sm">{t('common.details')}</Button></Link>
                   <Button size="sm" variant="secondary" disabled={deleteBookMutation.isPending} onClick={() => deleteBookMutation.mutate(book.id)}>{t('books.delete')}</Button>
                 </div>
@@ -238,6 +344,7 @@ export function Wishlist() {
     <div className="space-y-6">
       <PageHeader title={t('wishlist.title')} description={t('wishlist.description')} />
       <SectionCard>
+        <h2 className="text-section-title">Add wishlist title</h2>
         <form onSubmit={itemForm.handleSubmit(async (values) => addItem.mutateAsync({ ...values, expectedPrice: Number.isNaN(values.expectedPrice) ? null : values.expectedPrice ?? null }))} className="grid gap-3 md:grid-cols-2">
           <Input placeholder="Title" {...itemForm.register('title')} />
           <Input placeholder="Author" {...itemForm.register('author')} />
@@ -249,13 +356,18 @@ export function Wishlist() {
       <QueryState isLoading={query.isLoading} isError={query.isError} isEmpty={!query.data?.length} emptyTitle="Wishlist is empty" emptyDescription="Add books to wishlist.">
         <div className="grid gap-4 md:grid-cols-2">
           {query.data?.map((item) => (
-            <SectionCard key={item.id}>
-              <h3>{item.title}</h3>
-              <p className="text-small text-mutedForeground">{item.author}</p>
+            <SectionCard key={item.id} className="list-item-enter">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-semibold">{item.title}</h3>
+                  <p className="text-small text-mutedForeground">{item.author}</p>
+                </div>
+                <Badge className="border border-warning/30 bg-warning/10 text-warning">Wishlist</Badge>
+              </div>
               <Separator />
-              <form onSubmit={linkForm.handleSubmit(async (values) => addLink.mutateAsync({ itemId: item.id, ...values }))}>
+              <form onSubmit={linkForm.handleSubmit(async (values) => addLink.mutateAsync({ itemId: item.id, ...values }))} className="space-y-2">
                 <Input placeholder="Optional store label" {...linkForm.register('label')} />
-                <div className="mt-2 flex gap-2">
+                <div className="flex gap-2">
                   <Input placeholder="https://example.com/book" {...linkForm.register('url')} />
                   <Button type="submit" disabled={addLink.isPending}>Add link</Button>
                 </div>

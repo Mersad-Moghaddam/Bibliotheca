@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import api from '../api/client'
 import { ThemeToggle } from '../components/ThemeToggle'
@@ -9,13 +9,13 @@ import { useI18n } from '../shared/i18n/i18n-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 
 const links = [
-  { to: '/dashboard', labelKey: 'nav.dashboard', icon: '◉', section: 'core' },
-  { to: '/library', labelKey: 'nav.library', icon: '◉', section: 'core' },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: '◈', section: 'core' },
+  { to: '/library', labelKey: 'nav.library', icon: '◻', section: 'core' },
   { to: '/reading', labelKey: 'nav.reading', icon: '◉', section: 'queue' },
-  { to: '/finished', labelKey: 'nav.finished', icon: '◉', section: 'queue' },
-  { to: '/next', labelKey: 'nav.nextToRead', icon: '◉', section: 'queue' },
-  { to: '/wishlist', labelKey: 'nav.wishlist', icon: '◉', section: 'queue' },
-  { to: '/profile', labelKey: 'nav.profile', icon: '◉', section: 'account' }
+  { to: '/finished', labelKey: 'nav.finished', icon: '✓', section: 'queue' },
+  { to: '/next', labelKey: 'nav.nextToRead', icon: '→', section: 'queue' },
+  { to: '/wishlist', labelKey: 'nav.wishlist', icon: '☆', section: 'queue' },
+  { to: '/profile', labelKey: 'nav.profile', icon: '⚙', section: 'account' }
 ] as const
 
 const groups = [
@@ -27,21 +27,28 @@ const groups = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const nav = useNavigate()
   const logout = authStore((s) => s.logout)
+  const location = useLocation()
   const { t } = useI18n()
+
+  const active = links.find((item) => location.pathname.startsWith(item.to))
+  const today = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(
+    new Date()
+  )
 
   return (
     <div className="app-shell">
-      <div className="container grid min-h-screen grid-cols-1 gap-6 py-6 lg:grid-cols-[280px_1fr] lg:py-8">
-        <aside className="surface p-4 lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)] lg:flex lg:flex-col">
-          <Link to="/dashboard" className="mb-5 block rounded-md p-2">
+      <div className="container grid min-h-screen grid-cols-1 gap-6 py-6 lg:grid-cols-[296px_1fr] lg:py-8">
+        <aside className="surface p-5 lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)] lg:flex lg:flex-col">
+          <Link to="/dashboard" className="mb-7 block rounded-xl px-3 py-2">
             <p className="text-xl font-semibold tracking-tight text-primary">Libro</p>
+            <p className="mt-1 text-xs text-mutedForeground">Reading workspace</p>
           </Link>
 
-          <div className="space-y-5 overflow-y-auto pr-1">
+          <div className="space-y-6 overflow-y-auto pr-1">
             {groups.map((group) => (
-              <div key={group.key} className="space-y-2">
+              <div key={group.key} className="space-y-3">
                 <p className="eyebrow px-2">{t(group.titleKey)}</p>
-                <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+                <nav className="grid grid-cols-1 gap-2">
                   {links
                     .filter((item) => item.section === group.key)
                     .map(({ to, labelKey, icon }) => (
@@ -50,14 +57,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         to={to}
                         className={({ isActive }) =>
                           cn(
-                            'group flex min-w-0 items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors duration-200 ease-premium',
+                            'group flex min-w-0 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition-all duration-200 ease-premium',
                             isActive
-                              ? 'border-primary/20 bg-primary text-primaryForeground shadow-sm'
-                              : 'border-transparent text-mutedForeground hover:border-border hover:bg-secondary hover:text-foreground'
+                              ? 'bg-primary text-primaryForeground shadow-sm'
+                              : 'text-mutedForeground hover:bg-secondary hover:text-foreground'
                           )
                         }
                       >
-                        <span className="text-[10px] opacity-70 group-hover:opacity-100">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-background/35 text-xs">
                           {icon}
                         </span>
                         <span className="truncate">{t(labelKey)}</span>
@@ -68,7 +75,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </div>
 
-          <div className="mt-4 border-t border-border pt-4 lg:mt-auto">
+          <div className="mt-5 border-t border-border pt-4 lg:mt-auto">
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
               <ThemeToggle />
               <LanguageToggle />
@@ -94,11 +101,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <main className="space-y-6 pb-8">
-          <div className="glass-panel flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+        <main className="space-y-6 pb-8 page-enter">
+          <div className="glass-panel flex flex-wrap items-center justify-between gap-4 px-5 py-3.5">
             <div>
               <p className="eyebrow">{t('nav.platformTitle')}</p>
-              <p className="text-sm text-mutedForeground">{t('nav.platformSubtitle')}</p>
+              <p className="text-sm text-foreground">{active ? t(active.labelKey) : t('nav.dashboard')}</p>
+              <p className="text-xs text-mutedForeground">{t('nav.platformSubtitle')}</p>
+            </div>
+            <div className="rounded-xl border border-border/80 bg-surface px-3 py-2 text-right text-xs text-mutedForeground">
+              <p>{today}</p>
+              <p className="mt-0.5 text-foreground">Focus mode</p>
             </div>
           </div>
           {children}
