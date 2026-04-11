@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import { authStore } from '../contexts/authStore'
+
 import { extractData } from './http'
 
 const configuredBaseURL = import.meta.env.VITE_API_URL || '/api/v1'
