@@ -1,9 +1,11 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authStore } from '../../contexts/authStore'
+import { ToastProvider } from '../../shared/toast/toast-provider'
 import { Login } from '../AuthPages'
 
 const { navigateMock, postMock } = vi.hoisted(() => ({
@@ -52,10 +54,16 @@ describe('Login page', () => {
     })
 
     const user = userEvent.setup()
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
+
     render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <MemoryRouter>
+            <Login />
+          </MemoryRouter>
+        </ToastProvider>
+      </QueryClientProvider>
     )
 
     await user.type(screen.getByPlaceholderText('auth.email'), 'ada@example.com')
