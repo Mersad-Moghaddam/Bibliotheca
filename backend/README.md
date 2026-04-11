@@ -40,6 +40,7 @@ Schema is managed under `migrations/`:
 - `000003_create_wishlist_table`
 - `000004_create_purchase_links_table`
 - `000005_add_user_reminder_settings`
+- `000006_reading_deep_features`
 
 ### Development workflow
 

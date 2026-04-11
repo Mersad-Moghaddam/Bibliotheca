@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 	"libro-backend/models/book"
@@ -12,6 +13,8 @@ import (
 	"libro-backend/models/user"
 	"libro-backend/models/wishlist"
 )
+
+const migrationHint = "run SQL migrations from backend/migrations (including 000006_reading_deep_features.up.sql)"
 
 func AssertSchema(db *gorm.DB) error {
 	checks := []struct {
@@ -29,12 +32,16 @@ func AssertSchema(db *gorm.DB) error {
 
 	for _, check := range checks {
 		if !db.Migrator().HasTable(check.model) {
-			return fmt.Errorf("missing table for model %T: run SQL migrations", check.model)
+			return fmt.Errorf("missing table for model %T: %s", check.model, migrationHint)
 		}
+		missingColumns := make([]string, 0)
 		for _, column := range check.columns {
 			if !db.Migrator().HasColumn(check.model, column) {
-				return fmt.Errorf("missing column %q for model %T: run SQL migrations", column, check.model)
+				missingColumns = append(missingColumns, column)
 			}
+		}
+		if len(missingColumns) > 0 {
+			return fmt.Errorf("missing column(s) [%s] for model %T: %s", strings.Join(missingColumns, ", "), check.model, migrationHint)
 		}
 	}
 	return nil
