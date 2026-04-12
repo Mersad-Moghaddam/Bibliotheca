@@ -21,7 +21,7 @@ import { useToast } from '../shared/toast/toast-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 
 const wrap = 'app-shell min-h-screen px-4 py-8 md:px-8 md:py-10'
-const formCard = 'glass-panel mx-auto w-full max-w-md space-y-5 p-6 md:p-7'
+const formCard = 'mx-auto w-full max-w-md space-y-5 p-6 md:p-7'
 
 const FieldError = ({ message }: { message?: string }) =>
   message ? <p className="mt-1 text-xs text-destructive">{message}</p> : null
@@ -33,9 +33,9 @@ export function Landing() {
 
   return (
     <div className={wrap}>
-      <div className="mx-auto mb-10 flex max-w-6xl items-center justify-between gap-3">
+      <div className="mx-auto mb-9 flex max-w-6xl items-center justify-between gap-3">
         <div>
-          <p className="text-2xl font-semibold tracking-tight text-primary">Libro</p>
+          <p className="text-2xl font-semibold tracking-tight text-foreground">Libro</p>
           <p className="text-xs text-mutedForeground">{t('landing.eyebrow')}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -44,12 +44,10 @@ export function Landing() {
         </div>
       </div>
 
-      <section className="mx-auto max-w-6xl space-y-10">
-        <div className="grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-6">
-            <Badge className="w-fit border border-border bg-secondary text-secondaryForeground">
-              {t('landing.productPreview')}
-            </Badge>
+      <section className="mx-auto max-w-6xl space-y-6">
+        <Card className="grid gap-7 p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
+          <div className="space-y-5">
+            <Badge className="w-fit">{t('landing.productPreview')}</Badge>
             <h1 className="max-w-2xl text-hero text-foreground">{t('landing.title')}</h1>
             <p className="max-w-xl text-body text-mutedForeground">{t('landing.subtitle')}</p>
             <div className="flex flex-wrap gap-3">
@@ -63,42 +61,32 @@ export function Landing() {
                 <Button variant="secondary">{t('landing.ctaSecondary')}</Button>
               </Link>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {valueCards.map((item) => (
-                <Card key={item.title} className="surface-hover space-y-2 p-4">
-                  <p className="text-sm font-semibold">{item.title}</p>
-                  <p className="text-xs text-mutedForeground">{item.text}</p>
-                </Card>
-              ))}
-            </div>
           </div>
-
-          <Card className="space-y-4 p-6">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <BookOpenText className="h-4 w-4 text-primary" />
-              {t('landing.productPreview')}
-            </div>
-            <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
-              <div className="rounded-xl border border-border bg-card p-4">
-                <p className="text-sm text-mutedForeground">{t('landing.previewCard1Title')}</p>
-                <p className="mt-2 text-3xl font-semibold text-success">{t('landing.previewCard1Value')}</p>
-              </div>
-              <div className="rounded-xl border border-border/70 bg-card p-4">
-                <p className="text-sm font-medium">{t('landing.previewCard2Title')}</p>
-                <div className="mt-3 space-y-2">
-                  {[72, 45, 88].map((v) => (
-                    <div key={v} className="h-2 rounded-full bg-secondary">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all duration-500"
-                        style={{ width: `${v}%` }}
-                      />
-                    </div>
-                  ))}
+          <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
+            <p className="text-sm font-medium">{t('landing.previewCard2Title')}</p>
+            {[72, 45, 88].map((v, idx) => (
+              <div key={idx} className="space-y-1">
+                <div className="h-2 rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${v}%` }} />
                 </div>
               </div>
-              <p className="text-sm text-mutedForeground">{t('landing.previewCard3')}</p>
+            ))}
+            <div className="rounded-xl border border-border bg-card p-3">
+              <p className="text-sm text-mutedForeground">{t('landing.previewCard1Title')}</p>
+              <p className="text-2xl font-semibold text-success">{t('landing.previewCard1Value')}</p>
             </div>
-          </Card>
+            <p className="text-sm text-mutedForeground">{t('landing.previewCard3')}</p>
+          </div>
+        </Card>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          {valueCards.map((item) => (
+            <Card key={item.title} className="surface-hover space-y-2 p-5">
+              <BookOpenText className="h-4 w-4 text-primary" />
+              <p className="text-base font-semibold">{item.title}</p>
+              <p className="text-sm text-mutedForeground">{item.text}</p>
+            </Card>
+          ))}
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -140,7 +128,7 @@ function AuthHeader() {
 function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <Card className={formCard}>
-      <div className="space-y-2">
+      <div className="space-y-2 border-b border-border pb-3">
         <h1 className="text-page-title">{title}</h1>
         <p className="text-small text-mutedForeground">{subtitle}</p>
       </div>
@@ -192,11 +180,7 @@ export function Register() {
             <FieldError message={form.formState.errors.password?.message} />
           </div>
           <div>
-            <Input
-              type="password"
-              placeholder={t('auth.confirmPassword')}
-              {...form.register('confirmPassword')}
-            />
+            <Input type="password" placeholder={t('auth.confirmPassword')} {...form.register('confirmPassword')} />
             <FieldError message={form.formState.errors.confirmPassword?.message} />
           </div>
           <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
