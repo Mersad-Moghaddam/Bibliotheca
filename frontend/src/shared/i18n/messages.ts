@@ -133,6 +133,7 @@ export const messages = {
       invalidCredentials: 'Invalid credentials. Please try again.',
       emailAlreadyExists: 'An account with this email already exists.',
       missingFields: 'Please complete all required fields correctly.',
+      accountCreatedPleaseLogin: 'Account created successfully. Please log in to continue.',
       networkFailure: 'Network error. Please check your connection and try again.',
       unexpectedServerError: 'Unexpected server error. Please try again.'
     },
@@ -405,6 +406,7 @@ export const messages = {
       invalidCredentials: 'اطلاعات ورود نامعتبر است.',
       emailAlreadyExists: 'حسابی با این ایمیل از قبل وجود دارد.',
       missingFields: 'لطفاً تمام فیلدهای ضروری را به‌درستی تکمیل کنید.',
+      accountCreatedPleaseLogin: 'حساب با موفقیت ایجاد شد. لطفاً برای ادامه وارد شوید.',
       networkFailure: 'خطای شبکه. اتصال خود را بررسی کرده و دوباره تلاش کنید.',
       unexpectedServerError: 'خطای غیرمنتظره سرور. دوباره تلاش کنید.'
     },

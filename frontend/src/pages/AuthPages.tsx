@@ -189,7 +189,7 @@ export function Register() {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       const result = await registerMutation.mutateAsync(values)
-      toast.success(t('auth.signUp'))
+      toast.success(result.autoLoggedIn ? t('auth.signUp') : t('auth.accountCreatedPleaseLogin'))
       nav(result.autoLoggedIn ? '/dashboard' : '/login')
     } catch (error) {
       const apiError = parseApiError(error)
