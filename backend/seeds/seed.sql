@@ -3,7 +3,7 @@
 
 INSERT INTO users (id, name, email, password_hash, reminder_enabled, reminder_time, reminder_frequency, created_at, updated_at)
 VALUES
-  ('11111111-1111-1111-1111-111111111111', 'Demo Reader', 'demo@libro.app', '$2a$10$2fV9u5hQK3z2xKHY7rbTXuN8lzwgwoRS6mjlxF7LvWNxJxV4fB75e', 1, '20:30:00', 'daily', NOW(3), NOW(3));
+  ('11111111-1111-1111-1111-111111111111', 'Demo Reader', 'demo@libro.app', '$2a$10$2fV9u5hQK3z2xKHY7rbTXuN8lzwgwoRS6mjlxF7LvWNxJxV4fB75e', 1, '20:30', 'daily', NOW(3), NOW(3));
 
 INSERT INTO books (id, user_id, title, author, total_pages, status, current_page, cover_url, genre, isbn, completed_at, created_at, updated_at)
 VALUES

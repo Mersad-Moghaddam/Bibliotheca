@@ -183,6 +183,8 @@ Layering follows `controllers -> services -> repositories`:
 
 A starter dataset exists at `backend/seeds/seed.sql`.
 
+> `reminder_time` values use `HH:MM` format (for example `20:30`) to match the current schema.
+
 ```bash
 docker compose exec -T mysql mysql -uroot -proot libro < backend/seeds/seed.sql
 ```
