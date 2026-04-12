@@ -51,26 +51,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-shell">
-      <div className="container grid min-h-screen grid-cols-1 gap-6 py-5 lg:grid-cols-[290px_1fr] lg:py-7">
-        <aside className="surface bg-card/95 p-4 lg:sticky lg:top-7 lg:h-[calc(100vh-3.5rem)] lg:flex lg:flex-col lg:p-5">
-          <Link
-            to="/dashboard"
-            className="mb-6 block rounded-2xl border border-border/70 bg-surface/75 px-4 py-3.5"
-          >
-            <div className="flex items-center gap-2">
-              <span className="rounded-lg border border-border bg-card p-1.5">
-                <Sparkles className="h-4 w-4 text-primary" />
-              </span>
-              <p className="text-xl font-semibold tracking-tight text-primary">Libro</p>
+      <div className="container grid min-h-screen grid-cols-1 gap-5 py-4 lg:grid-cols-[268px_1fr] lg:py-5">
+        <aside className="surface p-3.5 lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)] lg:flex lg:flex-col lg:p-4">
+          <Link to="/dashboard" className="mb-4 flex items-center gap-2 rounded-xl px-2 py-2">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="text-lg font-semibold tracking-tight text-foreground">Libro</p>
+              <p className="text-[11px] text-mutedForeground">{t('nav.platformSubtitle')}</p>
             </div>
-            <p className="mt-2 text-xs text-mutedForeground">{t('nav.platformSubtitle')}</p>
           </Link>
 
-          <div className="space-y-6 overflow-y-auto pr-1">
+          <div className="space-y-5 overflow-y-auto px-1">
             {groups.map((group) => (
-              <div key={group.key} className="space-y-2.5">
+              <div key={group.key} className="space-y-1.5">
                 <p className="eyebrow px-2">{t(group.titleKey)}</p>
-                <nav className="grid grid-cols-1 gap-1.5">
+                <nav className="grid gap-1">
                   {links
                     .filter((item) => item.section === group.key)
                     .map(({ to, labelKey, icon: Icon }) => (
@@ -79,14 +76,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         to={to}
                         className={({ isActive }) =>
                           cn(
-                            'group flex min-w-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ease-premium',
+                            'group flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm transition-colors',
                             isActive
-                              ? 'bg-primary text-primaryForeground shadow-sm'
-                              : 'text-mutedForeground hover:bg-secondary/85 hover:text-foreground'
+                              ? 'bg-primary/12 text-foreground'
+                              : 'text-mutedForeground hover:bg-surface hover:text-foreground'
                           )
                         }
                       >
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-background/70 transition-colors group-hover:border-border">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-card text-mutedForeground group-hover:text-foreground">
                           <Icon className="h-4 w-4" />
                         </span>
                         <span className="truncate">{t(labelKey)}</span>
@@ -97,12 +94,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </div>
 
-          <div className="mt-5 border-t border-border pt-4 lg:mt-auto">
+          <div className="mt-4 border-t border-border pt-3 lg:mt-auto">
             <div className="grid gap-2">
               <ThemeToggle />
               <LanguageToggle />
               <Button
-                variant="secondary"
+                variant="ghost"
                 className="w-full justify-between"
                 onClick={async () => {
                   const refreshToken = authStore.getState().refreshToken
@@ -124,8 +121,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <main className="space-y-6 pb-8 page-enter">
-          <div className="glass-panel flex flex-wrap items-center justify-between gap-4 px-5 py-3.5 md:px-6">
+        <main className="space-y-5 pb-8 page-enter">
+          <div className="surface flex flex-wrap items-center justify-between gap-4 px-5 py-3.5">
             <div>
               <p className="eyebrow">{t('nav.platformTitle')}</p>
               <p className="text-sm font-medium text-foreground">

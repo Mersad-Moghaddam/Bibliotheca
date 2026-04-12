@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,50 +6,48 @@
 
 @layer base {
   :root {
-    --background: 34 37% 96%;
-    --foreground: 22 21% 14%;
-    --card: 34 40% 98%;
-    --card-foreground: 22 20% 15%;
-    --surface: 34 29% 93%;
-    --surface-foreground: 20 14% 26%;
-    --primary: 24 30% 24%;
-    --primary-foreground: 36 42% 97%;
-    --secondary: 34 28% 89%;
-    --secondary-foreground: 22 17% 29%;
-    --muted: 33 18% 88%;
-    --muted-foreground: 22 10% 42%;
-    --accent: 29 36% 84%;
-    --accent-foreground: 24 26% 24%;
-    --border: 30 21% 79%;
-    --input: 30 20% 77%;
-    --ring: 26 28% 35%;
-    --success: 155 37% 33%;
-    --warning: 34 73% 42%;
-    --destructive: 2 65% 48%;
-    --shadow: 24 36% 16%;
+    --background: 210 28% 97%;
+    --foreground: 215 30% 15%;
+    --surface: 210 24% 95%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 30% 15%;
+    --primary: 219 63% 46%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 34% 91%;
+    --secondary-foreground: 214 28% 26%;
+    --muted: 214 24% 88%;
+    --muted-foreground: 214 14% 45%;
+    --accent: 196 52% 56%;
+    --accent-foreground: 210 40% 98%;
+    --border: 214 22% 84%;
+    --input: 214 22% 81%;
+    --ring: 219 63% 56%;
+    --success: 156 50% 37%;
+    --warning: 35 88% 50%;
+    --destructive: 0 73% 52%;
+    --shadow: 220 30% 20%;
   }
 
   .dark {
-    --background: 20 13% 9%;
-    --foreground: 35 31% 91%;
-    --card: 20 12% 12%;
-    --card-foreground: 34 31% 91%;
-    --surface: 20 11% 16%;
-    --surface-foreground: 32 20% 85%;
-    --primary: 35 44% 87%;
-    --primary-foreground: 20 18% 16%;
-    --secondary: 21 11% 20%;
-    --secondary-foreground: 32 23% 84%;
-    --muted: 20 9% 18%;
-    --muted-foreground: 28 10% 66%;
-    --accent: 26 16% 28%;
-    --accent-foreground: 34 27% 88%;
-    --border: 20 10% 28%;
-    --input: 20 10% 32%;
-    --ring: 34 35% 72%;
-    --success: 152 35% 50%;
-    --warning: 34 84% 57%;
-    --destructive: 355 73% 63%;
+    --background: 220 20% 11%;
+    --foreground: 210 35% 92%;
+    --surface: 220 18% 15%;
+    --card: 222 17% 18%;
+    --card-foreground: 210 35% 92%;
+    --primary: 213 82% 66%;
+    --primary-foreground: 224 25% 12%;
+    --secondary: 220 15% 22%;
+    --secondary-foreground: 210 22% 82%;
+    --muted: 219 14% 25%;
+    --muted-foreground: 214 12% 65%;
+    --accent: 196 62% 60%;
+    --accent-foreground: 220 20% 11%;
+    --border: 218 13% 29%;
+    --input: 218 13% 32%;
+    --ring: 213 82% 72%;
+    --success: 156 50% 55%;
+    --warning: 37 92% 60%;
+    --destructive: 0 82% 67%;
     --shadow: 0 0% 0%;
   }
 
@@ -70,7 +68,6 @@
   body {
     @apply bg-background text-body text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     text-rendering: optimizeLegibility;
   }
 
@@ -87,25 +84,23 @@
 @layer components {
   .app-shell {
     @apply min-h-screen bg-background;
-    background-image:
-      radial-gradient(circle at 12% -10%, hsl(var(--secondary) / 0.74), transparent 44%),
-      radial-gradient(circle at 88% 0%, hsl(var(--muted) / 0.5), transparent 40%);
+    background-image: radial-gradient(circle at 15% 0%, hsl(var(--secondary) / 0.55), transparent 42%);
   }
 
   .surface {
-    @apply rounded-2xl border border-border/90 bg-card shadow-sm;
+    @apply rounded-2xl border border-border/80 bg-card shadow-sm;
   }
 
   .surface-hover {
-    @apply transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-lift;
+    @apply transition-all duration-150 ease-premium hover:border-primary/20 hover:shadow-md;
   }
 
   .glass-panel {
-    @apply rounded-2xl border border-border/80 bg-card/[0.92] shadow-md backdrop-blur-sm;
+    @apply rounded-2xl border border-border/70 bg-card/90 shadow-sm backdrop-blur-sm;
   }
 
   .metric-tile {
-    @apply rounded-xl border border-border/90 bg-surface/70 px-3.5 py-3 text-sm;
+    @apply rounded-xl border border-border/80 bg-surface px-3.5 py-3 text-sm;
   }
 
   .eyebrow {
@@ -113,29 +108,14 @@
   }
 
   .page-enter {
-    animation: page-enter 260ms ease-out;
-  }
-
-  .list-item-enter {
-    animation: list-fade 220ms ease-out;
+    animation: page-enter 180ms ease-out;
   }
 }
 
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes list-fade {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -148,6 +128,13 @@ html[lang='fa'] body {
   font-feature-settings:
     'ss01' on,
     'calt' on;
+  letter-spacing: 0;
+  line-height: 1.85;
+}
+
+html[lang='fa'] h1,
+html[lang='fa'] h2,
+html[lang='fa'] h3 {
   letter-spacing: 0;
 }
 
