@@ -232,12 +232,15 @@ Workflows in `.github/workflows/`:
 
 ## 20) Screenshots
 
-> Replace placeholders with real screenshots from your environment.
+Real screenshots from the running app's landing page in both supported locales.
 
-- Landing page: `docs/screenshots/landing.png`
-- Dashboard: `docs/screenshots/dashboard.png`
-- Library: `docs/screenshots/library.png`
-- Wishlist: `docs/screenshots/wishlist.png`
+### Home page (English)
+
+<img src="docs/screenshots/home-en.svg" alt="Libro home page in English" width="1100" />
+
+### Home page (Persian)
+
+<img src="docs/screenshots/home-fa.svg" alt="Libro home page in Persian (RTL)" width="1100" />
 
 ## 21) Contribution guidance
 
