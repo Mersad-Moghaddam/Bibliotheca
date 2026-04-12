@@ -239,13 +239,13 @@ func (s *Service) Insights(ctx context.Context, userID uuid.UUID) ([]map[string]
 
 	insights := []map[string]string{}
 	if analytics.CurrentStreakWeeks >= 2 {
-		insights = append(insights, map[string]string{"tone": "positive", "message": "You are reading consistently for multiple weeks."})
+		insights = append(insights, map[string]string{"tone": "positive", "messageKey": "dashboard.apiInsights.consistency", "message": "You are reading consistently for multiple weeks."})
 	}
 	if analytics.StatusDistribution[constants.BookStatusNextToRead]+analytics.StatusDistribution[constants.BookStatusInLibrary] >= 3 {
-		insights = append(insights, map[string]string{"tone": "nudge", "message": "You have a healthy backlog waiting; pick one title to start this week."})
+		insights = append(insights, map[string]string{"tone": "nudge", "messageKey": "dashboard.apiInsights.backlog", "message": "You have a healthy backlog waiting; pick one title to start this week."})
 	}
 	if analytics.ActiveReading > 2 {
-		insights = append(insights, map[string]string{"tone": "focus", "message": "You are juggling several active books. Finishing one may improve momentum."})
+		insights = append(insights, map[string]string{"tone": "focus", "messageKey": "dashboard.apiInsights.focus", "message": "You are juggling several active books. Finishing one may improve momentum."})
 	}
 
 	finishedBooks := 0
@@ -259,11 +259,11 @@ func (s *Service) Insights(ctx context.Context, userID uuid.UUID) ([]map[string]
 		}
 	}
 	if finishedBooks > 0 && shortFinished*2 >= finishedBooks {
-		insights = append(insights, map[string]string{"tone": "pattern", "message": "You tend to finish shorter books faster. Queue one short book for quick wins."})
+		insights = append(insights, map[string]string{"tone": "pattern", "messageKey": "dashboard.apiInsights.shortBooks", "message": "You tend to finish shorter books faster. Queue one short book for quick wins."})
 	}
 
 	if len(insights) == 0 {
-		insights = append(insights, map[string]string{"tone": "neutral", "message": "Track progress updates this week to unlock personalized insights."})
+		insights = append(insights, map[string]string{"tone": "neutral", "messageKey": "dashboard.apiInsights.trackProgress", "message": "Track progress updates this week to unlock personalized insights."})
 	}
 
 	sort.SliceStable(insights, func(i, j int) bool { return insights[i]["tone"] < insights[j]["tone"] })

@@ -55,10 +55,13 @@ func (r *readingProgressRepo) ListSessions(ctx context.Context, userID uuid.UUID
 
 func (r *readingProgressRepo) UpsertGoal(ctx context.Context, goal *readingGoal.ReadingGoal) error {
 	var existing readingGoal.ReadingGoal
-	err := r.db.WithContext(ctx).Where("user_id = ? AND period = ?", goal.UserID, goal.Period).First(&existing).Error
+	err := r.db.WithContext(ctx).
+		Where("user_id = ? AND period = ? AND start_date = ? AND end_date = ?", goal.UserID, goal.Period, goal.StartDate, goal.EndDate).
+		First(&existing).Error
 	if err == nil {
-		existing.PagesGoal = goal.PagesGoal
-		existing.BooksGoal = goal.BooksGoal
+		existing.TargetPages = goal.TargetPages
+		existing.TargetBooks = goal.TargetBooks
+		existing.Source = goal.Source
 		return r.db.WithContext(ctx).Save(&existing).Error
 	}
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -67,7 +70,26 @@ func (r *readingProgressRepo) UpsertGoal(ctx context.Context, goal *readingGoal.
 	return r.db.WithContext(ctx).Create(goal).Error
 }
 
+func (r *readingProgressRepo) FindGoalByWindow(ctx context.Context, userID uuid.UUID, period string, startDate, endDate time.Time) (*readingGoal.ReadingGoal, error) {
+	var goal readingGoal.ReadingGoal
+	err := r.db.WithContext(ctx).
+		Where("user_id = ? AND period = ? AND start_date = ? AND end_date = ?", userID, period, startDate, endDate).
+		First(&goal).Error
+	if err != nil {
+		return nil, err
+	}
+	return &goal, nil
+}
+
 func (r *readingProgressRepo) ListGoals(ctx context.Context, userID uuid.UUID) ([]readingGoal.ReadingGoal, error) {
 	var goals []readingGoal.ReadingGoal
 	return goals, r.db.WithContext(ctx).Where("user_id = ?", userID).Find(&goals).Error
+}
+
+func (r *readingProgressRepo) CountCompletedBooksBetween(ctx context.Context, userID uuid.UUID, startDate, endDate time.Time) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&book.Book{}).
+		Where("user_id = ? AND completed_at IS NOT NULL AND DATE(completed_at) >= ? AND DATE(completed_at) <= ?", userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02")).
+		Count(&count).Error
+	return count, err
 }

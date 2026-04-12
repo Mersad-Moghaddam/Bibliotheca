@@ -97,7 +97,7 @@ func (c *MainController) DashboardInsights(ctx *fiber.Ctx) error {
 	}
 	for _, g := range goals {
 		if g.PagesGoal > 0 && g.PagesPercent >= 100 {
-			insights = append(insights, map[string]string{"tone": "goal", "message": "You hit your " + g.Period + " page goal. Great consistency."})
+			insights = append(insights, map[string]string{"tone": "goal", "messageKey": "dashboard.apiInsights.goalHit", "period": g.Period, "message": "You hit your " + g.Period + " page goal. Great consistency."})
 		}
 	}
 	return apiresponse.OK(ctx, fiber.Map{"items": insights}, nil)
