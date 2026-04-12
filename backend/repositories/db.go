@@ -14,7 +14,7 @@ import (
 	"libro-backend/models/wishlist"
 )
 
-const migrationHint = "run SQL migrations from backend/migrations (including 000006_reading_deep_features.up.sql)"
+const migrationHint = "run SQL migrations from backend/migrations (including 000006_reading_deep_features.up.sql + later migrations)"
 
 func AssertSchema(db *gorm.DB) error {
 	checks := []struct {
@@ -26,7 +26,7 @@ func AssertSchema(db *gorm.DB) error {
 		{&wishlist.Wishlist{}, []string{"id", "user_id", "title", "author", "expected_price", "notes", "created_at", "updated_at"}},
 		{&purchaseLink.PurchaseLink{}, []string{"id", "wishlist_id", "label", "alias", "url", "created_at", "updated_at"}},
 		{&readingSession.ReadingSession{}, []string{"id", "user_id", "book_id", "date", "duration", "pages_read", "created_at", "updated_at"}},
-		{&readingGoal.ReadingGoal{}, []string{"id", "user_id", "period", "pages_goal", "books_goal", "created_at", "updated_at"}},
+		{&readingGoal.ReadingGoal{}, []string{"id", "user_id", "period", "pages_goal", "books_goal", "source", "start_date", "end_date", "created_at", "updated_at"}},
 		{&bookNote.BookNote{}, []string{"id", "user_id", "book_id", "note", "highlight", "created_at", "updated_at"}},
 	}
 

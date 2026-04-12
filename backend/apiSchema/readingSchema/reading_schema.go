@@ -11,8 +11,13 @@ type SessionRequest struct {
 	PagesRead int    `json:"pages"`
 }
 
-type GoalRequest struct {
-	Period    string `json:"period"`
-	PagesGoal int    `json:"pages"`
-	BooksGoal int    `json:"books"`
+type GoalTargetRequest struct {
+	Pages *int `json:"pages"`
+	Books *int `json:"books"`
+}
+
+type GoalUpdateRequest struct {
+	Weekly          *GoalTargetRequest `json:"weekly"`
+	Monthly         *GoalTargetRequest `json:"monthly"`
+	ApplySuggestion bool               `json:"applySuggestion"`
 }
