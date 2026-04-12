@@ -148,8 +148,6 @@ export function Dashboard() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t('dashboard.title')} description={t('dashboard.description')} eyebrow={t('nav.workspace')} />
-
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title={t('status.currentlyReading')} value={numberFormatter.format(counts.currentlyReading)} icon={BookPlus} />
         <StatCard title={t('status.inLibrary')} value={numberFormatter.format(counts.inLibrary)} icon={LibraryBig} />
@@ -260,8 +258,6 @@ export function Library() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t('library.title')} description={t('library.description')} eyebrow={t('nav.workspace')} />
-
       <SectionCard>
         <SectionHeader title={t('library.addBook')} description={t('library.addBookDescription')} icon={<BookPlus className="h-4 w-4" />} action={<Button variant="ghost" size="sm" onClick={() => setShowAddBookForm((prev) => !prev)}>{showAddBookForm ? t('library.hideForm') : t('library.showForm')}</Button>} />
         {showAddBookForm ? <form onSubmit={onAddBook} className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -304,7 +300,7 @@ export function Library() {
   )
 }
 
-function BookListByStatus({ status, title, description, tone }: { status: BookStatus; title: string; description: string; tone: string }) {
+function BookListByStatus({ status }: { status: BookStatus }) {
   const query = useBooksQuery({ status })
   const updateStatus = useUpdateBookStatusMutation()
   const updateProgress = useUpdateBookProgressMutation()
@@ -312,7 +308,6 @@ function BookListByStatus({ status, title, description, tone }: { status: BookSt
 
   return (
     <div className="space-y-5">
-      <PageHeader title={title} description={description} eyebrow={t('books.collection')} action={<Badge className={tone}>{t(`status.${status}`)}</Badge>} />
       <QueryState isLoading={query.isLoading} isError={query.isError} isEmpty={!query.data?.length} emptyTitle={t('books.emptyTitle')} emptyDescription={t('books.emptyDescription')}>
         <div className="grid gap-4 md:grid-cols-2">
           {query.data?.map((book) => (
@@ -334,16 +329,13 @@ function BookListByStatus({ status, title, description, tone }: { status: BookSt
 }
 
 export const Reading = () => {
-  const { t } = useI18n()
-  return <BookListByStatus status="currentlyReading" title={t('books.reading')} description={t('books.readingDesc')} tone="border-success/20 bg-success/10 text-success" />
+  return <BookListByStatus status="currentlyReading" />
 }
 export const Finished = () => {
-  const { t } = useI18n()
-  return <BookListByStatus status="finished" title={t('books.finished')} description={t('books.finishedDesc')} tone="border-primary/20 bg-primary/10 text-primary" />
+  return <BookListByStatus status="finished" />
 }
 export const Next = () => {
-  const { t } = useI18n()
-  return <BookListByStatus status="nextToRead" title={t('books.nextToRead')} description={t('books.nextToReadDesc')} tone="border-warning/20 bg-warning/10 text-warning" />
+  return <BookListByStatus status="nextToRead" />
 }
 
 export function Wishlist() {
@@ -355,7 +347,6 @@ export function Wishlist() {
   const itemForm = useForm<WishlistItemValues>({ resolver: zodResolver(wishlistItemSchema), defaultValues: { title: '', author: '', notes: '' } })
   return (
     <div className="space-y-5">
-      <PageHeader title={t('wishlist.title')} description={t('wishlist.description')} eyebrow={t('books.collection')} />
       <SectionCard>
         <SectionHeader title={t('wishlist.addTitle')} description={t('wishlist.addDescription')} icon={<Bookmark className="h-4 w-4" />} />
         <form onSubmit={itemForm.handleSubmit(async (values) => addItem.mutateAsync({ ...values, expectedPrice: Number.isNaN(values.expectedPrice) ? null : values.expectedPrice ?? null }))} className="grid gap-3 md:grid-cols-2">
@@ -438,7 +429,6 @@ export function Profile() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={t('profile.title')} description={t('profile.description')} eyebrow={t('nav.account')} />
       <div className="grid gap-4 xl:grid-cols-2">
         <SectionCard>
           <SectionHeader title={t('profile.updateName')} icon={<Sparkles className="h-4 w-4" />} />

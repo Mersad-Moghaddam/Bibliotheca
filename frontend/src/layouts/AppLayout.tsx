@@ -76,17 +76,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         to={to}
                         className={({ isActive }) =>
                           cn(
-                            'group flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm transition-colors',
+                            'group relative flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm transition-all',
                             isActive
-                              ? 'bg-primary/12 text-foreground'
+                              ? 'bg-primary/14 text-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.2)]'
                               : 'text-mutedForeground hover:bg-surface hover:text-foreground'
                           )
                         }
                       >
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-card text-mutedForeground group-hover:text-foreground">
-                          <Icon className="h-4 w-4" />
-                        </span>
-                        <span className="truncate">{t(labelKey)}</span>
+                        {({ isActive }) => (
+                          <>
+                            <span
+                              className={cn(
+                                'absolute inset-y-1.5 start-0 w-0.5 rounded-full bg-transparent transition-colors',
+                                isActive ? 'bg-primary' : 'group-hover:bg-border'
+                              )}
+                            />
+                            <span
+                              className={cn(
+                                'flex h-8 w-8 items-center justify-center rounded-lg border bg-card transition-colors',
+                                isActive
+                                  ? 'border-primary/35 text-primary'
+                                  : 'border-border/70 text-mutedForeground group-hover:text-foreground'
+                              )}
+                            >
+                              <Icon className="h-4 w-4" />
+                            </span>
+                            <span className={cn('truncate', isActive && 'font-medium')}>{t(labelKey)}</span>
+                          </>
+                        )}
                       </NavLink>
                     ))}
                 </nav>
