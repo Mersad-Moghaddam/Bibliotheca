@@ -39,6 +39,7 @@ import {
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
 } from '../features/books/queries/use-books'
+import { ReadingGoalsCard } from '../features/dashboard/components/reading-goals-card'
 import { ReadingInsightsCard } from '../features/dashboard/components/reading-insights-card'
 import { buildReadingInsight } from '../features/dashboard/insights/insight-engine'
 import {
@@ -140,17 +141,41 @@ export function Dashboard() {
   const books = useMemo(() => booksQuery.data ?? [], [booksQuery.data])
   const analytics = analyticsQuery.data
   const reminder = reminderQuery.data
-  const goals = useMemo(() => goalsQuery.data ?? [], [goalsQuery.data])
+  const goals = goalsQuery.data
   const sessions = useMemo(() => sessionsQuery.data ?? [], [sessionsQuery.data])
+  const goalSignals = useMemo(() => {
+    if (!goals) return []
+    return [
+      {
+        period: 'weekly' as const,
+        pagesGoal: goals.weekly.targetPages ?? 0,
+        booksGoal: goals.weekly.targetBooks ?? 0,
+        pagesRead: goals.weekly.pagesRead,
+        booksRead: goals.weekly.booksRead,
+        pagesPercent: goals.weekly.targetPages ? Math.round((goals.weekly.pagesRead / goals.weekly.targetPages) * 100) : 0,
+        booksPercent: goals.weekly.targetBooks ? Math.round((goals.weekly.booksRead / goals.weekly.targetBooks) * 100) : 0
+      },
+      {
+        period: 'monthly' as const,
+        pagesGoal: goals.monthly.targetPages ?? 0,
+        booksGoal: goals.monthly.targetBooks ?? 0,
+        pagesRead: goals.monthly.pagesRead,
+        booksRead: goals.monthly.booksRead,
+        pagesPercent: goals.monthly.targetPages ? Math.round((goals.monthly.pagesRead / goals.monthly.targetPages) * 100) : 0,
+        booksPercent: goals.monthly.targetBooks ? Math.round((goals.monthly.booksRead / goals.monthly.targetBooks) * 100) : 0
+      }
+    ]
+  }, [goals])
+
   const readingInsight = useMemo(
     () =>
       buildReadingInsight({
         books,
         analytics,
-        goals,
+        goals: goalSignals,
         sessions
       }),
-    [analytics, books, goals, sessions]
+    [analytics, books, goalSignals, sessions]
   )
 
   const counts = useMemo(() => {
@@ -253,18 +278,13 @@ export function Dashboard() {
 
         <SectionCard>
           <SectionHeader title={t('dashboard.goalsTitle')} description={t('dashboard.goalsDesc')} />
-          <div className="space-y-3">
-            {goals.map((goal) => (
-              <div key={goal.period} className="rounded-xl border border-border bg-surface p-3">
-                <p className="font-medium">{goal.period === 'weekly' ? t('dashboard.periodWeekly') : t('dashboard.periodMonthly')}</p>
-                <p className="text-xs text-mutedForeground">{t('dashboard.goalSummary', { pagesRead: goal.pagesRead, pagesGoal: goal.pagesGoal, booksRead: goal.booksRead, booksGoal: goal.booksGoal })}</p>
-              </div>
-            ))}
-            <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="secondary" onClick={() => saveGoal.mutate({ period: 'weekly', pages: 120, books: 1 })}>{t('dashboard.setWeekly')}</Button>
-              <Button size="sm" variant="secondary" onClick={() => saveGoal.mutate({ period: 'monthly', pages: 500, books: 2 })}>{t('dashboard.setMonthly')}</Button>
-            </div>
-          </div>
+          <ReadingGoalsCard
+            goals={goals}
+            isSaving={saveGoal.isPending}
+            onSave={async (payload) => {
+              await saveGoal.mutateAsync(payload)
+            }}
+          />
         </SectionCard>
       </div>
     </div>

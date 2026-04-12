@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"libro-backend/apiSchema/readingSchema"
-	"libro-backend/models/readingGoal"
 	"libro-backend/models/readingSession"
 	"libro-backend/pkg/apiresponse"
 	"libro-backend/pkg/validation"
@@ -89,31 +88,33 @@ func (h *ReadingController) ListSessions(c *fiber.Ctx) error {
 }
 
 func (h *ReadingController) UpsertGoal(c *fiber.Ctx) error {
-	var req readingSchema.GoalRequest
+	var req readingSchema.GoalUpdateRequest
 	if err := c.BodyParser(&req); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	errs := validation.Errors{}
-	allowed := map[string]struct{}{"weekly": {}, "monthly": {}}
-	validation.Enum(req.Period, "period", allowed, errs)
-	validation.MinInt(req.PagesGoal, "pages", 0, errs)
-	validation.MinInt(req.BooksGoal, "books", 0, errs)
-	if errs.HasAny() {
-		return apiresponse.ValidationError(c, errs)
-	}
 	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	goal := &readingGoal.ReadingGoal{UserID: uid, Period: req.Period, PagesGoal: req.PagesGoal, BooksGoal: req.BooksGoal}
-	if err := h.service.Reading.SaveGoal(c.Context(), goal); err != nil {
+	if err := h.service.Reading.SaveGoals(c.Context(), uid, mapInput(req.Weekly), mapInput(req.Monthly), req.ApplySuggestion); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, goal, nil)
+	overview, err := h.service.Reading.GetGoalsOverview(c.Context(), uid)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	return apiresponse.OK(c, overview, nil)
+}
+
+func mapInput(in *readingSchema.GoalTargetRequest) *readingService.GoalUpdateInput {
+	if in == nil {
+		return nil
+	}
+	return &readingService.GoalUpdateInput{TargetPages: in.Pages, TargetBooks: in.Books, Source: "manual"}
 }
 
 func (h *ReadingController) Goals(c *fiber.Ctx) error {
 	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	goals, err := h.service.Reading.GoalProgress(c.Context(), uid)
+	overview, err := h.service.Reading.GetGoalsOverview(c.Context(), uid)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, fiber.Map{"items": goals}, nil)
+	return apiresponse.OK(c, overview, nil)
 }

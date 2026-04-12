@@ -1,6 +1,6 @@
 import api from '../../../api/client'
 import { extractData } from '../../../api/http'
-import { GoalProgress, ReadingAnalytics, ReadingSession, ReminderSettings } from '../../../types'
+import { ReadingAnalytics, ReadingGoalsOverview, ReadingSession, ReminderSettings } from '../../../types'
 
 export async function fetchAnalytics() {
   const response = await api.get<ReadingAnalytics>('/dashboard/analytics')
@@ -13,12 +13,17 @@ export async function fetchReminder() {
 }
 
 export async function fetchGoals() {
-  const response = await api.get<{ items: GoalProgress[] }>('/reading/goals')
-  return extractData(response).items
+  const response = await api.get<ReadingGoalsOverview>('/reading/goals')
+  return extractData(response)
 }
 
-export async function updateGoal(payload: { period: 'weekly' | 'monthly'; pages: number; books: number }) {
-  await api.put('/reading/goals', payload)
+export async function updateGoal(payload: {
+  weekly?: { pages?: number; books?: number }
+  monthly?: { pages?: number; books?: number }
+  applySuggestion?: boolean
+}) {
+  const response = await api.put<ReadingGoalsOverview>('/reading/goals', payload)
+  return extractData(response)
 }
 
 export async function fetchSessions() {

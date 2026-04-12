@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"libro-backend/models/book"
@@ -80,5 +81,7 @@ type ReadingProgressRepository interface {
 	CreateSession(ctx context.Context, session *readingSession.ReadingSession) error
 	ListSessions(ctx context.Context, userID uuid.UUID, limit int) ([]readingSession.ReadingSession, error)
 	UpsertGoal(ctx context.Context, goal *readingGoal.ReadingGoal) error
+	FindGoalByWindow(ctx context.Context, userID uuid.UUID, period string, startDate, endDate time.Time) (*readingGoal.ReadingGoal, error)
 	ListGoals(ctx context.Context, userID uuid.UUID) ([]readingGoal.ReadingGoal, error)
+	CountCompletedBooksBetween(ctx context.Context, userID uuid.UUID, startDate, endDate time.Time) (int64, error)
 }

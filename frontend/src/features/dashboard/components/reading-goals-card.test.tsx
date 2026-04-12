@@ -1,0 +1,66 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+
+import { I18nProvider } from '../../../shared/i18n/i18n-provider'
+
+import { ReadingGoalsCard } from './reading-goals-card'
+
+const goals = {
+  weekly: {
+    period: 'weekly' as const,
+    startDate: '2026-04-06',
+    endDate: '2026-04-12',
+    targetPages: 100,
+    targetBooks: 1,
+    pagesRead: 40,
+    booksRead: 0,
+    percent: 40,
+    status: 'in_progress' as const,
+    exceeded: false
+  },
+  monthly: {
+    period: 'monthly' as const,
+    startDate: '2026-04-01',
+    endDate: '2026-04-30',
+    targetPages: 400,
+    targetBooks: 2,
+    pagesRead: 130,
+    booksRead: 1,
+    percent: 33,
+    status: 'on_track' as const,
+    exceeded: false
+  },
+  suggestions: [
+    { period: 'weekly' as const, targetPages: 120, targetBooks: 1, reason: 'Based on your recent pace.', confidence: 'high' as const, signals: { recentWeeklyPagesMedian: 110, recentMonthlyPagesMedian: 430, weeklySessions: 3, activeWeeks: 5, completedBooks30d: 1 } }
+  ]
+}
+
+describe('ReadingGoalsCard', () => {
+  it('renders localized Persian labels', () => {
+    localStorage.setItem('libro.locale', 'fa')
+    render(
+      <I18nProvider>
+        <ReadingGoalsCard goals={goals} isSaving={false} onSave={async () => {}} />
+      </I18nProvider>
+    )
+
+    expect(screen.getByText('پیشنهاد برای شما')).toBeInTheDocument()
+  })
+
+  it('applies suggestion into editable form', async () => {
+    localStorage.setItem('libro.locale', 'en')
+    const onSave = vi.fn(async () => {})
+    const user = userEvent.setup()
+    render(
+      <I18nProvider>
+        <ReadingGoalsCard goals={goals} isSaving={false} onSave={onSave} />
+      </I18nProvider>
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Save' }))
+
+    expect(onSave).toHaveBeenCalled()
+  })
+})

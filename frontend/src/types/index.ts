@@ -44,6 +44,43 @@ export type GoalProgress = {
   booksPercent: number
 }
 
+
+export type GoalStatus = 'no_goal' | 'not_started' | 'in_progress' | 'on_track' | 'completed' | 'exceeded' | 'behind'
+
+export type GoalPeriodOverview = {
+  period: 'weekly' | 'monthly'
+  startDate: string
+  endDate: string
+  targetPages?: number
+  targetBooks?: number
+  source?: 'manual' | 'suggested' | 'applied_suggestion'
+  pagesRead: number
+  booksRead: number
+  percent: number
+  status: GoalStatus
+  exceeded: boolean
+}
+
+export type GoalSuggestion = {
+  period: 'weekly' | 'monthly'
+  targetPages?: number
+  targetBooks?: number
+  reason: string
+  confidence: 'low' | 'medium' | 'high'
+  signals: {
+    recentWeeklyPagesMedian: number
+    recentMonthlyPagesMedian: number
+    weeklySessions: number
+    activeWeeks: number
+    completedBooks30d: number
+  }
+}
+
+export type ReadingGoalsOverview = {
+  weekly: GoalPeriodOverview
+  monthly: GoalPeriodOverview
+  suggestions: GoalSuggestion[]
+}
 export type PurchaseLink = {
   id: string
   label: string
