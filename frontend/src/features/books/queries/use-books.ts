@@ -81,9 +81,7 @@ export function useUpdateBookMutation() {
       }
     }) => updateBook(id, payload),
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.books.all })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.books.detail(variables.id) })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.analytics })
+      void invalidateReadingDerivedQueries(queryClient, variables.id)
     }
   })
 }
@@ -132,17 +130,6 @@ export function useUpdateBookProgressMutation() {
   return useMutation({
     mutationFn: ({ id, currentPage }: { id: string; currentPage: number }) =>
       updateBookProgress(id, currentPage),
-    onSuccess: (_data, variables) => {
-      void invalidateReadingDerivedQueries(queryClient, variables.id)
-    }
-  })
-}
-
-export function useUpdateBookMutation() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, ...payload }: { id: string; title: string; author: string; totalPages: number; status: BookStatus; coverUrl?: string; genre?: string; isbn?: string }) =>
-      updateBook(id, payload),
     onSuccess: (_data, variables) => {
       void invalidateReadingDerivedQueries(queryClient, variables.id)
     }
