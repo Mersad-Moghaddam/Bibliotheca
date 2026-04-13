@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"libro-backend/models/book"
+	"libro-backend/models/readingEvent"
 	"libro-backend/repositories"
 	"libro-backend/services/bookService"
 	"libro-backend/statics/constants"
@@ -20,7 +21,7 @@ func TestBookServiceWithRepository(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
-	if err = db.AutoMigrate(&book.Book{}); err != nil {
+	if err = db.AutoMigrate(&book.Book{}, &readingEvent.ReadingEvent{}); err != nil {
 		t.Fatalf("automigrate: %v", err)
 	}
 
