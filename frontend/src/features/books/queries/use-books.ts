@@ -64,6 +64,30 @@ export function useCreateBookMutation() {
   })
 }
 
+export function useUpdateBookMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, payload }: {
+      id: string
+      payload: {
+        title: string
+        author: string
+        totalPages: number
+        status: BookStatus
+        coverUrl?: string
+        genre?: string
+        isbn?: string
+      }
+    }) => updateBook(id, payload),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.books.all })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.books.detail(variables.id) })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.analytics })
+    }
+  })
+}
+
 export function useDeleteBookMutation() {
   const queryClient = useQueryClient()
 

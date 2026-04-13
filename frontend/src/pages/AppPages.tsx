@@ -13,7 +13,7 @@ import {
   Timer,
   Trash2
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -28,7 +28,7 @@ import { SectionHeader } from '../components/ui/section-header'
 import { Select } from '../components/ui/select'
 import { Separator } from '../components/ui/separator'
 import { Textarea } from '../components/ui/textarea'
-import { addBookSchema, AddBookValues, progressSchema, ProgressValues } from '../features/books/forms/book-schemas'
+import { addBookSchema, AddBookValues, editBookDetailsSchema, EditBookDetailsValues, progressSchema, ProgressValues } from '../features/books/forms/book-schemas'
 import {
   useBookNotesQuery,
   useBookQuery,
@@ -36,6 +36,7 @@ import {
   useCreateBookMutation,
   useCreateBookNoteMutation,
   useDeleteBookMutation,
+  useUpdateBookMutation,
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
 } from '../features/books/queries/use-books'
@@ -346,8 +347,15 @@ export function Library() {
             <Card key={book.id} className="surface-hover p-5">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex gap-3"><BookCover title={book.title} coverUrl={book.coverUrl} /><div><p className="font-semibold">{book.title}</p><p className="text-small text-mutedForeground">{book.author}</p><p className="mt-1 text-xs text-mutedForeground">{book.genre || t('library.genreFallback')}</p></div></div>
-                  <StatusBadge status={book.status} />
+                  <div className="flex min-w-0 flex-1 gap-3">
+                    <BookCover title={book.title} coverUrl={book.coverUrl} />
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold" title={book.title}>{book.title}</p>
+                      <p className="truncate text-small text-mutedForeground" title={book.author}>{book.author}</p>
+                      <p className="mt-1 truncate text-xs text-mutedForeground" title={book.genre || t('library.genreFallback')}>{book.genre || t('library.genreFallback')}</p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 pt-0.5"><StatusBadge status={book.status} /></div>
                 </div>
                 <Progress value={book.progressPercentage} />
                 <div className="flex flex-wrap gap-2"><Link to={`/books/${book.id}`}><Button size="sm">{t('common.details')}</Button></Link><Button size="sm" variant="secondary" disabled={deleteBookMutation.isPending} onClick={() => deleteBookMutation.mutate(book.id)}>{t('books.delete')}</Button></div>
@@ -489,8 +497,10 @@ export function Wishlist() {
 
 export function BookDetails({ id }: { id: string }) {
   const { t } = useI18n()
+  const toast = useToast()
   const nav = useNavigate()
   const query = useBookQuery(id)
+  const updateBook = useUpdateBookMutation()
   const updateStatus = useUpdateBookStatusMutation()
   const updateProgress = useUpdateBookProgressMutation()
   const deleteBook = useDeleteBookMutation()
@@ -498,7 +508,26 @@ export function BookDetails({ id }: { id: string }) {
   const addNote = useCreateBookNoteMutation(id)
 
   const form = useForm<ProgressValues>({ resolver: zodResolver(progressSchema), defaultValues: { currentPage: 0 } })
+  const editForm = useForm<EditBookDetailsValues>({
+    resolver: zodResolver(editBookDetailsSchema),
+    defaultValues: { title: '', author: '', totalPages: 1, currentPage: 0, status: 'inLibrary', coverUrl: '', genre: '', isbn: '' }
+  })
   const noteForm = useForm<{ note: string; highlight: string }>({ defaultValues: { note: '', highlight: '' } })
+
+  useEffect(() => {
+    if (!query.data) return
+    editForm.reset({
+      title: query.data.title,
+      author: query.data.author,
+      totalPages: query.data.totalPages,
+      currentPage: query.data.currentPage ?? 0,
+      status: query.data.status,
+      coverUrl: query.data.coverUrl ?? '',
+      genre: query.data.genre ?? '',
+      isbn: query.data.isbn ?? ''
+    })
+    form.reset({ currentPage: query.data.currentPage ?? 0 })
+  }, [query.data, editForm, form])
 
   if (!query.data) return <Card className="p-6">{t('common.loading')}</Card>
   const book = query.data
@@ -508,6 +537,49 @@ export function BookDetails({ id }: { id: string }) {
       <PageHeader title={book.title} description={book.author} action={<StatusBadge status={book.status} />} eyebrow={t('books.readingProgress')} />
       <SectionCard>
         <div className="grid gap-4 md:grid-cols-[auto_1fr] md:items-center"><BookCover title={book.title} coverUrl={book.coverUrl} /><div className="space-y-2"><p>{t('books.readingProgress')}: {Math.round(book.progressPercentage)}%</p><Progress value={book.progressPercentage} /></div></div>
+      </SectionCard>
+      <SectionCard>
+        <SectionHeader title={t('books.editDetailsTitle')} description={t('books.editDetailsDescription')} />
+        <form
+          className="grid gap-3 md:grid-cols-2"
+          onSubmit={editForm.handleSubmit(async (values) => {
+            try {
+              const initialCurrentPage = book.currentPage ?? 0
+              await updateBook.mutateAsync({
+                id: book.id,
+                payload: {
+                  title: values.title,
+                  author: values.author,
+                  totalPages: values.totalPages,
+                  status: values.status,
+                  coverUrl: values.coverUrl || undefined,
+                  genre: values.genre || undefined,
+                  isbn: values.isbn || undefined
+                }
+              })
+              if (values.currentPage !== initialCurrentPage) {
+                await updateProgress.mutateAsync({ id: book.id, currentPage: values.currentPage })
+                const statusAfterProgress: BookStatus = values.currentPage === values.totalPages ? 'finished' : 'currentlyReading'
+                if (values.status !== statusAfterProgress) {
+                  await updateStatus.mutateAsync({ id: book.id, status: values.status })
+                }
+              }
+              toast.success(t('books.bookUpdated'))
+            } catch {
+              toast.error(t('books.updateError'))
+            }
+          })}
+        >
+          <div><FieldBlock label={t('library.titlePlaceholder')}><Input placeholder={t('library.titlePlaceholder')} {...editForm.register('title')} /></FieldBlock><FieldError message={editForm.formState.errors.title?.message} /></div>
+          <div><FieldBlock label={t('library.authorPlaceholder')}><Input placeholder={t('library.authorPlaceholder')} {...editForm.register('author')} /></FieldBlock><FieldError message={editForm.formState.errors.author?.message} /></div>
+          <div><FieldBlock label={t('library.totalPages')}><Input type="number" min={1} {...editForm.register('totalPages', { valueAsNumber: true })} /></FieldBlock><FieldError message={editForm.formState.errors.totalPages?.message} /></div>
+          <div><FieldBlock label={t('books.updateProgress')}><Input type="number" min={0} max={editForm.watch('totalPages')} {...editForm.register('currentPage', { valueAsNumber: true })} /></FieldBlock><FieldError message={editForm.formState.errors.currentPage?.message} /></div>
+          <FieldBlock label={t('library.status')}><Select {...editForm.register('status')}>{statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}</Select></FieldBlock>
+          <div><FieldBlock label={t('library.coverUrlOptional')}><Input placeholder={t('library.coverUrlOptional')} {...editForm.register('coverUrl')} /></FieldBlock><FieldError message={editForm.formState.errors.coverUrl?.message} /></div>
+          <div><FieldBlock label={t('library.genreOptional')}><Input placeholder={t('library.genreOptional')} {...editForm.register('genre')} /></FieldBlock><FieldError message={editForm.formState.errors.genre?.message} /></div>
+          <div><FieldBlock label={t('library.isbnOptional')}><Input placeholder={t('library.isbnOptional')} {...editForm.register('isbn')} /></FieldBlock><FieldError message={editForm.formState.errors.isbn?.message} /></div>
+          <div className="md:col-span-2"><Button type="submit" disabled={updateBook.isPending || updateProgress.isPending || updateStatus.isPending}>{updateBook.isPending || updateProgress.isPending || updateStatus.isPending ? `${t('common.save')}...` : t('common.save')}</Button></div>
+        </form>
       </SectionCard>
 
       <SectionCard>
@@ -571,7 +643,6 @@ export function Profile() {
           <Button type="submit" className="md:col-span-3 md:w-fit" disabled={updateReminder.isPending}>{t('profile.saveReminders')}</Button>
         </form>
       </SectionCard>
-      <SectionCard className="max-w-3xl"><SectionHeader title={t('profile.notesTitle')} /><Textarea placeholder={t('profile.notesPlaceholder')} /></SectionCard>
     </div>
   )
 }
