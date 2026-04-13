@@ -347,8 +347,15 @@ export function Library() {
             <Card key={book.id} className="surface-hover p-5">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex gap-3"><BookCover title={book.title} coverUrl={book.coverUrl} /><div><p className="font-semibold">{book.title}</p><p className="text-small text-mutedForeground">{book.author}</p><p className="mt-1 text-xs text-mutedForeground">{book.genre || t('library.genreFallback')}</p></div></div>
-                  <StatusBadge status={book.status} />
+                  <div className="flex min-w-0 flex-1 gap-3">
+                    <BookCover title={book.title} coverUrl={book.coverUrl} />
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold" title={book.title}>{book.title}</p>
+                      <p className="truncate text-small text-mutedForeground" title={book.author}>{book.author}</p>
+                      <p className="mt-1 truncate text-xs text-mutedForeground" title={book.genre || t('library.genreFallback')}>{book.genre || t('library.genreFallback')}</p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 pt-0.5"><StatusBadge status={book.status} /></div>
                 </div>
                 <Progress value={book.progressPercentage} />
                 <div className="flex flex-wrap gap-2"><Link to={`/books/${book.id}`}><Button size="sm">{t('common.details')}</Button></Link><Button size="sm" variant="secondary" disabled={deleteBookMutation.isPending} onClick={() => deleteBookMutation.mutate(book.id)}>{t('books.delete')}</Button></div>
