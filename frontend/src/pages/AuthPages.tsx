@@ -16,11 +16,12 @@ import {
   registerSchema
 } from '../features/auth/forms/auth-schemas'
 import { useLoginMutation, useRegisterMutation } from '../features/auth/queries/use-auth-mutations'
+import { cn } from '../lib/cn'
 import { useI18n } from '../shared/i18n/i18n-provider'
 import { useToast } from '../shared/toast/toast-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 
-const wrap = 'app-shell min-h-screen px-4 py-8 md:px-8 md:py-10'
+const wrap = 'app-shell min-h-screen px-3 py-6 sm:px-4 sm:py-8 md:px-8 md:py-10'
 const formCard = 'mx-auto w-full max-w-md space-y-5 p-6 md:p-7'
 
 const FieldError = ({ message }: { message?: string }) =>
@@ -33,7 +34,7 @@ export function Landing() {
 
   return (
     <div className={wrap}>
-      <div className="mx-auto mb-9 flex max-w-6xl items-center justify-between gap-3">
+      <div className="mx-auto mb-6 flex max-w-6xl items-center justify-between gap-3 sm:mb-9">
         <div>
           <p className="text-2xl font-semibold tracking-tight text-foreground">Libro</p>
           <p className="text-xs text-mutedForeground">{t('landing.eyebrow')}</p>
@@ -44,21 +45,21 @@ export function Landing() {
         </div>
       </div>
 
-      <section className="mx-auto max-w-6xl space-y-6">
-        <Card className="grid gap-7 p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
+      <section className="mx-auto max-w-6xl space-y-4 sm:space-y-6">
+        <Card className="grid gap-6 p-4 sm:p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div className="space-y-5">
             <Badge className="w-fit">{t('landing.productPreview')}</Badge>
             <h1 className="max-w-2xl text-hero text-foreground">{t('landing.title')}</h1>
             <p className="max-w-xl text-body text-mutedForeground">{t('landing.subtitle')}</p>
             <div className="flex flex-wrap gap-3">
               <Link to="/register">
-                <Button className="gap-2">
+                <Button className="w-full gap-2 sm:w-auto">
                   {t('landing.ctaPrimary')}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="secondary">{t('landing.ctaSecondary')}</Button>
+                <Button variant="secondary" className="w-full sm:w-auto">{t('landing.ctaSecondary')}</Button>
               </Link>
             </div>
           </div>
@@ -79,7 +80,7 @@ export function Landing() {
           </div>
         </Card>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {valueCards.map((item) => (
             <Card key={item.title} className="surface-hover space-y-2 p-5">
               <BookOpenText className="h-4 w-4 text-primary" />
@@ -89,7 +90,7 @@ export function Landing() {
           ))}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {testimonials.map((item, idx) => (
             <Card key={idx} className="space-y-3 p-5">
               <Quote className="h-4 w-4 text-mutedForeground" />
@@ -99,13 +100,13 @@ export function Landing() {
           ))}
         </div>
 
-        <Card className="flex flex-col items-start justify-between gap-4 p-6 md:flex-row md:items-center">
+        <Card className="flex flex-col items-start justify-between gap-4 p-4 sm:p-6 md:flex-row md:items-center">
           <div>
             <h2 className="text-section-title">{t('landing.finalCtaTitle')}</h2>
             <p className="mt-1 text-sm text-mutedForeground">{t('landing.finalCtaSubtitle')}</p>
           </div>
           <Link to="/register">
-            <Button size="lg" className="gap-2">
+            <Button size="lg" className="w-full gap-2 sm:w-auto">
               <Sparkles className="h-4 w-4" />
               {t('landing.ctaPrimary')}
             </Button>
@@ -118,7 +119,7 @@ export function Landing() {
 
 function AuthHeader() {
   return (
-    <div className="mx-auto mb-6 flex w-full max-w-md justify-end gap-2">
+    <div className="mx-auto mb-4 flex w-full max-w-md justify-end gap-2 sm:mb-6">
       <LanguageToggle />
       <ThemeToggle />
     </div>
@@ -163,7 +164,7 @@ export function Register() {
   })
 
   return (
-    <div className={wrap}>
+    <div className={cn(wrap, 'flex items-center justify-center')}>
       <AuthHeader />
       <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
         <form onSubmit={onSubmit} className="space-y-3">
@@ -224,7 +225,7 @@ export function Login() {
   })
 
   return (
-    <div className={wrap}>
+    <div className={cn(wrap, 'flex items-center justify-center')}>
       <AuthHeader />
       <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
         <form onSubmit={onSubmit} className="space-y-3">

@@ -1,5 +1,7 @@
 import { ReactNode } from 'react'
 
-export function DataToolbar({ children }: { children: ReactNode }) {
-  return <div className="grid gap-3 p-1 md:grid-cols-2 xl:grid-cols-5">{children}</div>
+import { cn } from '../../lib/cn'
+
+export function DataToolbar({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('grid gap-3 p-1 sm:grid-cols-2 xl:grid-cols-5', className)}>{children}</div>
 }

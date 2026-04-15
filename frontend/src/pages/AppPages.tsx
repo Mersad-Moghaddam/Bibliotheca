@@ -116,7 +116,7 @@ function BookCover({ title, coverUrl }: { title: string; coverUrl?: string | nul
 
 function StatCard({ title, value, icon: Icon }: { title: string; value: string | number; icon: typeof Sparkles }) {
   return (
-    <Card className="surface-hover p-5">
+    <Card className="surface-hover p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <p className="text-small text-mutedForeground">{title}</p>
         <span className="rounded-lg bg-surface p-2 text-mutedForeground">
@@ -189,26 +189,26 @@ export function Dashboard() {
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US'), [locale])
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeading title={t('dashboard.title')} />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title={t('status.currentlyReading')} value={numberFormatter.format(counts.currentlyReading)} icon={BookPlus} />
         <StatCard title={t('status.inLibrary')} value={numberFormatter.format(counts.inLibrary)} icon={LibraryBig} />
         <StatCard title={t('status.finished')} value={numberFormatter.format(counts.finished)} icon={ListChecks} />
         <StatCard title={t('dashboard.readingPace')} value={numberFormatter.format(analytics?.base.readingPacePerMonth ?? 0)} icon={LineChart} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <div className="grid gap-3 xl:grid-cols-[1.45fr_1fr]">
         <SectionCard>
           <SectionHeader title={t('dashboard.currentSnapshot')} description={t('dashboard.currentSnapshotDesc')} />
           {activeBook ? (
-            <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
+            <div className="space-y-3 rounded-xl border border-border bg-surface p-3.5 sm:p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 items-start gap-3">
                   <BookCover title={activeBook.title} coverUrl={activeBook.coverUrl} />
-                  <div>
-                    <p className="font-semibold">{activeBook.title}</p>
-                    <p className="text-small text-mutedForeground">{activeBook.author}</p>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">{activeBook.title}</p>
+                    <p className="truncate text-small text-mutedForeground">{activeBook.author}</p>
                     <p className="mt-1 text-xs text-mutedForeground">{t('dashboard.keepMomentum')}</p>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export function Dashboard() {
         </SectionCard>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-2">
         <SectionCard>
           <SectionHeader title={t('dashboard.analyticsTitle')} description={t('dashboard.analyticsDesc')} />
           <QueryState isLoading={analyticsQuery.isLoading} isError={analyticsQuery.isError} isEmpty={!analytics} emptyTitle={t('dashboard.emptyAnalyticsTitle')} emptyDescription={t('dashboard.emptyAnalyticsDescription')} onRetry={() => void analyticsQuery.refetch()}>
@@ -317,7 +317,7 @@ export function Library() {
   })
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeading title={t('library.title')} />
       <SectionCard>
         <SectionHeader title={t('library.addBook')} description={t('library.addBookDescription')} icon={<BookPlus className="h-4 w-4" />} action={<Button variant="ghost" size="sm" onClick={() => setShowAddBookForm((prev) => !prev)}>{showAddBookForm ? t('library.hideForm') : t('library.showForm')}</Button>} />
@@ -333,18 +333,18 @@ export function Library() {
         </form> : null}
       </SectionCard>
 
-      <Card className="p-3"><DataToolbar>
+      <Card className="p-2 sm:p-3"><DataToolbar className="xl:grid-cols-[2fr_1fr_1fr_1fr_auto]">
         <Input placeholder={t('library.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} />
         <Select value={status} onChange={(e) => setStatus(e.target.value)}><option value="">{t('library.allStatuses')}</option>{statusOptions.map((s) => <option key={s} value={s}>{t(`status.${s}`)}</option>)}</Select>
         <Input placeholder={t('library.genre')} value={genre} onChange={(e) => setGenre(e.target.value)} />
         <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'updated_at' | 'title')}><option value="updated_at">{t('library.sortRecent')}</option><option value="title">{t('library.sortTitle')}</option></Select>
-        {(search || status || genre) ? <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatus(''); setGenre('') }}>{t('library.clearFilters')}</Button> : <div />}
+        {(search || status || genre) ? <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setStatus(''); setGenre('') }}>{t('library.clearFilters')}</Button> : <div className="hidden xl:block" />}
       </DataToolbar></Card>
 
       <QueryState isLoading={booksQuery.isLoading} isError={booksQuery.isError} isEmpty={!booksQuery.data?.length} emptyTitle={t('library.noBooksTitle')} emptyDescription={t('library.noBooksDescription')} onRetry={() => void booksQuery.refetch()}>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {booksQuery.data?.map((book) => (
-            <Card key={book.id} className="surface-hover p-5">
+            <Card key={book.id} className="surface-hover p-4 sm:p-5">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 flex-1 gap-3">
@@ -375,13 +375,13 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
   const { t } = useI18n()
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeading title={title} />
       <QueryState isLoading={query.isLoading} isError={query.isError} isEmpty={!query.data?.length} emptyTitle={t('books.emptyTitle')} emptyDescription={t('books.emptyDescription')}>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {query.data?.map((book) => (
             <SectionCard key={book.id}>
-              <div className="flex items-start justify-between gap-3"><div className="flex items-start gap-3"><BookCover title={book.title} coverUrl={book.coverUrl} /><div><p className="font-semibold">{book.title}</p><p className="text-small text-mutedForeground">{book.author}</p></div></div><p className="text-sm text-mutedForeground">{book.currentPage}/{book.totalPages}</p></div>
+              <div className="flex flex-wrap items-start justify-between gap-3"><div className="flex min-w-0 items-start gap-3"><BookCover title={book.title} coverUrl={book.coverUrl} /><div className="min-w-0"><p className="truncate font-semibold">{book.title}</p><p className="truncate text-small text-mutedForeground">{book.author}</p></div></div><p className="text-sm text-mutedForeground">{book.currentPage}/{book.totalPages}</p></div>
               <Progress value={book.progressPercentage} />
               <div className="flex flex-wrap gap-2">
                 {status === 'currentlyReading' ? <Button onClick={() => updateStatus.mutate({ id: book.id, status: 'finished' })}>{t('books.markFinished')}</Button> : null}
@@ -421,7 +421,7 @@ export function Wishlist() {
 
   const itemForm = useForm<WishlistItemValues>({ resolver: zodResolver(wishlistItemSchema), defaultValues: { title: '', author: '', notes: '' } })
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeading title={t('wishlist.title')} />
       <SectionCard>
         <SectionHeader title={t('wishlist.addTitle')} description={t('wishlist.addDescription')} icon={<Bookmark className="h-4 w-4" />} />
@@ -430,11 +430,11 @@ export function Wishlist() {
           <div><FieldBlock label={t('library.authorPlaceholder')}><Input placeholder={t('library.authorPlaceholder')} {...itemForm.register('author')} /></FieldBlock><FieldError message={itemForm.formState.errors.author?.message} /></div>
           <div><FieldBlock label={t('wishlist.expectedPrice')}><Input type="number" step="0.01" placeholder={t('wishlist.expectedPrice')} {...itemForm.register('expectedPrice', { valueAsNumber: true })} /></FieldBlock><FieldError message={itemForm.formState.errors.expectedPrice?.message} /></div>
           <FieldBlock label={t('wishlist.notes')}><Input placeholder={t('wishlist.notes')} {...itemForm.register('notes')} /></FieldBlock>
-          <Button type="submit" className="md:col-span-2 md:w-fit" disabled={addItem.isPending}>{t('wishlist.addAction')}</Button>
+          <Button type="submit" className="w-full md:col-span-2 md:w-fit" disabled={addItem.isPending}>{t('wishlist.addAction')}</Button>
         </form>
       </SectionCard>
       <QueryState isLoading={query.isLoading} isError={query.isError} isEmpty={!query.data?.length} emptyTitle={t('wishlist.emptyTitle')} emptyDescription={t('wishlist.emptyDescription')}>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {query.data?.map((item) => (
             <SectionCard key={item.id}>
               <div className="flex items-start justify-between gap-2">
@@ -486,7 +486,7 @@ export function Wishlist() {
               {confirmingDeleteId === item.id ? <p className="text-xs text-mutedForeground">{t('wishlist.deleteConfirm')}</p> : null}
               <Separator />
               <WishlistLinkForm itemId={item.id} onSubmit={async (values) => addLink.mutateAsync({ itemId: item.id, ...values })} isPending={addLink.isPending} />
-              {item.purchaseLinks.length ? <div className="space-y-2">{item.purchaseLinks.map((link) => <a key={link.id} href={link.url} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2 text-xs text-mutedForeground hover:bg-secondary"><span>{link.label || link.alias}</span><ExternalLink className="h-3.5 w-3.5" /></a>)}</div> : null}
+              {item.purchaseLinks.length ? <div className="space-y-2">{item.purchaseLinks.map((link) => <a key={link.id} href={link.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-mutedForeground hover:bg-secondary"><span className="truncate">{link.label || link.alias}</span><ExternalLink className="h-3.5 w-3.5 shrink-0" /></a>)}</div> : null}
             </SectionCard>
           ))}
         </div>
@@ -533,10 +533,10 @@ export function BookDetails({ id }: { id: string }) {
   const book = query.data
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeader title={book.title} description={book.author} action={<StatusBadge status={book.status} />} eyebrow={t('books.readingProgress')} />
-      <SectionCard>
-        <div className="grid gap-4 md:grid-cols-[auto_1fr] md:items-center"><BookCover title={book.title} coverUrl={book.coverUrl} /><div className="space-y-2"><p>{t('books.readingProgress')}: {Math.round(book.progressPercentage)}%</p><Progress value={book.progressPercentage} /></div></div>
+      <SectionCard className="overflow-hidden">
+        <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center"><BookCover title={book.title} coverUrl={book.coverUrl} /><div className="space-y-2 min-w-0"><p>{t('books.readingProgress')}: {Math.round(book.progressPercentage)}%</p><Progress value={book.progressPercentage} /><div className="flex flex-wrap gap-2 text-xs text-mutedForeground"><span className="rounded-full border border-border bg-surface px-2 py-1">{book.genre || t('library.genreFallback')}</span><span className="rounded-full border border-border bg-surface px-2 py-1">ISBN: {book.isbn || '—'}</span></div></div></div>
       </SectionCard>
       <SectionCard>
         <SectionHeader title={t('books.editDetailsTitle')} description={t('books.editDetailsDescription')} />
@@ -578,7 +578,7 @@ export function BookDetails({ id }: { id: string }) {
           <div><FieldBlock label={t('library.coverUrlOptional')}><Input placeholder={t('library.coverUrlOptional')} {...editForm.register('coverUrl')} /></FieldBlock><FieldError message={editForm.formState.errors.coverUrl?.message} /></div>
           <div><FieldBlock label={t('library.genreOptional')}><Input placeholder={t('library.genreOptional')} {...editForm.register('genre')} /></FieldBlock><FieldError message={editForm.formState.errors.genre?.message} /></div>
           <div><FieldBlock label={t('library.isbnOptional')}><Input placeholder={t('library.isbnOptional')} {...editForm.register('isbn')} /></FieldBlock><FieldError message={editForm.formState.errors.isbn?.message} /></div>
-          <div className="md:col-span-2"><Button type="submit" disabled={updateBook.isPending || updateProgress.isPending || updateStatus.isPending}>{updateBook.isPending || updateProgress.isPending || updateStatus.isPending ? `${t('common.save')}...` : t('common.save')}</Button></div>
+          <div className="md:col-span-2"><Button type="submit" className="w-full sm:w-auto" disabled={updateBook.isPending || updateProgress.isPending || updateStatus.isPending}>{updateBook.isPending || updateProgress.isPending || updateStatus.isPending ? `${t('common.save')}...` : t('common.save')}</Button></div>
         </form>
       </SectionCard>
 
@@ -587,15 +587,15 @@ export function BookDetails({ id }: { id: string }) {
         <form className="space-y-2" onSubmit={noteForm.handleSubmit(async (values) => { await addNote.mutateAsync(values); noteForm.reset() })}>
           <FieldBlock label={t('books.noteLabel')}><Textarea placeholder={t('books.notePlaceholder')} {...noteForm.register('note')} /></FieldBlock>
           <FieldBlock label={t('books.highlightLabel')}><Input placeholder={t('books.highlightPlaceholder')} {...noteForm.register('highlight')} /></FieldBlock>
-          <Button type="submit" size="sm">{t('books.saveNote')}</Button>
+          <Button type="submit" size="sm" className="w-full sm:w-auto">{t('books.saveNote')}</Button>
         </form>
         <div className="mt-3 space-y-2">{notesQuery.data?.map((n) => <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm"><p>{n.note}</p>{n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}</div>)}{!notesQuery.data?.length ? <p className="text-sm text-mutedForeground">{t('books.notesEmpty')}</p> : null}</div>
       </SectionCard>
       <SectionCard>
         <SectionHeader title={t('books.actions')} description={t('books.actionsDescription')} />
-        <div className="flex flex-wrap gap-2">{statusOptions.map((status) => <Button key={status} variant="secondary" onClick={() => updateStatus.mutate({ id: book.id, status })}>{t('books.moveTo')} {t(`status.${status}`)}</Button>)}</div>
-        <form className="mt-3 flex flex-wrap gap-2" onSubmit={form.handleSubmit(async (values) => updateProgress.mutateAsync({ id: book.id, currentPage: values.currentPage }))}><Input className="min-w-[180px] flex-1" type="number" min={0} max={book.totalPages} {...form.register('currentPage', { valueAsNumber: true })} /><Button type="submit">{t('books.updateProgress')}</Button></form>
-        <Button className="mt-3" variant="destructive" onClick={async () => { await deleteBook.mutateAsync(book.id); nav('/library') }}>{t('books.delete')}</Button>
+        <div className="flex flex-wrap gap-2">{statusOptions.map((status) => <Button key={status} size="sm" variant="secondary" onClick={() => updateStatus.mutate({ id: book.id, status })}>{t('books.moveTo')} {t(`status.${status}`)}</Button>)}</div>
+        <form className="mt-3 flex flex-col gap-2 sm:flex-row" onSubmit={form.handleSubmit(async (values) => updateProgress.mutateAsync({ id: book.id, currentPage: values.currentPage }))}><Input className="sm:min-w-[180px] sm:flex-1" type="number" min={0} max={book.totalPages} {...form.register('currentPage', { valueAsNumber: true })} /><Button type="submit" className="w-full sm:w-auto">{t('books.updateProgress')}</Button></form>
+        <Button className="mt-3 w-full sm:w-auto" variant="destructive" onClick={async () => { await deleteBook.mutateAsync(book.id); nav('/library') }}>{t('books.delete')}</Button>
       </SectionCard>
     </div>
   )
@@ -614,15 +614,15 @@ export function Profile() {
   const reminderForm = useForm<ReminderValues>({ resolver: zodResolver(reminderSchema), values: reminderQuery.data ?? { enabled: false, time: '20:00', frequency: 'daily' } })
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <PageHeading title={t('profile.title')} />
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-3 xl:grid-cols-2">
         <SectionCard>
           <SectionHeader title={t('profile.updateName')} icon={<Sparkles className="h-4 w-4" />} />
           <form onSubmit={nameForm.handleSubmit(async (values) => { await updateName.mutateAsync(values.name); toast.success(t('profile.nameSuccess')) })} className="space-y-3">
             <FieldBlock label={t('profile.newName')}><Input placeholder={t('profile.newName')} {...nameForm.register('name')} /></FieldBlock>
             <FieldError message={nameForm.formState.errors.name?.message} />
-            <Button type="submit" disabled={updateName.isPending}>{t('profile.updateNameAction')}</Button>
+            <Button type="submit" className="w-full sm:w-auto" disabled={updateName.isPending}>{t('profile.updateNameAction')}</Button>
           </form>
         </SectionCard>
         <SectionCard>
@@ -630,7 +630,7 @@ export function Profile() {
           <form onSubmit={passwordForm.handleSubmit(async (values) => { await updatePassword.mutateAsync(values); toast.success(t('profile.passwordSuccess')); passwordForm.reset() })} className="space-y-3">
             <div><FieldBlock label={t('profile.currentPassword')}><Input type="password" placeholder={t('profile.currentPassword')} {...passwordForm.register('currentPassword')} /></FieldBlock><FieldError message={passwordForm.formState.errors.currentPassword?.message} /></div>
             <div><FieldBlock label={t('profile.newPassword')}><Input type="password" placeholder={t('profile.newPassword')} {...passwordForm.register('newPassword')} /></FieldBlock><FieldError message={passwordForm.formState.errors.newPassword?.message} /></div>
-            <Button type="submit" disabled={updatePassword.isPending}>{t('profile.updatePasswordAction')}</Button>
+            <Button type="submit" className="w-full sm:w-auto" disabled={updatePassword.isPending}>{t('profile.updatePasswordAction')}</Button>
           </form>
         </SectionCard>
       </div>
@@ -640,7 +640,7 @@ export function Profile() {
           <label className="flex h-11 items-center gap-2 rounded-xl border border-input bg-card px-3 text-sm"><input type="checkbox" checked={reminderForm.watch('enabled')} onChange={(e) => reminderForm.setValue('enabled', e.target.checked)} />{t('profile.reminderEnabled')}</label>
           <FieldBlock label={t('profile.reminderTime')}><Input type="time" {...reminderForm.register('time')} /></FieldBlock>
           <FieldBlock label={t('profile.reminderFrequency')}><Select {...reminderForm.register('frequency')}><option value="daily">{t('profile.daily')}</option><option value="weekdays">{t('profile.weekdays')}</option><option value="weekends">{t('profile.weekends')}</option><option value="weekly">{t('profile.weekly')}</option></Select></FieldBlock>
-          <Button type="submit" className="md:col-span-3 md:w-fit" disabled={updateReminder.isPending}>{t('profile.saveReminders')}</Button>
+          <Button type="submit" className="w-full md:col-span-3 md:w-fit" disabled={updateReminder.isPending}>{t('profile.saveReminders')}</Button>
         </form>
       </SectionCard>
     </div>
@@ -654,7 +654,7 @@ function WishlistLinkForm({ itemId, onSubmit, isPending }: { itemId: string; onS
   return (
     <form onSubmit={form.handleSubmit(async (values) => { await onSubmit(values); form.reset() })} className="space-y-2" key={itemId}>
       <div><FieldBlock label={t('wishlist.linkLabel')}><Input placeholder={t('wishlist.linkLabel')} {...form.register('label')} /></FieldBlock><FieldError message={form.formState.errors.label?.message} /></div>
-      <div><div className="flex gap-2"><Input placeholder={t('wishlist.urlPlaceholder')} {...form.register('url')} /><Button type="submit" disabled={isPending}><ExternalLink className="h-4 w-4" /></Button></div><FieldError message={form.formState.errors.url?.message} /></div>
+      <div><div className="flex flex-col gap-2 sm:flex-row"><Input placeholder={t('wishlist.urlPlaceholder')} {...form.register('url')} /><Button type="submit" className="w-full sm:w-auto" disabled={isPending}><ExternalLink className="h-4 w-4" /></Button></div><FieldError message={form.formState.errors.url?.message} /></div>
     </form>
   )
 }
