@@ -267,6 +267,84 @@ export const messages = {
         }
       }
     },
+    journey: {
+      nextBestActionTitle: 'Next best actions',
+      nextBestActionDescription: 'Keep momentum by doing one high-leverage action right now.',
+      dashboardEmptyTitle: 'Welcome to your Personal Reading OS',
+      dashboardEmptyDescription: 'Start by adding your first book, then set a goal so Libro can guide your next reading step.',
+      dashboardEmptyAction: 'Add your first book',
+      libraryActionsTitle: 'Library flow actions',
+      libraryActionsDescription: 'Capture titles, filter actively, and move one book into focused reading.',
+      libraryEmptyTitle: 'Your library is ready for the first title',
+      libraryEmptyDescription: 'This is your reading workspace. Add one book to unlock progress, goals, and insights.',
+      libraryEmptyAction: 'Open add book form',
+      readingEmptyTitle: 'No active reading yet',
+      readingEmptyDescription: 'Choose a book from Next To Read to start your first active reading session.',
+      readingEmptyAction: 'Open next queue',
+      finishedEmptyTitle: 'No completed books yet',
+      finishedEmptyDescription: 'When you complete books, this becomes your momentum archive and reflection history.',
+      finishedEmptyAction: 'Continue current reading',
+      nextEmptyTitle: 'Your next queue is empty',
+      nextEmptyDescription: 'Build a small queue so you always know what to pick up after finishing a book.',
+      nextEmptyAction: 'Add books from library',
+      wishlistActionsTitle: 'Wishlist actions',
+      wishlistActionsDescription: 'Capture potential reads and keep reliable links to buy or borrow later.',
+      wishlistEmptyTitle: 'No wishlist items yet',
+      wishlistEmptyDescription: 'Use wishlist as your discovery inbox, then promote the best titles to active reading later.',
+      wishlistEmptyAction: 'Add wishlist item',
+      bookNotesEmptyTitle: 'No notes captured yet',
+      bookNotesEmptyDescription: 'Capture one insight or quote to build memory and make this book more useful later.',
+      bookNotesEmptyAction: 'Write first note',
+      profileActionsTitle: 'Profile actions',
+      profileActionsDescription: 'Finish setup to make Libro proactive with reminders and security.',
+      profileEmptyTitle: 'Profile setup is incomplete',
+      profileEmptyDescription: 'Enable reminders so Libro can help you sustain a real reading habit.',
+      profileEmptyAction: 'Enable reminders',
+      actions: {
+        addBook: {
+          title: 'Add your first book',
+          description: 'Capture one title to start your reading workspace.',
+          cta: 'Go to library'
+        },
+        resumeReading: {
+          title: 'Resume your reading',
+          description: 'Pick one active title and continue your progress.',
+          withBook: 'Continue “{title}” and keep momentum.',
+          cta: 'Resume now'
+        },
+        setGoal: {
+          title: 'Set or refine goals',
+          description: 'Define a weekly or monthly goal so Libro can coach you.',
+          configured: 'Goals are configured. Tune them if your pace changed.',
+          cta: 'Open goals'
+        },
+        filterActive: {
+          title: 'Filter active books',
+          description: 'Narrow your library to currently reading titles.',
+          cta: 'Apply filter'
+        },
+        addWishlistItem: {
+          title: 'Capture book candidates',
+          description: 'Save interesting books before you forget them.',
+          cta: 'Focus add form'
+        },
+        captureLinks: {
+          title: 'Save purchase links',
+          description: 'Store trusted links for each wishlist item.',
+          cta: 'Focus link field'
+        },
+        completeReminder: {
+          title: 'Complete reminder setup',
+          description: 'Enable reminder cadence to protect your reading habit.',
+          cta: 'Enable now'
+        },
+        updateSecurity: {
+          title: 'Refresh account security',
+          description: 'Update your password to keep your reading workspace secure.',
+          cta: 'Update password'
+        }
+      }
+    },
     library: {
       title: 'Library',
       description: 'Keep every title organized and route books into your reading pipeline.',
@@ -640,6 +718,84 @@ export const messages = {
           pagesLastWeek: 'صفحه هفته قبل',
           closestBookProgress: 'پیشرفت نزدیک‌ترین کتاب',
           goalProgress: 'پیشرفت هدف هفتگی'
+        }
+      }
+    },
+    journey: {
+      nextBestActionTitle: 'اقدام بعدی پیشنهادی',
+      nextBestActionDescription: 'برای حفظ ریتم، همین حالا یک اقدام اثرگذار انجام بده.',
+      dashboardEmptyTitle: 'به سیستم شخصی مطالعه‌ات خوش آمدی',
+      dashboardEmptyDescription: 'اول یک کتاب اضافه کن، بعد هدف بگذار تا لیبرو مسیر بعدی مطالعه‌ات را پیشنهاد دهد.',
+      dashboardEmptyAction: 'افزودن اولین کتاب',
+      libraryActionsTitle: 'اقدام‌های کتابخانه',
+      libraryActionsDescription: 'کتاب ثبت کن، کتاب‌های فعال را فیلتر کن و یک عنوان را وارد مطالعه متمرکز کن.',
+      libraryEmptyTitle: 'کتابخانه برای اولین عنوان آماده است',
+      libraryEmptyDescription: 'این فضای اصلی مطالعه توست. با یک کتاب، پیشرفت و بینش‌ها فعال می‌شوند.',
+      libraryEmptyAction: 'باز کردن فرم افزودن',
+      readingEmptyTitle: 'هنوز کتاب فعالی نداری',
+      readingEmptyDescription: 'از بخش بعدی برای مطالعه یک کتاب انتخاب کن و مطالعه فعال را شروع کن.',
+      readingEmptyAction: 'باز کردن صف بعدی',
+      finishedEmptyTitle: 'هنوز کتابی تمام نشده',
+      finishedEmptyDescription: 'پس از اتمام کتاب‌ها، اینجا آرشیو پیشرفت و مرور مسیرت می‌شود.',
+      finishedEmptyAction: 'ادامه مطالعه فعلی',
+      nextEmptyTitle: 'صف بعدی خالی است',
+      nextEmptyDescription: 'یک صف کوتاه بساز تا همیشه بدانی بعد از اتمام چه بخوانی.',
+      nextEmptyAction: 'افزودن از کتابخانه',
+      wishlistActionsTitle: 'اقدام‌های لیست خرید',
+      wishlistActionsDescription: 'کتاب‌های احتمالی را ثبت کن و لینک‌های معتبر خرید یا امانت را نگه دار.',
+      wishlistEmptyTitle: 'لیست خرید هنوز خالی است',
+      wishlistEmptyDescription: 'از لیست خرید به‌عنوان ورودی کشف کتاب استفاده کن و بعد بهترین‌ها را وارد مطالعه کن.',
+      wishlistEmptyAction: 'افزودن مورد',
+      bookNotesEmptyTitle: 'هنوز یادداشتی ثبت نشده',
+      bookNotesEmptyDescription: 'یک نکته یا نقل‌قول ثبت کن تا این کتاب در حافظه‌ات ماندگارتر شود.',
+      bookNotesEmptyAction: 'ثبت اولین یادداشت',
+      profileActionsTitle: 'اقدام‌های پروفایل',
+      profileActionsDescription: 'تنظیمات را کامل کن تا لیبرو در حفظ عادت مطالعه فعال‌تر باشد.',
+      profileEmptyTitle: 'پروفایل هنوز کامل نشده',
+      profileEmptyDescription: 'یادآورها را فعال کن تا لیبرو به تداوم عادت مطالعه‌ات کمک کند.',
+      profileEmptyAction: 'فعال‌سازی یادآور',
+      actions: {
+        addBook: {
+          title: 'افزودن اولین کتاب',
+          description: 'یک عنوان ثبت کن تا فضای مطالعه‌ات شروع شود.',
+          cta: 'رفتن به کتابخانه'
+        },
+        resumeReading: {
+          title: 'ادامه مطالعه',
+          description: 'یک عنوان فعال انتخاب کن و پیشرفت را ادامه بده.',
+          withBook: 'مطالعه «{title}» را ادامه بده و ریتم را حفظ کن.',
+          cta: 'ادامه الآن'
+        },
+        setGoal: {
+          title: 'تنظیم یا اصلاح هدف',
+          description: 'هدف هفتگی/ماهانه بگذار تا لیبرو راهنمایی دقیق‌تری بدهد.',
+          configured: 'اهداف تنظیم شده‌اند. اگر ریتمت عوض شد آن‌ها را اصلاح کن.',
+          cta: 'باز کردن اهداف'
+        },
+        filterActive: {
+          title: 'فیلتر کتاب‌های فعال',
+          description: 'کتابخانه را روی کتاب‌های درحال مطالعه محدود کن.',
+          cta: 'اعمال فیلتر'
+        },
+        addWishlistItem: {
+          title: 'ثبت گزینه‌های کتاب',
+          description: 'کتاب‌های جالب را قبل از فراموشی ذخیره کن.',
+          cta: 'رفتن به فرم افزودن'
+        },
+        captureLinks: {
+          title: 'ذخیره لینک خرید',
+          description: 'برای هر مورد لیست خرید لینک‌های معتبر نگه دار.',
+          cta: 'رفتن به فیلد لینک'
+        },
+        completeReminder: {
+          title: 'تکمیل تنظیم یادآور',
+          description: 'برای محافظت از عادت مطالعه، تناوب یادآور را فعال کن.',
+          cta: 'فعال‌سازی'
+        },
+        updateSecurity: {
+          title: 'به‌روزرسانی امنیت حساب',
+          description: 'رمز عبورت را به‌روزرسانی کن تا فضای مطالعه‌ات امن بماند.',
+          cta: 'به‌روزرسانی رمز'
         }
       }
     },
