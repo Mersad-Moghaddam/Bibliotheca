@@ -164,11 +164,10 @@ export function Register() {
   })
 
   return (
-    <div className={cn(wrap, 'flex items-start justify-center sm:items-center')}>
-      <div className="w-full">
-        <AuthHeader />
-        <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
-          <form onSubmit={onSubmit} className="space-y-3">
+    <div className={cn(wrap, 'flex flex-col items-center justify-start sm:justify-center')}>
+      <AuthHeader />
+      <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
+        <form onSubmit={onSubmit} className="space-y-3">
           <div>
             <Input placeholder={t('auth.name')} {...form.register('name')} />
             <FieldError message={form.formState.errors.name?.message} />
@@ -194,9 +193,8 @@ export function Register() {
               {t('auth.logIn')}
             </Link>
           </p>
-          </form>
-        </AuthFrame>
-      </div>
+        </form>
+      </AuthFrame>
     </div>
   )
 }
@@ -227,11 +225,10 @@ export function Login() {
   })
 
   return (
-    <div className={cn(wrap, 'flex items-start justify-center sm:items-center')}>
-      <div className="w-full">
-        <AuthHeader />
-        <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
-          <form onSubmit={onSubmit} className="space-y-3">
+    <div className={cn(wrap, 'flex flex-col items-center justify-start sm:justify-center')}>
+      <AuthHeader />
+      <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
+        <form onSubmit={onSubmit} className="space-y-3">
           <div>
             <Input type="email" placeholder={t('auth.email')} {...form.register('email')} />
             <FieldError message={form.formState.errors.email?.message} />
@@ -243,15 +240,14 @@ export function Login() {
           <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
             {loginMutation.isPending ? t('common.save') : t('auth.logIn')}
           </Button>
-          </form>
-          <p className="text-small text-mutedForeground">
-            {t('auth.needAccount')}{' '}
-            <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
-              {t('auth.signUp')}
-            </Link>
-          </p>
-        </AuthFrame>
-      </div>
+        </form>
+        <p className="text-small text-mutedForeground">
+          {t('auth.needAccount')}{' '}
+          <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
+            {t('auth.signUp')}
+          </Link>
+        </p>
+      </AuthFrame>
     </div>
   )
 }

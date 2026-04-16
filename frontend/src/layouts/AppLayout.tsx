@@ -279,6 +279,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     setOpen(false)
   }, [location.pathname])
 
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 1024px)')
+    const onDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) {
+        setOpen(false)
+      }
+    }
+
+    if (desktopQuery.matches) {
+      setOpen(false)
+    }
+
+    desktopQuery.addEventListener('change', onDesktop)
+    return () => desktopQuery.removeEventListener('change', onDesktop)
+  }, [])
+
   return (
     <div className="app-shell">
       <div className="container mx-auto grid min-h-screen max-w-7xl grid-cols-1 gap-3 px-3 pb-3 pt-[4.6rem] sm:px-4 sm:pb-4 sm:pt-[4.6rem] lg:grid-cols-[268px_minmax(0,1fr)] lg:gap-5 lg:px-6 lg:py-5">
