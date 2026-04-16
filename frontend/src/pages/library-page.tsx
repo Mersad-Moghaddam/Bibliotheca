@@ -263,7 +263,6 @@ export function LibraryPage() {
                   onAction: async () => updateStatusMutation.mutateAsync({ id: book.id, status: 'finished' }),
                   tone: 'default'
                 }}
-                hint={t('library.description')}
               >
                 <Card
                   className="interactive-card surface-hover p-4 sm:p-5"
@@ -282,9 +281,6 @@ export function LibraryPage() {
                           </p>
                           <p className="truncate text-small text-mutedForeground" title={book.author}>
                             {book.author}
-                          </p>
-                          <p className="mt-1 truncate text-xs text-mutedForeground" title={book.genre || t('library.genreFallback')}>
-                            {book.genre || t('library.genreFallback')}
                           </p>
                         </div>
                       </div>
