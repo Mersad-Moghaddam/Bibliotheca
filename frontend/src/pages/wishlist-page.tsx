@@ -7,12 +7,14 @@ import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { SectionCard } from '../components/ui/card'
 import { ContextActionCard } from '../components/ui/context-action-card'
-import { EmptyState } from '../components/ui/empty-state'
 import { Input } from '../components/ui/input'
+import { ItemActionsMenu } from '../components/ui/item-actions-menu'
 import { SectionHeader } from '../components/ui/section-header'
 import { Separator } from '../components/ui/separator'
+import { SwipeableCardShell } from '../components/ui/swipeable-shell'
 import { wishlistItemSchema, WishlistItemValues, wishlistLinkSchema, WishlistLinkValues } from '../features/wishlist/forms/wishlist-schemas'
 import { useAddWishlistItemMutation, useAddWishlistLinkMutation, useDeleteWishlistItemMutation, useWishlistQuery } from '../features/wishlist/queries/use-wishlist'
+import { QueryState } from '../shared/components/query-state'
 import { useI18n } from '../shared/i18n/i18n-provider'
 import { useToast } from '../shared/toast/toast-provider'
 
@@ -63,17 +65,20 @@ export function WishlistPage() {
         </form>
       </SectionCard>
 
-      {!query.isLoading && !query.isError && !query.data?.length ? (
-        <EmptyState
-          title={t('journey.wishlistEmptyTitle')}
-          description={t('journey.wishlistEmptyDescription')}
-          action={<Button onClick={() => document.getElementById('wishlist-title-input')?.focus()}>{t('journey.wishlistEmptyAction')}</Button>}
-        />
-      ) : null}
-
+      <QueryState
+        isLoading={query.isLoading}
+        isError={query.isError}
+        isEmpty={!query.data?.length}
+        loadingVariant="wishlist"
+        onRetry={() => void query.refetch()}
+        emptyTitle={t('journey.wishlistEmptyTitle')}
+        emptyDescription={t('journey.wishlistEmptyDescription')}
+        emptyAction={<Button onClick={() => document.getElementById('wishlist-title-input')?.focus()}>{t('journey.wishlistEmptyAction')}</Button>}
+      >
       <div className="grid gap-3 md:grid-cols-2">
         {query.data?.map((item, index) => (
-          <SectionCard key={item.id}>
+          <SwipeableCardShell key={item.id} endAction={{ label: t('wishlist.removeAction'), onAction: () => setConfirmingDeleteId(item.id) }}>
+          <SectionCard>
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h3 className="font-semibold">{item.title}</h3>
@@ -109,6 +114,7 @@ export function WishlistPage() {
                     </Button>
                   </div>
                 ) : (
+                  <div className="flex items-center gap-1">
                   <Button
                     size="sm"
                     variant="ghost"
@@ -117,6 +123,8 @@ export function WishlistPage() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
+                  <ItemActionsMenu actions={[{ key: 'remove', label: t('wishlist.removeAction'), icon: <Trash2 className="h-4 w-4" />, onSelect: () => setConfirmingDeleteId(item.id), destructive: true }]} />
+                  </div>
                 )}
               </div>
             </div>
@@ -125,8 +133,10 @@ export function WishlistPage() {
             <WishlistLinkForm itemId={item.id} isFirst={index === 0} onSubmit={async (values) => addLink.mutateAsync({ itemId: item.id, ...values })} isPending={addLink.isPending} />
             {item.purchaseLinks.length ? <div className="space-y-2">{item.purchaseLinks.map((link) => <a key={link.id} href={link.url} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-mutedForeground hover:bg-secondary"><span className="truncate">{link.label || link.alias}</span><ExternalLink className="h-3.5 w-3.5 shrink-0" /></a>)}</div> : null}
           </SectionCard>
+          </SwipeableCardShell>
         ))}
       </div>
+      </QueryState>
     </div>
   )
 }

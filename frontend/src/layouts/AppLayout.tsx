@@ -12,7 +12,7 @@ import {
   Sparkles,
   X
 } from 'lucide-react'
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { TouchEvent, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import api from '../api/client'
@@ -176,6 +176,7 @@ function MobileHeader({ onMenuClick }: { onMenuClick: () => void }) {
 function Drawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const touchStartXRef = useRef(0)
   const labelId = useId()
 
   const isRtl = useMemo(() => document?.documentElement.dir === 'rtl', [])
@@ -218,6 +219,16 @@ function Drawer({ open, onClose }: { open: boolean; onClose: () => void }) {
     }
   }, [open, onClose])
 
+  const handleTouchStart = (event: TouchEvent<HTMLElement>) => {
+    touchStartXRef.current = event.touches[0]?.clientX ?? 0
+  }
+
+  const handleTouchEnd = (event: TouchEvent<HTMLElement>) => {
+    const deltaX = (event.changedTouches[0]?.clientX ?? 0) - touchStartXRef.current
+    const shouldClose = isRtl ? deltaX > 70 : deltaX < -70
+    if (shouldClose) onClose()
+  }
+
   return (
     <>
       <div
@@ -231,6 +242,8 @@ function Drawer({ open, onClose }: { open: boolean; onClose: () => void }) {
       <aside
         ref={panelRef}
         role="dialog"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         aria-modal="true"
         aria-labelledby={labelId}
         className={cn(

@@ -5,12 +5,12 @@ import { useForm } from 'react-hook-form'
 import { Button } from '../components/ui/button'
 import { SectionCard } from '../components/ui/card'
 import { ContextActionCard } from '../components/ui/context-action-card'
-import { EmptyState } from '../components/ui/empty-state'
 import { Input } from '../components/ui/input'
 import { SectionHeader } from '../components/ui/section-header'
 import { Select } from '../components/ui/select'
 import { nameSchema, NameValues, passwordSchema, PasswordValues, reminderSchema, ReminderValues } from '../features/profile/forms/profile-schemas'
 import { useReminderSettingsQuery, useUpdatePasswordMutation, useUpdateProfileNameMutation, useUpdateReminderMutation } from '../features/profile/queries/use-profile'
+import { QueryState } from '../shared/components/query-state'
 import { useI18n } from '../shared/i18n/i18n-provider'
 import { useToast } from '../shared/toast/toast-provider'
 
@@ -34,12 +34,26 @@ export function ProfilePage() {
     <div className="space-y-4 sm:space-y-5">
       <PageHeading title={t('profile.title')} />
 
+      <QueryState
+        isLoading={reminderQuery.isLoading}
+        isError={reminderQuery.isError}
+        isEmpty={false}
+        loadingVariant="profile"
+        onRetry={() => void reminderQuery.refetch()}
+        emptyTitle=""
+        emptyDescription=""
+      >
       {profileIncomplete ? (
-        <EmptyState
-          title={t('journey.profileEmptyTitle')}
-          description={t('journey.profileEmptyDescription')}
-          action={<Button onClick={() => reminderForm.setValue('enabled', true)}>{t('journey.profileEmptyAction')}</Button>}
-        />
+        <QueryState
+          isLoading={false}
+          isError={false}
+          isEmpty
+          emptyTitle={t('journey.profileEmptyTitle')}
+          emptyDescription={t('journey.profileEmptyDescription')}
+          emptyAction={<Button onClick={() => reminderForm.setValue('enabled', true)}>{t('journey.profileEmptyAction')}</Button>}
+        >
+          <div />
+        </QueryState>
       ) : null}
 
       <SectionCard>
@@ -89,6 +103,7 @@ export function ProfilePage() {
           <Button type="submit" className="w-full md:col-span-3 md:w-fit" disabled={updateReminder.isPending}>{t('profile.saveReminders')}</Button>
         </form>
       </SectionCard>
+      </QueryState>
     </div>
   )
 }

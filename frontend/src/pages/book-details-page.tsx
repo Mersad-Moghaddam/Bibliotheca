@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Progress, StatusBadge } from '../components/UI'
 import { Button } from '../components/ui/button'
-import { Card, SectionCard } from '../components/ui/card'
-import { EmptyState } from '../components/ui/empty-state'
+import { SectionCard } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { PageHeader } from '../components/ui/page-header'
 import { SectionHeader } from '../components/ui/section-header'
@@ -15,6 +14,7 @@ import { Select } from '../components/ui/select'
 import { Textarea } from '../components/ui/textarea'
 import { editBookDetailsSchema, EditBookDetailsValues, progressSchema, ProgressValues } from '../features/books/forms/book-schemas'
 import { useBookNotesQuery, useBookQuery, useCreateBookNoteMutation, useDeleteBookMutation, useUpdateBookMutation, useUpdateBookProgressMutation, useUpdateBookStatusMutation } from '../features/books/queries/use-books'
+import { QueryState } from '../shared/components/query-state'
 import { useI18n } from '../shared/i18n/i18n-provider'
 import { useToast } from '../shared/toast/toast-provider'
 import { BookStatus } from '../types'
@@ -57,7 +57,21 @@ export function BookDetailsPage({ id }: { id: string }) {
     form.reset({ currentPage: query.data.currentPage ?? 0 })
   }, [query.data, editForm, form])
 
-  if (!query.data) return <Card className="p-6">{t('common.loading')}</Card>
+  if (!query.data) {
+    return (
+      <QueryState
+        isLoading={query.isLoading}
+        isError={query.isError}
+        isEmpty={false}
+        loadingVariant="book-details"
+        onRetry={() => void query.refetch()}
+        emptyTitle=""
+        emptyDescription=""
+      >
+        <div />
+      </QueryState>
+    )
+  }
   const book = query.data
 
   return (
@@ -117,7 +131,11 @@ export function BookDetailsPage({ id }: { id: string }) {
           <FieldBlock label={t('books.highlightLabel')}><Input placeholder={t('books.highlightPlaceholder')} {...noteForm.register('highlight')} /></FieldBlock>
           <Button type="submit" size="sm" className="w-full sm:w-auto">{t('books.saveNote')}</Button>
         </form>
-        <div className="mt-3 space-y-2">{notesQuery.data?.map((n) => <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm"><p>{n.note}</p>{n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}</div>)}{!notesQuery.data?.length ? <EmptyState title={t('journey.bookNotesEmptyTitle')} description={t('journey.bookNotesEmptyDescription')} action={<Button size="sm" onClick={() => noteForm.setFocus('note')}>{t('journey.bookNotesEmptyAction')}</Button>} /> : null}</div>
+        <QueryState isLoading={notesQuery.isLoading} isError={notesQuery.isError} isEmpty={!notesQuery.data?.length} loadingVariant="default" onRetry={() => void notesQuery.refetch()} emptyTitle={t('journey.bookNotesEmptyTitle')} emptyDescription={t('journey.bookNotesEmptyDescription')} emptyAction={<Button size="sm" onClick={() => noteForm.setFocus('note')}>{t('journey.bookNotesEmptyAction')}</Button>}>
+          <div className="mt-3 space-y-2">
+            {notesQuery.data?.map((n) => <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm"><p>{n.note}</p>{n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}</div>)}
+          </div>
+        </QueryState>
       </SectionCard>
       <SectionCard>
         <SectionHeader title={t('books.actions')} description={t('books.actionsDescription')} />

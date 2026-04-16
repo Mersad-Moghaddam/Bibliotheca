@@ -3,7 +3,15 @@ import { HTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('surface p-4 sm:p-5 lg:p-6', className)} {...props} />
+  return (
+    <div
+      className={cn(
+        'surface p-4 transition-[transform,box-shadow,border-color] duration-150 ease-premium sm:p-5 lg:p-6',
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 export function SectionCard({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

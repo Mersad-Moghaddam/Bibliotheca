@@ -94,6 +94,8 @@ export function DashboardPage() {
   const hasGoals = Boolean(goals?.weekly.targetPages || goals?.weekly.targetBooks || goals?.monthly.targetPages || goals?.monthly.targetBooks)
   const numberFormatter = useMemo(() => new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US'), [locale])
 
+
+  const isInitialLoading = booksQuery.isLoading && analyticsQuery.isLoading && !books.length
   const actions = useMemo(
     () => [
       {
@@ -123,6 +125,24 @@ export function DashboardPage() {
     ],
     [activeBook, hasGoals, nav, t]
   )
+
+  if (isInitialLoading) {
+    return (
+      <div className="space-y-4 sm:space-y-5">
+        <PageHeading title={t('dashboard.title')} />
+        <QueryState
+          isLoading
+          isError={false}
+          isEmpty={false}
+          loadingVariant="dashboard"
+          emptyTitle=""
+          emptyDescription=""
+        >
+          <div />
+        </QueryState>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -254,7 +274,7 @@ export function DashboardPage() {
       <div className="grid gap-3 xl:grid-cols-2">
         <SectionCard>
           <SectionHeader title={t('dashboard.analyticsTitle')} description={t('dashboard.analyticsDesc')} />
-          <QueryState isLoading={analyticsQuery.isLoading} isError={analyticsQuery.isError} isEmpty={!analytics} emptyTitle={t('dashboard.emptyAnalyticsTitle')} emptyDescription={t('dashboard.emptyAnalyticsDescription')} onRetry={() => void analyticsQuery.refetch()}>
+          <QueryState isLoading={analyticsQuery.isLoading} isError={analyticsQuery.isError} isEmpty={!analytics} loadingVariant="default" emptyTitle={t('dashboard.emptyAnalyticsTitle')} emptyDescription={t('dashboard.emptyAnalyticsDescription')} onRetry={() => void analyticsQuery.refetch()} emptyAction={<Button onClick={() => nav('/library')}>{t('journey.dashboardEmptyAction')}</Button>}>
             {analytics ? <div className="grid gap-3 sm:grid-cols-2">
               <div className="metric-tile"><p>{t('dashboard.totalPagesRead')}</p><p>{numberFormatter.format(analytics.base.totalPagesRead)}</p></div>
               <div className="metric-tile"><p>{t('dashboard.completionRate')}</p><p>{analytics.base.completionRate}%</p></div>
