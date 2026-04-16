@@ -25,6 +25,8 @@ func New(serviceName, env, level string) (*zap.Logger, error) {
 	cfg.ErrorOutputPaths = []string{"stderr"}
 	cfg.EncoderConfig.TimeKey = "timestamp"
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg.EncoderConfig.MessageKey = "event"
+	cfg.DisableStacktrace = true
 
 	if level == "" {
 		if strings.EqualFold(env, EnvDevelopment) || strings.EqualFold(env, "local") {
@@ -42,6 +44,8 @@ func New(serviceName, env, level string) (*zap.Logger, error) {
 
 	logger, err := cfg.Build(
 		zap.AddCaller(),
+		zap.AddCallerSkip(1),
+		zap.AddStacktrace(zapcore.ErrorLevel),
 		zap.Fields(
 			zap.String("service", serviceName),
 			zap.String("environment", env),

@@ -60,14 +60,21 @@ func (s *Service) Register(ctx context.Context, name, email, password string) (*
 }
 
 func (s *Service) Login(ctx context.Context, ip, email, password string) (*user.User, *auth.TokenPair, int64, error) {
-	ok, remaining, err := s.auth.CheckRateLimit(ctx, fmt.Sprintf("auth:login:%s", ip), s.rateMax, int64(s.rateWindow.Seconds()))
+	normalizedEmail := strings.ToLower(strings.TrimSpace(email))
+	okIP, remainingIP, err := s.auth.CheckRateLimit(ctx, fmt.Sprintf("auth:login:ip:%s", ip), s.rateMax, int64(s.rateWindow.Seconds()))
 	if err != nil {
 		return nil, nil, 0, err
 	}
-	if !ok {
-		return nil, nil, 0, customErr.ErrRateLimited
+	okEmail, remainingEmail, err := s.auth.CheckRateLimit(ctx, fmt.Sprintf("auth:login:email:%s", normalizedEmail), s.rateMax, int64(s.rateWindow.Seconds()))
+	if err != nil {
+		return nil, nil, 0, err
 	}
-	u, err := s.users.GetByEmail(ctx, strings.ToLower(strings.TrimSpace(email)))
+	remaining := minInt64(remainingIP, remainingEmail)
+	if !okIP || !okEmail {
+		return nil, nil, remaining, customErr.ErrRateLimited
+	}
+
+	u, err := s.users.GetByEmail(ctx, normalizedEmail)
 	if err != nil || security.ComparePassword(u.PasswordHash, password) != nil {
 		return nil, nil, remaining, customErr.ErrInvalidCredentials
 	}
@@ -118,4 +125,11 @@ func errorsIsRecordNotFound(err error) bool { return err == gorm.ErrRecordNotFou
 
 func isMySQLDuplicateEntry(err error) bool {
 	return strings.Contains(strings.ToLower(err.Error()), "duplicate entry")
+}
+
+func minInt64(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
 }

@@ -1,10 +1,11 @@
 package core
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"go.uber.org/zap"
@@ -16,6 +17,7 @@ import (
 	"libro-backend/controllers/wishlistController"
 	"libro-backend/middleware/auth"
 	"libro-backend/middleware/requestctx"
+	"libro-backend/pkg/apiresponse"
 	"libro-backend/statics/configs"
 )
 
@@ -26,7 +28,9 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *
 			message := "unexpected server error"
 			if fiberErr, ok := err.(*fiber.Error); ok {
 				status = fiberErr.Code
-				message = fiberErr.Message
+				if status < fiber.StatusInternalServerError {
+					message = fiberErr.Message
+				}
 			}
 
 			requestctx.LoggerFromCtx(c, logger).Error("request_unhandled_error",
@@ -34,11 +38,7 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *
 				zap.Error(err),
 			)
 
-			return c.Status(status).JSON(fiber.Map{
-				"code":    "request_failed",
-				"message": message,
-				"details": fmt.Sprintf("request_id=%s", c.GetRespHeader(requestctx.RequestIDHeader)),
-			})
+			return apiresponse.Error(c, status, "request_failed", message, nil)
 		},
 	})
 	app.Use(requestid.New(requestid.Config{Header: requestctx.RequestIDHeader}))
@@ -62,13 +62,38 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *
 	app.Get("/ready", mainCtrl.Ready)
 
 	api := app.Group("/api/v1")
-	authRoutes := api.Group("/auth")
+	authRoutes := api.Group("/auth", limiter.New(limiter.Config{
+		Expiration: cfg.AuthRouteRateLimitWind,
+		Max:        cfg.AuthRouteRateLimitMax,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return strings.Join([]string{"auth", c.Path(), c.IP()}, ":")
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return apiresponse.Error(c, fiber.StatusTooManyRequests, "rate_limited", "Too many authentication attempts. Please try again shortly.", nil)
+		},
+	}))
 	authRoutes.Post("/register", authCtrl.Register)
 	authRoutes.Post("/login", authCtrl.Login)
 	authRoutes.Post("/refresh", authCtrl.Refresh)
 	authRoutes.Post("/logout", authCtrl.Logout)
 
-	protected := api.Group("", auth.AuthMiddleware(cfg.JWTSecret, logger))
+	protected := api.Group("", auth.AuthMiddleware(cfg.JWTSecret, logger), limiter.New(limiter.Config{
+		Expiration: cfg.WriteRateLimitWindow,
+		Max:        cfg.WriteRateLimitMax,
+		Next: func(c *fiber.Ctx) bool {
+			method := c.Method()
+			return method == fiber.MethodGet || method == fiber.MethodHead || method == fiber.MethodOptions
+		},
+		KeyGenerator: func(c *fiber.Ctx) string {
+			if userID, ok := c.Locals("userID").(string); ok && userID != "" {
+				return "write:user:" + userID
+			}
+			return "write:ip:" + c.IP()
+		},
+		LimitReached: func(c *fiber.Ctx) error {
+			return apiresponse.Error(c, fiber.StatusTooManyRequests, "rate_limited", "Too many write operations. Slow down and try again.", nil)
+		},
+	}))
 	protected.Get("/auth/me", authCtrl.Me)
 	protected.Get("/dashboard/summary", mainCtrl.DashboardSummary)
 	protected.Get("/dashboard/analytics", mainCtrl.DashboardAnalytics)

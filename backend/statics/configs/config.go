@@ -4,27 +4,32 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type Config struct {
-	AppPort              string
-	AppEnv               string
-	LogLevel             string
-	JWTSecret            string
-	AccessTokenTTL       time.Duration
-	RefreshTokenTTL      time.Duration
-	MySQLHost            string
-	MySQLPort            string
-	MySQLUser            string
-	MySQLPassword        string
-	MySQLDatabase        string
-	RedisAddr            string
-	RedisPassword        string
-	RedisDB              int
-	RateLimitWindow      time.Duration
-	RateLimitMaxAttempts int64
-	FrontendURL          string
+	AppPort                string
+	AppEnv                 string
+	LogLevel               string
+	JWTSecret              string
+	AccessTokenTTL         time.Duration
+	RefreshTokenTTL        time.Duration
+	MySQLHost              string
+	MySQLPort              string
+	MySQLUser              string
+	MySQLPassword          string
+	MySQLDatabase          string
+	RedisAddr              string
+	RedisPassword          string
+	RedisDB                int
+	RateLimitWindow        time.Duration
+	RateLimitMaxAttempts   int64
+	AuthRouteRateLimitMax  int
+	AuthRouteRateLimitWind time.Duration
+	WriteRateLimitMax      int
+	WriteRateLimitWindow   time.Duration
+	FrontendURL            string
 }
 
 func Load() (*Config, error) {
@@ -63,6 +68,22 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid AUTH_RATE_LIMIT_MAX: %w", err)
 	}
+	authRouteWindow, err := parseDurationWithDefault("AUTH_ROUTE_RATE_LIMIT_WINDOW", 60*time.Second)
+	if err != nil {
+		return nil, err
+	}
+	authRouteMax, err := parseInt64WithDefault("AUTH_ROUTE_RATE_LIMIT_MAX", rateMax)
+	if err != nil {
+		return nil, err
+	}
+	writeRouteWindow, err := parseDurationWithDefault("WRITE_RATE_LIMIT_WINDOW", 60*time.Second)
+	if err != nil {
+		return nil, err
+	}
+	writeRouteMax, err := parseIntWithDefault("WRITE_RATE_LIMIT_MAX", 120)
+	if err != nil {
+		return nil, err
+	}
 	mysqlHost, err := requiredEnv("MYSQL_HOST")
 	if err != nil {
 		return nil, err
@@ -93,23 +114,27 @@ func Load() (*Config, error) {
 	}
 
 	return &Config{
-		AppPort:              appPort,
-		AppEnv:               envOrDefault("APP_ENV", "development"),
-		LogLevel:             envOrDefault("LOG_LEVEL", ""),
-		JWTSecret:            jwtSecret,
-		AccessTokenTTL:       accessTTL,
-		RefreshTokenTTL:      refreshTTL,
-		MySQLHost:            mysqlHost,
-		MySQLPort:            mysqlPort,
-		MySQLUser:            mysqlUser,
-		MySQLPassword:        mysqlPassword,
-		MySQLDatabase:        mysqlDatabase,
-		RedisAddr:            redisAddr,
-		RedisPassword:        os.Getenv("REDIS_PASSWORD"),
-		RedisDB:              redisDB,
-		RateLimitWindow:      rateWindow,
-		RateLimitMaxAttempts: rateMax,
-		FrontendURL:          frontendURL,
+		AppPort:                appPort,
+		AppEnv:                 envOrDefault("APP_ENV", "development"),
+		LogLevel:               envOrDefault("LOG_LEVEL", ""),
+		JWTSecret:              jwtSecret,
+		AccessTokenTTL:         accessTTL,
+		RefreshTokenTTL:        refreshTTL,
+		MySQLHost:              mysqlHost,
+		MySQLPort:              mysqlPort,
+		MySQLUser:              mysqlUser,
+		MySQLPassword:          mysqlPassword,
+		MySQLDatabase:          mysqlDatabase,
+		RedisAddr:              redisAddr,
+		RedisPassword:          os.Getenv("REDIS_PASSWORD"),
+		RedisDB:                redisDB,
+		RateLimitWindow:        rateWindow,
+		RateLimitMaxAttempts:   rateMax,
+		AuthRouteRateLimitMax:  int(authRouteMax),
+		AuthRouteRateLimitWind: authRouteWindow,
+		WriteRateLimitMax:      writeRouteMax,
+		WriteRateLimitWindow:   writeRouteWindow,
+		FrontendURL:            frontendURL,
 	}, nil
 }
 
@@ -136,6 +161,18 @@ func parseDuration(key string) (time.Duration, error) {
 	return d, nil
 }
 
+func parseDurationWithDefault(key string, fallback time.Duration) (time.Duration, error) {
+	v := stringsTrimSpace(os.Getenv(key))
+	if v == "" {
+		return fallback, nil
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s: %w", key, err)
+	}
+	return d, nil
+}
+
 func parseInt(key string) (int, error) {
 	v, err := requiredEnv(key)
 	if err != nil {
@@ -146,6 +183,34 @@ func parseInt(key string) (int, error) {
 		return 0, fmt.Errorf("invalid %s: %w", key, err)
 	}
 	return iv, nil
+}
+
+func parseIntWithDefault(key string, fallback int) (int, error) {
+	v := stringsTrimSpace(os.Getenv(key))
+	if v == "" {
+		return fallback, nil
+	}
+	iv, err := strconv.Atoi(v)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s: %w", key, err)
+	}
+	return iv, nil
+}
+
+func parseInt64WithDefault(key string, fallback int64) (int64, error) {
+	v := stringsTrimSpace(os.Getenv(key))
+	if v == "" {
+		return fallback, nil
+	}
+	iv, err := strconv.ParseInt(v, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid %s: %w", key, err)
+	}
+	return iv, nil
+}
+
+func stringsTrimSpace(s string) string {
+	return strings.TrimSpace(s)
 }
 
 func envOrDefault(key, fallback string) string {

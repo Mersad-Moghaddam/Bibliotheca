@@ -15,13 +15,17 @@ func AuthMiddleware(jwtSecret string, logger *zap.Logger) fiber.Handler {
 		reqLogger := requestctx.LoggerFromCtx(c, logger)
 		authHeader := c.Get("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
-			reqLogger.Warn("auth_missing_bearer_token")
+			reqLogger.Warn("auth_missing_bearer_token", zap.String("ip", c.IP()))
 			return apiresponse.Error(c, fiber.StatusUnauthorized, "unauthorized", "Missing bearer token", nil)
 		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
+		token := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
 		claims, err := security.ParseToken(jwtSecret, token)
-		if err != nil || claims.Type != "access" {
-			reqLogger.Warn("auth_invalid_access_token")
+		if err != nil {
+			reqLogger.Warn("auth_invalid_access_token", zap.String("reason", "parse_failed"), zap.String("ip", c.IP()))
+			return apiresponse.Error(c, fiber.StatusUnauthorized, "unauthorized", "Invalid access token", nil)
+		}
+		if claims.Type != "access" {
+			reqLogger.Warn("auth_invalid_access_token", zap.String("reason", "wrong_token_type"), zap.String("token_type", claims.Type), zap.String("ip", c.IP()))
 			return apiresponse.Error(c, fiber.StatusUnauthorized, "unauthorized", "Invalid access token", nil)
 		}
 		c.Locals("userID", claims.UserID)

@@ -49,8 +49,12 @@ export function Landing() {
         <Card className="grid gap-5 p-4 sm:gap-6 sm:p-6 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
           <div className="space-y-5">
             <Badge className="w-fit">{t('landing.productPreview')}</Badge>
-            <h1 className="max-w-2xl text-3xl font-semibold leading-tight text-foreground sm:text-hero">{t('landing.title')}</h1>
-            <p className="max-w-xl text-sm text-mutedForeground sm:text-body">{t('landing.subtitle')}</p>
+            <h1 className="max-w-2xl text-3xl font-semibold leading-tight text-foreground sm:text-hero">
+              {t('landing.title')}
+            </h1>
+            <p className="max-w-xl text-sm text-mutedForeground sm:text-body">
+              {t('landing.subtitle')}
+            </p>
             <div className="grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <Link to="/register">
                 <Button className="w-full gap-2 sm:w-auto">
@@ -59,7 +63,9 @@ export function Landing() {
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="secondary" className="w-full sm:w-auto">{t('landing.ctaSecondary')}</Button>
+                <Button variant="secondary" className="w-full sm:w-auto">
+                  {t('landing.ctaSecondary')}
+                </Button>
               </Link>
             </div>
           </div>
@@ -74,7 +80,9 @@ export function Landing() {
             ))}
             <div className="rounded-xl border border-border bg-card p-2.5 sm:p-3">
               <p className="text-sm text-mutedForeground">{t('landing.previewCard1Title')}</p>
-              <p className="text-2xl font-semibold text-success">{t('landing.previewCard1Value')}</p>
+              <p className="text-2xl font-semibold text-success">
+                {t('landing.previewCard1Value')}
+              </p>
             </div>
             <p className="text-sm text-mutedForeground">{t('landing.previewCard3')}</p>
           </div>
@@ -126,7 +134,15 @@ function AuthHeader() {
   )
 }
 
-function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+function AuthFrame({
+  title,
+  subtitle,
+  children
+}: {
+  title: string
+  subtitle: string
+  children: React.ReactNode
+}) {
   return (
     <Card className={formCard}>
       <div className="space-y-2 border-b border-border pb-3">
@@ -158,7 +174,8 @@ export function Register() {
       const apiError = parseApiError(error)
       if (apiError.code === 'email_already_exists') return toast.error(t('auth.emailAlreadyExists'))
       if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
-      if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
+      if (apiError.code === 'network_error' || apiError.code === 'offline')
+        return toast.error(t('auth.networkFailure'), { dedupeKey: 'auth-network-error' })
       toast.error(apiError.message ?? t('auth.unexpectedServerError'))
     }
   })
@@ -177,11 +194,19 @@ export function Register() {
             <FieldError message={form.formState.errors.email?.message} />
           </div>
           <div>
-            <Input type="password" placeholder={t('auth.password')} {...form.register('password')} />
+            <Input
+              type="password"
+              placeholder={t('auth.password')}
+              {...form.register('password')}
+            />
             <FieldError message={form.formState.errors.password?.message} />
           </div>
           <div>
-            <Input type="password" placeholder={t('auth.confirmPassword')} {...form.register('confirmPassword')} />
+            <Input
+              type="password"
+              placeholder={t('auth.confirmPassword')}
+              {...form.register('confirmPassword')}
+            />
             <FieldError message={form.formState.errors.confirmPassword?.message} />
           </div>
           <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
@@ -189,7 +214,10 @@ export function Register() {
           </Button>
           <p className="text-small text-mutedForeground">
             {t('auth.hasAccount')}{' '}
-            <Link to="/login" className="font-medium text-primary underline-offset-2 hover:underline">
+            <Link
+              to="/login"
+              className="font-medium text-primary underline-offset-2 hover:underline"
+            >
               {t('auth.logIn')}
             </Link>
           </p>
@@ -219,7 +247,8 @@ export function Login() {
       const apiError = parseApiError(error)
       if (apiError.code === 'invalid_credentials') return toast.error(t('auth.invalidCredentials'))
       if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
-      if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
+      if (apiError.code === 'network_error' || apiError.code === 'offline')
+        return toast.error(t('auth.networkFailure'), { dedupeKey: 'auth-network-error' })
       toast.error(apiError.message ?? t('auth.unexpectedServerError'))
     }
   })
@@ -234,7 +263,11 @@ export function Login() {
             <FieldError message={form.formState.errors.email?.message} />
           </div>
           <div>
-            <Input type="password" placeholder={t('auth.password')} {...form.register('password')} />
+            <Input
+              type="password"
+              placeholder={t('auth.password')}
+              {...form.register('password')}
+            />
             <FieldError message={form.formState.errors.password?.message} />
           </div>
           <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
@@ -243,7 +276,10 @@ export function Login() {
         </form>
         <p className="text-small text-mutedForeground">
           {t('auth.needAccount')}{' '}
-          <Link to="/register" className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link
+            to="/register"
+            className="font-medium text-primary underline-offset-2 hover:underline"
+          >
             {t('auth.signUp')}
           </Link>
         </p>

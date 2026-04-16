@@ -7,6 +7,7 @@ import '@fontsource/inter/500.css'
 import '@fontsource/inter/600.css'
 import App from './App'
 import './styles.css'
+import { ErrorBoundary } from './shared/errors/error-boundary'
 import { I18nProvider } from './shared/i18n/i18n-provider'
 import { AppQueryProvider } from './shared/query/query-provider'
 import { ToastProvider } from './shared/toast/toast-provider'
@@ -16,13 +17,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider>
       <I18nProvider>
-        <AppQueryProvider>
-          <ToastProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </ToastProvider>
-        </AppQueryProvider>
+        <ErrorBoundary>
+          <AppQueryProvider>
+            <ToastProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </ToastProvider>
+          </AppQueryProvider>
+        </ErrorBoundary>
       </I18nProvider>
     </ThemeProvider>
   </React.StrictMode>

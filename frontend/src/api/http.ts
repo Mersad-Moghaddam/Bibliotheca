@@ -2,10 +2,12 @@ import { AxiosError, AxiosResponse } from 'axios'
 
 type ApiEnvelope<T> = { data: T }
 
+type ApiErrorDetails = Record<string, unknown> | null
+
 export type ApiErrorPayload = {
   code?: string
   message?: string
-  details?: Record<string, string> | null
+  details?: ApiErrorDetails
 }
 
 export function extractData<T>(response: AxiosResponse<T | ApiEnvelope<T>>): T {
@@ -21,10 +23,24 @@ export function parseApiError(error: unknown): ApiErrorPayload {
   const axiosError = error as AxiosError | undefined
   const data = axiosError?.response?.data as ApiErrorPayload | undefined
   const status = axiosError?.response?.status
-  const isAxiosLikeError = Boolean(axiosError && (axiosError.isAxiosError || axiosError.response || axiosError.request))
+  const isAxiosLikeError = Boolean(
+    axiosError && (axiosError.isAxiosError || axiosError.response || axiosError.request)
+  )
 
   if (isAxiosLikeError && !axiosError?.response) {
-    return { code: 'network_error', message: 'Unable to reach server. Please check your connection.' }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      return {
+        code: 'offline',
+        message: 'You are offline right now. Reconnect to continue using Libro.',
+        details: null
+      }
+    }
+
+    return {
+      code: 'network_error',
+      message: 'Unable to reach server. Please check your connection and try again.',
+      details: null
+    }
   }
 
   if (!data) {

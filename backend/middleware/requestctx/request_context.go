@@ -24,17 +24,19 @@ func RequestLogger(baseLogger *zap.Logger) fiber.Handler {
 			zap.String("request_id", requestID),
 			zap.String("method", c.Method()),
 			zap.String("path", c.Path()),
+			zap.String("user_agent", c.Get(fiber.HeaderUserAgent)),
 		)
 		c.Locals(loggerLocalKey, requestLogger)
 
 		start := time.Now()
 		err := c.Next()
-		durationMS := float64(time.Since(start).Milliseconds())
+		duration := time.Since(start)
 
 		statusCode := c.Response().StatusCode()
 		fields := []zap.Field{
 			zap.Int("status_code", statusCode),
-			zap.Float64("duration_ms", durationMS),
+			zap.Int64("duration_ms", duration.Milliseconds()),
+			zap.String("latency", duration.String()),
 			zap.String("ip", c.IP()),
 		}
 

@@ -2,7 +2,10 @@ import { AxiosError, InternalAxiosRequestConfig } from 'axios'
 
 const REFRESH_PATH_SUFFIX = '/auth/refresh'
 
-export type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean }
+export type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean
+  _retryCount?: number
+}
 
 export function shouldAttemptTokenRefresh(error: AxiosError, refreshToken: string | null): boolean {
   const originalRequest = error.config as RetryableRequestConfig | undefined

@@ -44,7 +44,12 @@ function inLastDays(date: Date, days: number, now: Date) {
   return age >= 0 && age <= days
 }
 
-function sumPagesInRange(sessions: ReadingSession[], minDaysAgo: number, maxDaysAgo: number, now: Date) {
+function sumPagesInRange(
+  sessions: ReadingSession[],
+  minDaysAgo: number,
+  maxDaysAgo: number,
+  now: Date
+) {
   return sessions.reduce((total, session) => {
     const date = isValidDate(session.date)
     if (!date) return total
@@ -58,19 +63,24 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
   const now = new Date()
   const sessions = [...input.sessions]
     .map((session) => ({ ...session, parsedDate: isValidDate(session.date) }))
-    .filter((session): session is ReadingSession & { parsedDate: Date } => Boolean(session.parsedDate) && session.parsedDate <= now)
+    .filter(
+      (session): session is ReadingSession & { parsedDate: Date } => session.parsedDate !== null
+    )
+    .filter((session) => session.parsedDate <= now)
     .sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime())
 
   const books = input.books
   const hasAnyActivity =
     sessions.length > 0 ||
-    books.some((book) => book.currentPage > 0 || book.status === 'finished' || Boolean(book.completedAt)) ||
+    books.some(
+      (book) => book.currentPage > 0 || book.status === 'finished' || Boolean(book.completedAt)
+    ) ||
     (input.analytics?.base.totalPagesRead ?? 0) > 0
   const activeBooks = input.books.filter((book) => book.status === 'currentlyReading')
   const recentlyCompleted = books.filter((book) => {
     if (!book.completedAt) return false
     const completedAt = isValidDate(book.completedAt)
-    return Boolean(completedAt) && inLastDays(completedAt as Date, 6, now)
+    return completedAt !== null && inLastDays(completedAt, 6, now)
   }).length
   const nearCompletionBook = activeBooks
     .filter((book) => book.progressPercentage >= 85 && book.progressPercentage < 100)
@@ -86,14 +96,19 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     return age >= 14 && age <= 27
   })
 
-  const activeDays7 = new Set(recent7.map((session) => session.parsedDate.toISOString().slice(0, 10))).size
+  const activeDays7 = new Set(
+    recent7.map((session) => session.parsedDate.toISOString().slice(0, 10))
+  ).size
   const bookActivityDates = books
     .map((book) => isValidDate(book.updatedAt))
-    .filter((date): date is Date => Boolean(date) && date <= now)
+    .filter((date): date is Date => date !== null && date <= now)
     .sort((a, b) => b.getTime() - a.getTime())
   const lastSessionActivity = sessions[0] ? daysBetween(sessions[0].parsedDate, now) : null
   const lastBookActivity = bookActivityDates[0] ? daysBetween(bookActivityDates[0], now) : null
-  const lastActivityDays = [lastSessionActivity, lastBookActivity].filter((value): value is number => value !== null).sort((a, b) => a - b)[0] ?? null
+  const lastActivityDays =
+    [lastSessionActivity, lastBookActivity]
+      .filter((value): value is number => value !== null)
+      .sort((a, b) => a - b)[0] ?? null
   const weeklyGoal = input.goals.find((goal) => goal.period === 'weekly')
   const pagesLast7 = sumPagesInRange(input.sessions, 0, 6, now)
   const pagesPrev7 = sumPagesInRange(input.sessions, 7, 13, now)
@@ -109,7 +124,11 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.empty.message',
       recommendationKey: 'dashboard.insights.recommendations.logFirstSession',
       signals: [
-        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' },
+        {
+          labelKey: 'dashboard.insights.signals.activeBooks',
+          value: activeBooks.length,
+          format: 'number'
+        },
         { labelKey: 'dashboard.insights.signals.loggedSessions', value: 0, format: 'number' }
       ]
     }
@@ -123,8 +142,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.inactive',
       recommendationKey: 'dashboard.insights.recommendations.rebuildMomentum',
       signals: [
-        { labelKey: 'dashboard.insights.signals.daysSinceLastActivity', value: lastActivityDays, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.daysSinceLastActivity',
+          value: lastActivityDays,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.sessionsThisWeek',
+          value: recent7.length,
+          format: 'number'
+        }
       ]
     })
   }
@@ -137,8 +164,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.nearCompletion',
       recommendationKey: 'dashboard.insights.recommendations.finishClosestBook',
       signals: [
-        { labelKey: 'dashboard.insights.signals.closestBookProgress', value: Math.round(nearCompletionBook.progressPercentage), format: 'percent' },
-        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.closestBookProgress',
+          value: Math.round(nearCompletionBook.progressPercentage),
+          format: 'percent'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.activeBooks',
+          value: activeBooks.length,
+          format: 'number'
+        }
       ]
     })
   }
@@ -151,8 +186,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.momentum',
       recommendationKey: 'dashboard.insights.recommendations.maintainGoal',
       signals: [
-        { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.sessionsThisWeek',
+          value: recent7.length,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.activeBooks',
+          value: activeBooks.length,
+          format: 'number'
+        }
       ]
     })
   }
@@ -165,8 +208,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.resumed',
       recommendationKey: 'dashboard.insights.recommendations.keepRhythm',
       signals: [
-        { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: pagesLast7, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.sessionsThisWeek',
+          value: recent7.length,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.pagesThisWeek',
+          value: pagesLast7,
+          format: 'number'
+        }
       ]
     })
   }
@@ -179,8 +230,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.consistency',
       recommendationKey: 'dashboard.insights.recommendations.keepRhythm',
       signals: [
-        { labelKey: 'dashboard.insights.signals.activeDaysThisWeek', value: activeDays7, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.activeDaysThisWeek',
+          value: activeDays7,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.sessionsThisWeek',
+          value: recent7.length,
+          format: 'number'
+        }
       ]
     })
   }
@@ -193,8 +252,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.momentum',
       recommendationKey: 'dashboard.insights.recommendations.keepRhythm',
       signals: [
-        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: pagesLast7, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.pagesLastWeek', value: pagesPrev7, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.pagesThisWeek',
+          value: pagesLast7,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.pagesLastWeek',
+          value: pagesPrev7,
+          format: 'number'
+        }
       ]
     })
   }
@@ -208,8 +275,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
         messageKey: 'dashboard.insights.messages.goalAhead',
         recommendationKey: 'dashboard.insights.recommendations.maintainGoal',
         signals: [
-          { labelKey: 'dashboard.insights.signals.goalProgress', value: weeklyGoal.pagesPercent, format: 'percent' },
-          { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: weeklyGoal.pagesRead, format: 'number' }
+          {
+            labelKey: 'dashboard.insights.signals.goalProgress',
+            value: weeklyGoal.pagesPercent,
+            format: 'percent'
+          },
+          {
+            labelKey: 'dashboard.insights.signals.pagesThisWeek',
+            value: weeklyGoal.pagesRead,
+            format: 'number'
+          }
         ]
       })
     } else if (weeklyGoal.pagesPercent < 60 && recent7.length > 0) {
@@ -220,8 +295,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
         messageKey: 'dashboard.insights.messages.goalBehind',
         recommendationKey: 'dashboard.insights.recommendations.smallSessionToday',
         signals: [
-          { labelKey: 'dashboard.insights.signals.goalProgress', value: weeklyGoal.pagesPercent, format: 'percent' },
-          { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' }
+          {
+            labelKey: 'dashboard.insights.signals.goalProgress',
+            value: weeklyGoal.pagesPercent,
+            format: 'percent'
+          },
+          {
+            labelKey: 'dashboard.insights.signals.sessionsThisWeek',
+            value: recent7.length,
+            format: 'number'
+          }
         ]
       })
     }
@@ -235,8 +318,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.focus',
       recommendationKey: 'dashboard.insights.recommendations.focusOneBook',
       signals: [
-        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: pagesLast7, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.activeBooks',
+          value: activeBooks.length,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.pagesThisWeek',
+          value: pagesLast7,
+          format: 'number'
+        }
       ]
     })
   }
@@ -250,8 +341,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       messageKey: 'dashboard.insights.messages.steady',
       recommendationKey: 'dashboard.insights.recommendations.logProgressOnCurrent',
       signals: [
-        { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' }
+        {
+          labelKey: 'dashboard.insights.signals.sessionsThisWeek',
+          value: recent7.length,
+          format: 'number'
+        },
+        {
+          labelKey: 'dashboard.insights.signals.activeBooks',
+          value: activeBooks.length,
+          format: 'number'
+        }
       ]
     }
   }
