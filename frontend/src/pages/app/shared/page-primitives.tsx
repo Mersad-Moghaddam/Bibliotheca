@@ -59,7 +59,7 @@ export function StatCard({
           <Icon className="h-4 w-4" />
         </span>
       </div>
-      <p className="mt-3 text-3xl font-semibold">{value}</p>
+      <p className="mt-3 text-2xl font-semibold sm:text-3xl">{value}</p>
     </Card>
   )
 }
