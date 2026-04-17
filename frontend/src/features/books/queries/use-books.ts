@@ -17,6 +17,7 @@ import {
 async function invalidateReadingDerivedQueries(queryClient: ReturnType<typeof useQueryClient>, bookId?: string) {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: queryKeys.books.all }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.summary }),
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.analytics }),
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.goals }),
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.sessions }),
