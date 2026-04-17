@@ -23,11 +23,11 @@ import {
   useBookQuery,
   useCreateBookNoteMutation,
   useDeleteBookMutation,
-  useDeleteBookNoteMutation,
   useUpdateBookMutation,
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
 } from '../../features/books/queries/use-books'
+import { buildBookTimeline } from '../../features/books/timeline/book-timeline'
 import { useBookSessions } from '../../features/dashboard/queries/use-dashboard'
 import { useI18n } from '../../shared/i18n/i18n-provider'
 import { useToast } from '../../shared/toast/toast-provider'
@@ -47,7 +47,6 @@ export function BookDetails({ id }: { id: string }) {
   const notesQuery = useBookNotesQuery(id)
   const sessionsQuery = useBookSessions(id)
   const addNote = useCreateBookNoteMutation(id)
-  const deleteNote = useDeleteBookNoteMutation(id)
 
   const form = useForm<ProgressValues>({
     resolver: zodResolver(progressSchema),
@@ -90,7 +89,8 @@ export function BookDetails({ id }: { id: string }) {
   const book = query.data
 
   const sessionsForBook = sessionsQuery.data ?? []
-  const recentSessions = sessionsForBook.slice(0, 4)
+  const timeline = buildBookTimeline(sessionsForBook, book.currentPage ?? 0, book.totalPages)
+  const recentTimeline = timeline.items.slice(0, 6)
   const notes = notesQuery.data ?? []
 
   const loggedPages = sessionsForBook.reduce((sum, session) => sum + session.pagesRead, 0)
@@ -221,27 +221,74 @@ export function BookDetails({ id }: { id: string }) {
 
       <SectionCard>
         <SectionHeader
-          title={t('books.recentSessionsTitle')}
-          description={t('books.recentSessionsDescription')}
+          title={t('books.timelineTitle')}
+          description={t('books.timelineDescription')}
           icon={<Clock3 className="h-4 w-4" />}
         />
-        <div className="space-y-2">
-          {recentSessions.map((session) => (
-            <div key={session.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-medium">{formatCalendarDate(session.date)}</p>
-                <p className="text-mutedForeground">
-                  {numberFormatter.format(session.pagesRead)} {t('books.pagesShortLabel')}
-                </p>
+        <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <MiniStat
+              label={t('books.timelineMomentumLabel')}
+              value={t(`books.timelineMomentum.${timeline.summary.momentum}`)}
+            />
+            <MiniStat
+              label={t('books.timelineLastReadLabel')}
+              value={
+                timeline.summary.lastReadDaysAgo === null
+                  ? t('books.timelineNever')
+                  : timeline.summary.lastReadDaysAgo === 0
+                    ? t('books.timelineToday')
+                    : t('books.timelineDaysAgo', {
+                        count: numberFormatter.format(timeline.summary.lastReadDaysAgo)
+                      })
+              }
+            />
+            <MiniStat
+              label={t('books.timelineRecentPagesLabel')}
+              value={`${numberFormatter.format(timeline.summary.recentPages)} ${t('books.pagesLabel')}`}
+            />
+          </div>
+
+          <div className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-mutedForeground">
+            <span className="font-medium text-foreground">{t('books.timelineNextActionLabel')}:</span>{' '}
+            {t(`books.timelineNextAction.${timeline.summary.nextActionKey}`)}
+          </div>
+
+          <div className="space-y-2">
+            {recentTimeline.map((session) => (
+              <div key={session.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium">{formatCalendarDate(session.date)}</p>
+                  <p className="text-mutedForeground">
+                    +{numberFormatter.format(session.progressDelta)} {t('books.pagesShortLabel')}
+                  </p>
+                </div>
+                <div className="mt-2 h-1.5 rounded-full bg-border/70">
+                  <div
+                    className="h-full rounded-full bg-primary/50"
+                    style={{
+                      width: `${Math.max(6, Math.min(100, (session.progressAfter / Math.max(1, book.totalPages)) * 100))}%`
+                    }}
+                  />
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs text-mutedForeground">
+                  <p>
+                    {numberFormatter.format(session.progressAfter)} /{' '}
+                    {numberFormatter.format(book.totalPages)} {t('books.pagesLabel')}
+                  </p>
+                  <p>
+                    {numberFormatter.format(session.duration)} {t('books.minutesLabel')}
+                    {session.daysSincePrevious
+                      ? ` · ${t('books.timelineGapDays', { count: numberFormatter.format(session.daysSincePrevious) })}`
+                      : ''}
+                  </p>
+                </div>
               </div>
-              <p className="mt-1 text-xs text-mutedForeground">
-                {numberFormatter.format(session.duration)} {t('books.minutesLabel')}
-              </p>
-            </div>
-          ))}
-          {!recentSessions.length ? (
-            <p className="text-sm text-mutedForeground">{t('books.sessionsEmpty')}</p>
-          ) : null}
+            ))}
+            {!recentTimeline.length ? (
+              <p className="text-sm text-mutedForeground">{t('books.sessionsEmpty')}</p>
+            ) : null}
+          </div>
         </div>
       </SectionCard>
 
