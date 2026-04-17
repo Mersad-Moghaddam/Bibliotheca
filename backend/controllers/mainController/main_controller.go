@@ -55,7 +55,7 @@ func (c *MainController) DashboardAnalytics(ctx *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
 	}
-	sessions, err := c.service.reading.RecentSessions(ctx.Context(), uid, 120)
+	sessions, err := c.service.reading.RecentSessions(ctx.Context(), uid, "", 120)
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
 	}

@@ -80,7 +80,12 @@ func (h *ReadingController) AddSession(c *fiber.Ctx) error {
 
 func (h *ReadingController) ListSessions(c *fiber.Ctx) error {
 	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	sessions, err := h.service.Reading.RecentSessions(c.Context(), uid, 50)
+	bookIDParam := c.Query("bookId")
+	limit := 50
+	if bookIDParam != "" {
+		limit = 0
+	}
+	sessions, err := h.service.Reading.RecentSessions(c.Context(), uid, bookIDParam, limit)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}

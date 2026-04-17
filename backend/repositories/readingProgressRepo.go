@@ -102,9 +102,12 @@ func (r *readingProgressRepo) CreateSession(ctx context.Context, session *readin
 	})
 }
 
-func (r *readingProgressRepo) ListSessions(ctx context.Context, userID uuid.UUID, limit int) ([]readingSession.ReadingSession, error) {
+func (r *readingProgressRepo) ListSessions(ctx context.Context, userID uuid.UUID, bookID *uuid.UUID, limit int) ([]readingSession.ReadingSession, error) {
 	var sessions []readingSession.ReadingSession
 	q := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("date DESC")
+	if bookID != nil {
+		q = q.Where("book_id = ?", *bookID)
+	}
 	if limit > 0 {
 		q = q.Limit(limit)
 	}

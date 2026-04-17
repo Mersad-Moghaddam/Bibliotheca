@@ -28,7 +28,7 @@ import {
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
 } from '../../features/books/queries/use-books'
-import { useSessions } from '../../features/dashboard/queries/use-dashboard'
+import { useBookSessions } from '../../features/dashboard/queries/use-dashboard'
 import { useI18n } from '../../shared/i18n/i18n-provider'
 import { useToast } from '../../shared/toast/toast-provider'
 import { BookStatus } from '../../types'
@@ -45,7 +45,7 @@ export function BookDetails({ id }: { id: string }) {
   const updateProgress = useUpdateBookProgressMutation()
   const deleteBook = useDeleteBookMutation()
   const notesQuery = useBookNotesQuery(id)
-  const sessionsQuery = useSessions()
+  const sessionsQuery = useBookSessions(id)
   const addNote = useCreateBookNoteMutation(id)
   const deleteNote = useDeleteBookNoteMutation(id)
 
@@ -89,7 +89,7 @@ export function BookDetails({ id }: { id: string }) {
   if (!query.data) return <Card className="p-6">{t('common.loading')}</Card>
   const book = query.data
 
-  const sessionsForBook = sessionsQuery.data?.filter((session) => session.bookId === book.id) ?? []
+  const sessionsForBook = sessionsQuery.data ?? []
   const recentSessions = sessionsForBook.slice(0, 4)
   const notes = notesQuery.data ?? []
 

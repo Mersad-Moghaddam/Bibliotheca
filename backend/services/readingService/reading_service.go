@@ -90,8 +90,16 @@ func (s *Service) CreateSession(ctx context.Context, session *readingSession.Rea
 	return s.repo.CreateSession(ctx, session)
 }
 
-func (s *Service) RecentSessions(ctx context.Context, userID uuid.UUID, limit int) ([]readingSession.ReadingSession, error) {
-	return s.repo.ListSessions(ctx, userID, limit)
+func (s *Service) RecentSessions(ctx context.Context, userID uuid.UUID, bookID string, limit int) ([]readingSession.ReadingSession, error) {
+	var parsedBookID *uuid.UUID
+	if bookID != "" {
+		id, err := uuid.Parse(bookID)
+		if err != nil {
+			return nil, customErr.ErrBadRequest
+		}
+		parsedBookID = &id
+	}
+	return s.repo.ListSessions(ctx, userID, parsedBookID, limit)
 }
 
 func (s *Service) SaveGoals(ctx context.Context, userID uuid.UUID, weekly, monthly *GoalUpdateInput, applySuggestion bool) error {
@@ -178,7 +186,7 @@ func (s *Service) GetGoalsOverview(ctx context.Context, userID uuid.UUID) (*Goal
 	now := time.Now()
 	weeklyStart, weeklyEnd := weekWindow(now)
 	monthlyStart, monthlyEnd := monthWindow(now)
-	sessions, err := s.repo.ListSessions(ctx, userID, 600)
+	sessions, err := s.repo.ListSessions(ctx, userID, nil, 600)
 	if err != nil {
 		return nil, err
 	}
