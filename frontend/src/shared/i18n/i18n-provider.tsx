@@ -14,7 +14,21 @@ type I18nContextType = {
 
 const I18nContext = createContext<I18nContextType | null>(null)
 
-const STORAGE_KEY = 'libro.locale'
+const STORAGE_KEY = 'negar.locale'
+const LEGACY_STORAGE_KEY = 'libro.locale'
+
+function getInitialLocale(): Locale {
+  const cached = localStorage.getItem(STORAGE_KEY)
+  if (cached === 'fa' || cached === 'en') return cached
+
+  const legacyCached = localStorage.getItem(LEGACY_STORAGE_KEY)
+  if (legacyCached === 'fa' || legacyCached === 'en') {
+    localStorage.setItem(STORAGE_KEY, legacyCached)
+    return legacyCached
+  }
+
+  return 'en'
+}
 
 function getByPath(obj: unknown, key: string): unknown {
   return key.split('.').reduce<unknown>((acc, part) => {
@@ -29,10 +43,7 @@ function interpolate(value: string, params?: TranslationParams): string {
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocale] = useState<Locale>(() => {
-    const cached = localStorage.getItem(STORAGE_KEY)
-    return cached === 'fa' ? 'fa' : 'en'
-  })
+  const [locale, setLocale] = useState<Locale>(getInitialLocale)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, locale)

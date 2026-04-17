@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/src/assets/favicon.svg" />
     <script>
-      const savedTheme = localStorage.getItem('libro-theme')
+      const savedTheme = localStorage.getItem('negar-theme') ?? localStorage.getItem('libro-theme')
       const theme = savedTheme === 'dark' ? 'dark' : 'light'
+      if (!localStorage.getItem('negar-theme') && (savedTheme === 'dark' || savedTheme === 'light')) {
+        localStorage.setItem('negar-theme', savedTheme)
+      }
       document.documentElement.dataset.theme = theme
     </script>
-    <title>Libro — Reading Intelligence Workspace</title>
+    <title>Negar — Reading Tracker & Insights</title>
     <meta
       name="description"
-      content="Libro helps you organize, finish, and understand your reading with focused workflows, analytics, and reminders."
+      content="Negar helps you organize, finish, and understand your reading with focused workflows, analytics, and reminders."
     />
   </head>
   <body>

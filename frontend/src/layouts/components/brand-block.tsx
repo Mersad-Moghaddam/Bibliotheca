@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useI18n } from '../../shared/i18n/i18n-provider'
 
 export function BrandBlock({ compact = false }: { compact?: boolean }) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   return (
     <Link
@@ -15,7 +15,9 @@ export function BrandBlock({ compact = false }: { compact?: boolean }) {
         <Sparkles className="h-4 w-4" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-base font-semibold tracking-tight text-foreground">Libro</p>
+        <p className={`truncate text-base font-semibold tracking-tight text-foreground ${locale === 'fa' ? 'brand-wordmark-fa' : ''}`}>
+          {t('common.appName')}
+        </p>
         <p className="truncate text-[11px] text-mutedForeground">{t('nav.platformSubtitle')}</p>
       </div>
     </Link>
