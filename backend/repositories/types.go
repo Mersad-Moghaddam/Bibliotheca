@@ -61,6 +61,7 @@ type BookRepository interface {
 	Recent(ctx context.Context, userID uuid.UUID, limit int) ([]book.Book, error)
 	ListNotes(ctx context.Context, userID, bookID uuid.UUID) ([]bookNote.BookNote, error)
 	CreateNote(ctx context.Context, n *bookNote.BookNote) error
+	DeleteNote(ctx context.Context, userID, bookID, noteID uuid.UUID) error
 }
 
 type WishlistRepository interface {

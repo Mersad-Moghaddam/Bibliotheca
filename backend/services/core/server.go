@@ -82,6 +82,7 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *
 	protected.Patch("/books/:id/progress", readCtrl.UpdateProgress)
 	protected.Get("/books/:id/notes", bookCtrl.ListNotes)
 	protected.Post("/books/:id/notes", bookCtrl.AddNote)
+	protected.Delete("/books/:id/notes/:noteId", bookCtrl.DeleteNote)
 	protected.Get("/reading/sessions", readCtrl.ListSessions)
 	protected.Post("/reading/sessions", readCtrl.AddSession)
 	protected.Get("/reading/goals", readCtrl.Goals)

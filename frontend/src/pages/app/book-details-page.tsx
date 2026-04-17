@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { NotebookPen } from 'lucide-react'
+import { NotebookPen, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -23,6 +23,7 @@ import {
   useBookQuery,
   useCreateBookNoteMutation,
   useDeleteBookMutation,
+  useDeleteBookNoteMutation,
   useUpdateBookMutation,
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
@@ -44,6 +45,7 @@ export function BookDetails({ id }: { id: string }) {
   const deleteBook = useDeleteBookMutation()
   const notesQuery = useBookNotesQuery(id)
   const addNote = useCreateBookNoteMutation(id)
+  const deleteNote = useDeleteBookNoteMutation(id)
 
   const form = useForm<ProgressValues>({
     resolver: zodResolver(progressSchema),
@@ -263,6 +265,19 @@ export function BookDetails({ id }: { id: string }) {
         <div className="mt-3 space-y-2">
           {notesQuery.data?.map((n) => (
             <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
+              <div className="mb-1 flex justify-end">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 rounded-md p-0 text-mutedForeground hover:text-destructive"
+                  onClick={() => {
+                    void deleteNote.mutateAsync(n.id)
+                  }}
+                  aria-label={t('books.delete')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
               <p>{n.note}</p>
               {n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}
             </div>

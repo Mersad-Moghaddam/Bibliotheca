@@ -56,6 +56,10 @@ export async function createBookNote(id: string, payload: { note: string; highli
   await api.post(`/books/${id}/notes`, payload)
 }
 
+export async function deleteBookNote(id: string, noteId: string) {
+  await api.delete(`/books/${id}/notes/${noteId}`)
+}
+
 export async function deleteBook(id: string) {
   await api.delete(`/books/${id}`)
 }
