@@ -1,4 +1,4 @@
-import { BookPlus, LibraryBig, ListChecks } from 'lucide-react'
+import { BookPlus, LibraryBig, LineChart, ListChecks } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -13,6 +13,7 @@ import {
 } from '../../features/books/queries/use-books'
 import {
   useCreateSessionMutation,
+  useDashboardAnalytics,
   useDashboardSummary
 } from '../../features/dashboard/queries/use-dashboard'
 import { useI18n } from '../../shared/i18n/i18n-provider'
@@ -23,6 +24,7 @@ import { BookCover, PageHeading, StatCard } from './shared/page-primitives'
 export function Dashboard() {
   const { t, locale } = useI18n()
   const summaryQuery = useDashboardSummary()
+  const analyticsQuery = useDashboardAnalytics()
   const booksQuery = useBooksQuery()
   const createSession = useCreateSessionMutation()
   const updateProgress = useUpdateBookProgressMutation()
@@ -43,6 +45,7 @@ export function Dashboard() {
   const currentlyReadingCount =
     summaryQuery.data?.counts.currentlyReading ?? counts.currentlyReading
   const finishedCount = summaryQuery.data?.counts.finished ?? counts.finished
+  const readingPacePerMonth = analyticsQuery.data?.base.readingPacePerMonth ?? 0
 
   const activeBook = books.find((book) => book.status === 'currentlyReading')
   const numberFormatter = useMemo(
@@ -69,6 +72,11 @@ export function Dashboard() {
           title={t('status.finished')}
           value={numberFormatter.format(finishedCount)}
           icon={ListChecks}
+        />
+        <StatCard
+          title={t('dashboard.readingPace')}
+          value={numberFormatter.format(readingPacePerMonth)}
+          icon={LineChart}
         />
       </div>
 
@@ -139,7 +147,7 @@ export function Dashboard() {
         <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
           <p className="text-sm text-mutedForeground">{t('dashboard.coachHubBody')}</p>
           <Link to="/coach">
-            <Button>{t('dashboard.openCoach')}</Button>
+            <Button size="sm">{t('dashboard.openCoach')}</Button>
           </Link>
         </div>
       </SectionCard>
