@@ -18,17 +18,16 @@ import {
   progressSchema,
   ProgressValues
 } from '../../features/books/forms/book-schemas'
-import { buildBookTimeline } from '../../features/books/timeline/book-timeline'
 import {
   useBookNotesQuery,
   useBookQuery,
   useCreateBookNoteMutation,
   useDeleteBookMutation,
-  useDeleteBookNoteMutation,
   useUpdateBookMutation,
   useUpdateBookProgressMutation,
   useUpdateBookStatusMutation
 } from '../../features/books/queries/use-books'
+import { buildBookTimeline } from '../../features/books/timeline/book-timeline'
 import { useBookSessions } from '../../features/dashboard/queries/use-dashboard'
 import { useI18n } from '../../shared/i18n/i18n-provider'
 import { useToast } from '../../shared/toast/toast-provider'
@@ -48,7 +47,6 @@ export function BookDetails({ id }: { id: string }) {
   const notesQuery = useBookNotesQuery(id)
   const sessionsQuery = useBookSessions(id)
   const addNote = useCreateBookNoteMutation(id)
-  const deleteNote = useDeleteBookNoteMutation(id)
 
   const form = useForm<ProgressValues>({
     resolver: zodResolver(progressSchema),
