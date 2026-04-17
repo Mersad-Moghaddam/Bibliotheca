@@ -61,6 +61,9 @@ func (f *fakeBookRepo) ListNotes(_ context.Context, _, _ uuid.UUID) ([]bookNote.
 func (f *fakeBookRepo) CreateNote(_ context.Context, _ *bookNote.BookNote) error {
 	return nil
 }
+func (f *fakeBookRepo) DeleteNote(_ context.Context, _, _, _ uuid.UUID) error {
+	return nil
+}
 
 func TestUpdateStatusTransitions(t *testing.T) {
 	t.Parallel()

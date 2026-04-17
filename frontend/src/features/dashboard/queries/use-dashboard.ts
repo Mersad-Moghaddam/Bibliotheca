@@ -1,7 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { queryKeys } from '../../../shared/query/query-keys'
-import { createSession, fetchAnalytics, fetchGoals, fetchReminder, fetchSessions, fetchSummary, updateGoal } from '../api/dashboard-api'
+import {
+  createSession,
+  fetchAnalytics,
+  fetchBookSessions,
+  fetchGoals,
+  fetchReminder,
+  fetchSessions,
+  fetchSummary,
+  updateGoal
+} from '../api/dashboard-api'
 
 export function useDashboardSummary() {
   return useQuery({ queryKey: queryKeys.dashboard.summary, queryFn: fetchSummary })
@@ -21,6 +30,14 @@ export function useGoalProgress() {
 
 export function useSessions() {
   return useQuery({ queryKey: queryKeys.dashboard.sessions, queryFn: fetchSessions })
+}
+
+export function useBookSessions(bookId: string) {
+  return useQuery({
+    queryKey: queryKeys.dashboard.sessionsByBook(bookId),
+    queryFn: () => fetchBookSessions(bookId),
+    enabled: Boolean(bookId)
+  })
 }
 
 export function useSaveGoalMutation() {

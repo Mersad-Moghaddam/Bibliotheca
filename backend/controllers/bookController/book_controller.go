@@ -150,6 +150,16 @@ func (h *BookController) AddNote(c *fiber.Ctx) error {
 	return apiresponse.Created(c, note)
 }
 
+func (h *BookController) DeleteNote(c *fiber.Ctx) error {
+	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	bookID, _ := uuid.Parse(c.Params("id"))
+	noteID, _ := uuid.Parse(c.Params("noteId"))
+	if err := h.service.Book.DeleteNote(c.Context(), uid, bookID, noteID); err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	return apiresponse.OK(c, fiber.Map{"message": "deleted"}, nil)
+}
+
 func validateBookRequest(req bookSchema.BookRequest) validation.Errors {
 	errs := validation.Errors{}
 	req.Title = validation.Required(req.Title, "title", errs)

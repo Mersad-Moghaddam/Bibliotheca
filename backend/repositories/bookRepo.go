@@ -158,3 +158,16 @@ func (r *bookRepo) ListNotes(ctx context.Context, userID, bookID uuid.UUID) ([]b
 func (r *bookRepo) CreateNote(ctx context.Context, n *bookNote.BookNote) error {
 	return r.db.WithContext(ctx).Create(n).Error
 }
+
+func (r *bookRepo) DeleteNote(ctx context.Context, userID, bookID, noteID uuid.UUID) error {
+	res := r.db.WithContext(ctx).
+		Where("id = ? AND user_id = ? AND book_id = ?", noteID, userID, bookID).
+		Delete(&bookNote.BookNote{})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return customErr.ErrNotFound
+	}
+	return nil
+}

@@ -6,6 +6,7 @@ import {
   createBook,
   createBookNote,
   deleteBook,
+  deleteBookNote,
   fetchBook,
   fetchBookNotes,
   fetchBooks,
@@ -48,6 +49,16 @@ export function useCreateBookNoteMutation(id: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: { note: string; highlight?: string }) => createBookNote(id, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...queryKeys.books.detail(id), 'notes'] })
+    }
+  })
+}
+
+export function useDeleteBookNoteMutation(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (noteId: string) => deleteBookNote(id, noteId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...queryKeys.books.detail(id), 'notes'] })
     }

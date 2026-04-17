@@ -233,6 +233,13 @@ func (s *Service) CreateNote(ctx context.Context, userID, bookID uuid.UUID, note
 	return n, s.repo.CreateNote(ctx, n)
 }
 
+func (s *Service) DeleteNote(ctx context.Context, userID, bookID, noteID uuid.UUID) error {
+	if _, err := s.repo.GetByID(ctx, userID, bookID); err != nil {
+		return err
+	}
+	return s.repo.DeleteNote(ctx, userID, bookID, noteID)
+}
+
 func (s *Service) Insights(ctx context.Context, userID uuid.UUID) ([]map[string]string, error) {
 	analytics, err := s.Analytics(ctx, userID)
 	if err != nil {

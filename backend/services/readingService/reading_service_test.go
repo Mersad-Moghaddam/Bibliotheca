@@ -27,7 +27,7 @@ func (f *fakeReadingRepo) CreateSession(_ context.Context, s *readingSession.Rea
 	f.sessions = append(f.sessions, *s)
 	return nil
 }
-func (f *fakeReadingRepo) ListSessions(_ context.Context, _ uuid.UUID, _ int) ([]readingSession.ReadingSession, error) {
+func (f *fakeReadingRepo) ListSessions(_ context.Context, _ uuid.UUID, _ *uuid.UUID, _ int) ([]readingSession.ReadingSession, error) {
 	return f.sessions, nil
 }
 func (f *fakeReadingRepo) UpsertGoal(_ context.Context, g *readingGoal.ReadingGoal) error {
