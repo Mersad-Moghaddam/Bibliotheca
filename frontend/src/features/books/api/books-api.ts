@@ -39,8 +39,11 @@ export async function updateBook(
   await api.put(`/books/${id}`, payload)
 }
 
-export async function updateBookStatus(id: string, status: BookStatus) {
-  await api.patch(`/books/${id}/status`, { status })
+export async function updateBookStatus(
+  id: string,
+  payload: { status: BookStatus; finishRating?: number; finishReflection?: string; finishHighlight?: string }
+) {
+  await api.patch(`/books/${id}/status`, payload)
 }
 
 export async function updateBookProgress(id: string, currentPage: number) {

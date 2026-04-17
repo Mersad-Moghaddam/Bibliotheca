@@ -40,7 +40,7 @@ func TestBookServiceWithRepository(t *testing.T) {
 		t.Fatalf("create: %v", err)
 	}
 
-	updated, err := svc.UpdateStatus(context.Background(), userID, newBook.ID, constants.BookStatusFinished)
+	updated, err := svc.UpdateStatus(context.Background(), userID, newBook.ID, constants.BookStatusFinished, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("update status: %v", err)
 	}

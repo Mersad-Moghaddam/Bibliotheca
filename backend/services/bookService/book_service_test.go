@@ -82,7 +82,7 @@ func TestUpdateStatusTransitions(t *testing.T) {
 	}}
 	svc := New(repo)
 
-	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusCurrentlyRead)
+	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusCurrentlyRead, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to reading, got %v", err)
 	}
@@ -90,7 +90,7 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		t.Fatal("expected current page to initialize at zero")
 	}
 
-	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusFinished)
+	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusFinished, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to finished, got %v", err)
 	}
@@ -101,7 +101,7 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		t.Fatal("expected completedAt to be set")
 	}
 
-	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusNextToRead)
+	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusNextToRead, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to backlog, got %v", err)
 	}

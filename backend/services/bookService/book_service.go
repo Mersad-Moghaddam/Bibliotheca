@@ -89,7 +89,7 @@ func (s *Service) Update(ctx context.Context, b *book.Book) error {
 	}
 	return s.repo.Update(ctx, b)
 }
-func (s *Service) UpdateStatus(ctx context.Context, userID, id uuid.UUID, status string) (*book.Book, error) {
+func (s *Service) UpdateStatus(ctx context.Context, userID, id uuid.UUID, status string, finishRating *int, finishReflection, finishHighlight *string) (*book.Book, error) {
 	b, err := s.repo.GetByID(ctx, userID, id)
 	if err != nil {
 		return nil, err
@@ -100,6 +100,15 @@ func (s *Service) UpdateStatus(ctx context.Context, userID, id uuid.UUID, status
 		b.CompletedAt = &now
 		cp := b.TotalPages
 		b.CurrentPage = &cp
+		if finishRating != nil {
+			b.FinishRating = finishRating
+		}
+		if finishReflection != nil {
+			b.FinishReflection = finishReflection
+		}
+		if finishHighlight != nil {
+			b.FinishHighlight = finishHighlight
+		}
 	}
 	if status == constants.BookStatusCurrentlyRead && b.CurrentPage == nil {
 		v := 0
@@ -108,6 +117,9 @@ func (s *Service) UpdateStatus(ctx context.Context, userID, id uuid.UUID, status
 	if status == constants.BookStatusNextToRead || status == constants.BookStatusInLibrary {
 		b.CompletedAt = nil
 		b.CurrentPage = nil
+		b.FinishRating = nil
+		b.FinishReflection = nil
+		b.FinishHighlight = nil
 	}
 	return b, s.repo.Update(ctx, b)
 }
