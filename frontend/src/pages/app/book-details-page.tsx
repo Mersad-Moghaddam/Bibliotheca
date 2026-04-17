@@ -85,7 +85,7 @@ export function BookDetails({ id }: { id: string }) {
     <div className="space-y-4 sm:space-y-5">
       <PageHeader title={book.title} description={book.author} action={<StatusBadge status={book.status} />} eyebrow={t('books.readingProgress')} />
       <SectionCard className="overflow-hidden">
-        <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center"><BookCover title={book.title} coverUrl={book.coverUrl} /><div className="min-w-0 space-y-2"><p>{t('books.readingProgress')}: {Math.round(book.progressPercentage)}%</p><Progress value={book.progressPercentage} /><div className="flex flex-wrap gap-2 text-xs text-mutedForeground"><span className="rounded-full border border-border bg-surface px-2 py-1">{book.genre || t('library.genreFallback')}</span><span className="rounded-full border border-border bg-surface px-2 py-1">ISBN: {book.isbn || '—'}</span></div></div></div>
+        <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center"><BookCover title={book.title} coverUrl={book.coverUrl} /><div className="min-w-0 space-y-2"><p>{t('books.readingProgress')}: {Math.round(book.progressPercentage)}%</p><Progress value={book.progressPercentage} /><div className="flex flex-wrap gap-2 text-xs text-mutedForeground"><span className="rounded-full border border-border bg-surface px-2 py-1">{book.genre || t('library.genreFallback')}</span><span className="rounded-full border border-border bg-surface px-2 py-1">{t('books.isbnLabel')}: {book.isbn || '—'}</span></div></div></div>
       </SectionCard>
       <SectionCard>
         <SectionHeader title={t('books.editDetailsTitle')} description={t('books.editDetailsDescription')} />
