@@ -21,7 +21,7 @@ import { useI18n } from '../shared/i18n/i18n-provider'
 import { useToast } from '../shared/toast/toast-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 
-const wrap = 'app-shell min-h-screen px-3 py-5 sm:px-4 sm:py-7 md:px-8 md:py-10'
+const wrap = 'app-shell min-h-dvh w-full px-3 py-4 sm:px-4 sm:py-7 md:px-8 md:py-10'
 const formCard = 'mx-auto w-full max-w-md space-y-5 p-4 sm:p-6 md:p-7'
 
 const FieldError = ({ message }: { message?: string }) => {
@@ -169,7 +169,7 @@ export function Register() {
   })
 
   return (
-    <div className={cn(wrap, 'flex flex-col items-center justify-start sm:justify-center')}>
+    <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
       <AuthHeader />
       <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
         <form onSubmit={onSubmit} className="space-y-3">
@@ -230,7 +230,7 @@ export function Login() {
   })
 
   return (
-    <div className={cn(wrap, 'flex flex-col items-center justify-start sm:justify-center')}>
+    <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
       <AuthHeader />
       <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
         <form onSubmit={onSubmit} className="space-y-3">
