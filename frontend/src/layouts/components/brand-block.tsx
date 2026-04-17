@@ -15,7 +15,7 @@ export function BrandBlock({ compact = false }: { compact?: boolean }) {
         <Sparkles className="h-4 w-4" />
       </span>
       <div className="min-w-0">
-        <p className="truncate text-base font-semibold tracking-tight text-foreground">Libro</p>
+        <p className="truncate text-base font-semibold tracking-tight text-foreground">Negar</p>
         <p className="truncate text-[11px] text-mutedForeground">{t('nav.platformSubtitle')}</p>
       </div>
     </Link>

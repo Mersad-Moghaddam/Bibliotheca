@@ -13,7 +13,8 @@ type State = {
   hydrate: () => void
 }
 
-const STORAGE_KEY = 'libro.auth'
+const STORAGE_KEY = 'negar.auth'
+const LEGACY_STORAGE_KEY = 'libro.auth'
 
 export const authStore = create<State>((set, get) => ({
   user: null,
@@ -38,12 +39,13 @@ export const authStore = create<State>((set, get) => ({
   },
   hydrate: () => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
+      const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY)
       if (!raw) {
         set({ hydrated: true })
         return
       }
       const parsed = JSON.parse(raw)
+      localStorage.setItem(STORAGE_KEY, raw)
       set({
         user: parsed.user ?? null,
         accessToken: parsed.accessToken ?? null,

@@ -3,7 +3,7 @@ export type Locale = 'en' | 'fa'
 export const messages = {
   en: {
     common: {
-      appName: 'Libro',
+      appName: 'Negar',
       search: 'Search',
       details: 'Details',
       save: 'Save',
@@ -25,7 +25,7 @@ export const messages = {
       workspace: 'Workspace',
       readingFlow: 'Reading flow',
       account: 'Account',
-      platformTitle: 'Libro platform',
+      platformTitle: 'Negar platform',
       platformSubtitle: 'Focused reading operations for your personal workspace.',
       focusMode: 'Focus mode'
     },
@@ -33,7 +33,7 @@ export const messages = {
       eyebrow: 'Reading intelligence, without clutter',
       title: 'Design a reading system you can sustain all year.',
       subtitle:
-        'Libro combines a calm reading workflow with practical analytics, reminders, and insights so you can finish more of what matters.',
+        'Negar combines a calm reading workflow with practical analytics, reminders, and insights so you can finish more of what matters.',
       ctaPrimary: 'Start for free',
       ctaSecondary: 'Log in',
       productPreview: 'Product preview',
@@ -84,7 +84,7 @@ export const messages = {
       trustTitle: 'Reader feedback (early access)',
       testimonials: [
         {
-          quote: 'Libro made my reading queue finally feel manageable.',
+          quote: 'Negar made my reading queue finally feel manageable.',
           author: 'Product designer'
         },
         {
@@ -99,22 +99,22 @@ export const messages = {
       faqTitle: 'FAQ',
       faq: [
         {
-          q: 'Can I use Libro for personal reading only?',
-          a: 'Yes. Libro is built for personal reading systems and can scale with your habit.'
+          q: 'Can I use Negar for personal reading only?',
+          a: 'Yes. Negar is built for personal reading systems and can scale with your habit.'
         },
         {
           q: 'Are reminders real notifications?',
           a: 'Today, reminders are saved as preferences and surfaced in-app, with notification infrastructure ready for expansion.'
         },
         {
-          q: 'Does Libro support Persian?',
+          q: 'Does Negar support Persian?',
           a: 'Yes. English and Persian are fully supported, including RTL behavior.'
         }
       ],
       finalCtaTitle: 'Build a calmer, smarter reading routine',
       finalCtaSubtitle: 'Set up your workspace in minutes and keep momentum week after week.',
       footerTagline: 'A focused workspace for modern readers.',
-      footerRights: '© Libro. All rights reserved.'
+      footerRights: '© Negar. All rights reserved.'
     },
     auth: {
       createAccount: 'Create your account',
@@ -409,7 +409,7 @@ export const messages = {
   },
   fa: {
     common: {
-      appName: 'Libro',
+      appName: 'نگار',
       search: 'جستجو',
       details: 'جزئیات',
       save: 'ذخیره',
@@ -431,7 +431,7 @@ export const messages = {
       workspace: 'فضای کار',
       readingFlow: 'جریان مطالعه',
       account: 'حساب کاربری',
-      platformTitle: 'Libro',
+      platformTitle: 'نگار',
       platformSubtitle: 'همراه مطالعه‌ات؛ ساده، مرتب و بی‌حاشیه.',
       focusMode: 'حالت تمرکز'
     },
@@ -439,7 +439,7 @@ export const messages = {
       eyebrow: 'مطالعه‌ات را ساده و پیوسته نگه دار',
       title: 'کتاب خواندن را به یک عادت واقعی تبدیل کن.',
       subtitle:
-        'Libro کمک می‌کند کتاب‌هایت را مرتب کنی، پیشرفتت را ببینی و بدون شلوغی، مسیر مطالعه‌ات را جلو ببری.',
+        'نگار کمک می‌کند کتاب‌هایت را مرتب کنی، پیشرفتت را ببینی و بدون شلوغی، مسیر مطالعه‌ات را جلو ببری.',
       ctaPrimary: 'شروع رایگان',
       ctaSecondary: 'ورود',
       productPreview: 'نمای کلی محصول',
@@ -488,7 +488,7 @@ export const messages = {
       ],
       trustTitle: 'نظر کاربران (دسترسی اولیه)',
       testimonials: [
-        { quote: 'Libro کاری کرد بالاخره بتوانم لیست مطالعه‌ام را مدیریت کنم.', author: 'طراح محصول' },
+        { quote: 'نگار کاری کرد بالاخره بتوانم لیست مطالعه‌ام را مدیریت کنم.', author: 'طراح محصول' },
         {
           quote: 'نشانه‌های هفتگی ساده‌اند و واقعاً کمک می‌کنند.',
           author: 'دانشجوی تحصیلات تکمیلی'
@@ -498,8 +498,8 @@ export const messages = {
       faqTitle: 'سوالات متداول',
       faq: [
         {
-          q: 'می‌شود Libro را فقط برای مطالعه شخصی استفاده کرد؟',
-          a: 'بله. Libro برای مطالعه شخصی ساخته شده و با ریتم تو هماهنگ می‌شود.'
+          q: 'می‌شود نگار را فقط برای مطالعه شخصی استفاده کرد؟',
+          a: 'بله. نگار برای مطالعه شخصی ساخته شده و با ریتم تو هماهنگ می‌شود.'
         },
         {
           q: 'یادآورها اعلان واقعی هم هستند؟',
@@ -513,7 +513,7 @@ export const messages = {
       finalCtaTitle: 'مطالعه‌ات را ساده، منظم و قابل‌ادامه کن',
       finalCtaSubtitle: 'در چند دقیقه شروع کن و قدم‌به‌قدم ریتم مطالعه‌ات را نگه دار.',
       footerTagline: 'همراه ساده و کاربردی برای خواندن روزانه.',
-      footerRights: '© Libro. همهٔ حقوق محفوظ است.'
+      footerRights: '© نگار. همهٔ حقوق محفوظ است.'
     },
     auth: {
       createAccount: 'ایجاد حساب کاربری',

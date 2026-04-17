@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	appLogger, err := logger.New("libro-backend", cfg.AppEnv, cfg.LogLevel)
+	appLogger, err := logger.New("negar-backend", cfg.AppEnv, cfg.LogLevel)
 	if err != nil {
 		_, _ = os.Stderr.WriteString("logger_init_failed: " + err.Error() + "\n")
 		os.Exit(1)

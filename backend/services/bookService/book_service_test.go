@@ -71,7 +71,7 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		bookID: {
 			ID:         bookID,
 			UserID:     userID,
-			Title:      "Libro",
+			Title:      "Negar",
 			Author:     "Author",
 			TotalPages: 220,
 			Status:     constants.BookStatusInLibrary,

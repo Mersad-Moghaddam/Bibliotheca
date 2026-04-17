@@ -33,7 +33,7 @@ function LocaleHarness() {
 
 describe('ReadingInsightsCard', () => {
   it('renders localized Persian copy without English leakage', () => {
-    localStorage.setItem('libro.locale', 'fa')
+    localStorage.setItem('negar.locale', 'fa')
     render(
       <I18nProvider>
         <ReadingInsightsCard insight={readyInsight} isLoading={false} isError={false} onRetry={() => {}} />
@@ -46,7 +46,7 @@ describe('ReadingInsightsCard', () => {
 
   it('updates strings correctly when language changes after initial render', async () => {
     const user = userEvent.setup()
-    localStorage.setItem('libro.locale', 'en')
+    localStorage.setItem('negar.locale', 'en')
 
     render(
       <I18nProvider>
@@ -61,7 +61,7 @@ describe('ReadingInsightsCard', () => {
   })
 
   it('renders loading and error states', () => {
-    localStorage.setItem('libro.locale', 'en')
+    localStorage.setItem('negar.locale', 'en')
     const { rerender } = render(
       <I18nProvider>
         <ReadingInsightsCard insight={{ ...readyInsight, state: 'loading' }} isLoading={true} isError={false} onRetry={() => {}} />

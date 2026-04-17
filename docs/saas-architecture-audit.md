@@ -1,4 +1,4 @@
-# Libro Senior Architecture & UX Audit (Phase 0)
+# Negar Senior Architecture & UX Audit (Phase 0)
 
 ## Scope audited
 - Frontend app shell, routing, pages, API client, UI primitives.

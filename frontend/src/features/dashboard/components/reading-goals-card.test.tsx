@@ -38,7 +38,7 @@ const goals = {
 
 describe('ReadingGoalsCard', () => {
   it('renders localized Persian labels', () => {
-    localStorage.setItem('libro.locale', 'fa')
+    localStorage.setItem('negar.locale', 'fa')
     render(
       <I18nProvider>
         <ReadingGoalsCard goals={goals} isSaving={false} onSave={async () => {}} />
@@ -53,7 +53,7 @@ describe('ReadingGoalsCard', () => {
 
 
   it('uses localized fallback reason when reasonKey is missing', () => {
-    localStorage.setItem('libro.locale', 'fa')
+    localStorage.setItem('negar.locale', 'fa')
     const noKeyGoals = {
       ...goals,
       suggestions: [{ ...goals.suggestions[0], reasonKey: undefined }]
@@ -70,7 +70,7 @@ describe('ReadingGoalsCard', () => {
   })
 
   it('applies suggestion into editable form', async () => {
-    localStorage.setItem('libro.locale', 'en')
+    localStorage.setItem('negar.locale', 'en')
     const onSave = vi.fn(async () => {})
     const user = userEvent.setup()
     render(

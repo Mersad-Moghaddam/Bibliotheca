@@ -1,6 +1,6 @@
-# Libro Backend
+# Negar Backend
 
-Production-hardened Fiber + MySQL + Redis backend for Libro.
+Production-hardened Fiber + MySQL + Redis backend for Negar.
 
 ## Key Runtime Guarantees
 

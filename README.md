@@ -1,10 +1,10 @@
-# Libro
+# Negar
 
-Libro is a reading-tracker monorepo built for teams who want a practical, production-oriented full-stack baseline: a Go/Fiber API, a React/Vite web app, Dockerized infra, and CI checks.
+Negar is a reading-tracker monorepo built for teams who want a practical, production-oriented full-stack baseline: a Go/Fiber API, a React/Vite web app, Dockerized infra, and CI checks.
 
 ## 1) Project overview
 
-Libro helps users track their reading journey across books, sessions, goals, wishlist items, and profile preferences. It emphasizes fast iteration for product teams while keeping deployment and operations straightforward.
+Negar helps users track their reading journey across books, sessions, goals, wishlist items, and profile preferences. It emphasizes fast iteration for product teams while keeping deployment and operations straightforward.
 
 ## 2) Product purpose
 
@@ -238,11 +238,11 @@ Real screenshots from the running app's landing page in both supported locales.
 
 ### Home page (English)
 
-<img src="docs/screenshots/home-en.svg" alt="Libro home page in English" width="1100" />
+<img src="docs/screenshots/home-en.svg" alt="Negar home page in English" width="1100" />
 
 ### Home page (Persian)
 
-<img src="docs/screenshots/home-fa.svg" alt="Libro home page in Persian (RTL)" width="1100" />
+<img src="docs/screenshots/home-fa.svg" alt="Negar home page in Persian (RTL)" width="1100" />
 
 ## 21) Contribution guidance
 

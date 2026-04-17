@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 
 import { authStore } from '../authStore'
 
-const storageKey = 'libro.auth'
+const storageKey = 'negar.auth'
+const legacyStorageKey = 'libro.auth'
 
 describe('authStore', () => {
   beforeEach(() => {
@@ -53,5 +54,27 @@ describe('authStore', () => {
     expect(authStore.getState().accessToken).toBeNull()
     expect(authStore.getState().refreshToken).toBeNull()
     expect(localStorage.getItem(storageKey)).toBeNull()
+  })
+
+  it('hydrates from legacy storage key and migrates to the new key', () => {
+    localStorage.setItem(
+      legacyStorageKey,
+      JSON.stringify({
+        user: { id: 'u-4', name: 'Mina', email: 'mina@example.com' },
+        accessToken: 'legacy-access',
+        refreshToken: 'legacy-refresh'
+      })
+    )
+
+    authStore.getState().hydrate()
+
+    const state = authStore.getState()
+    expect(state.user?.email).toBe('mina@example.com')
+    expect(state.accessToken).toBe('legacy-access')
+    expect(state.refreshToken).toBe('legacy-refresh')
+    expect(JSON.parse(localStorage.getItem(storageKey) ?? '{}')).toMatchObject({
+      accessToken: 'legacy-access',
+      refreshToken: 'legacy-refresh'
+    })
   })
 })

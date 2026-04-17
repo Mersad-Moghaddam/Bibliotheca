@@ -39,7 +39,7 @@ export function Landing() {
     <div className={wrap}>
       <div className="mx-auto mb-4 flex max-w-6xl items-center justify-between gap-3 sm:mb-8">
         <div>
-          <p className="text-2xl font-semibold tracking-tight text-foreground">Libro</p>
+          <p className="text-2xl font-semibold tracking-tight text-foreground">Negar</p>
           <p className="text-xs text-mutedForeground">{t('landing.eyebrow')}</p>
         </div>
         <div className="flex items-center gap-2">
