@@ -9,6 +9,7 @@ const Landing = lazy(() => import('./pages/AuthPages').then((m) => ({ default: m
 const Login = lazy(() => import('./pages/AuthPages').then((m) => ({ default: m.Login })))
 const Register = lazy(() => import('./pages/AuthPages').then((m) => ({ default: m.Register })))
 const Dashboard = lazy(() => import('./pages/AppPages').then((m) => ({ default: m.Dashboard })))
+const Coach = lazy(() => import('./pages/AppPages').then((m) => ({ default: m.Coach })))
 const Library = lazy(() => import('./pages/AppPages').then((m) => ({ default: m.Library })))
 const Reading = lazy(() => import('./pages/AppPages').then((m) => ({ default: m.Reading })))
 const Finished = lazy(() => import('./pages/AppPages').then((m) => ({ default: m.Finished })))
@@ -41,14 +42,78 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<AppProtectedPage><Dashboard /></AppProtectedPage>} />
-        <Route path="/library" element={<AppProtectedPage><Library /></AppProtectedPage>} />
-        <Route path="/reading" element={<AppProtectedPage><Reading /></AppProtectedPage>} />
-        <Route path="/finished" element={<AppProtectedPage><Finished /></AppProtectedPage>} />
-        <Route path="/next" element={<AppProtectedPage><Next /></AppProtectedPage>} />
-        <Route path="/wishlist" element={<AppProtectedPage><Wishlist /></AppProtectedPage>} />
-        <Route path="/books/:id" element={<AppProtectedPage><BookDetailsRoute /></AppProtectedPage>} />
-        <Route path="/profile" element={<AppProtectedPage><Profile /></AppProtectedPage>} />
+        <Route
+          path="/dashboard"
+          element={
+            <AppProtectedPage>
+              <Dashboard />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/coach"
+          element={
+            <AppProtectedPage>
+              <Coach />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/library"
+          element={
+            <AppProtectedPage>
+              <Library />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/reading"
+          element={
+            <AppProtectedPage>
+              <Reading />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/finished"
+          element={
+            <AppProtectedPage>
+              <Finished />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/next"
+          element={
+            <AppProtectedPage>
+              <Next />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <AppProtectedPage>
+              <Wishlist />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/books/:id"
+          element={
+            <AppProtectedPage>
+              <BookDetailsRoute />
+            </AppProtectedPage>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <AppProtectedPage>
+              <Profile />
+            </AppProtectedPage>
+          }
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Suspense>

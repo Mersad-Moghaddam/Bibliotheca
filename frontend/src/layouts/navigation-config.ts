@@ -5,11 +5,13 @@ import {
   BookOpen,
   CircleUserRound,
   Compass,
-  Library
+  Library,
+  Sparkles
 } from 'lucide-react'
 
 export const navigationLinks = [
   { to: '/dashboard', labelKey: 'nav.dashboard', icon: Compass, section: 'core' },
+  { to: '/coach', labelKey: 'nav.coach', icon: Sparkles, section: 'core' },
   { to: '/library', labelKey: 'nav.library', icon: Library, section: 'core' },
   { to: '/reading', labelKey: 'nav.reading', icon: BookOpen, section: 'flow' },
   { to: '/finished', labelKey: 'nav.finished', icon: BookCheck, section: 'flow' },

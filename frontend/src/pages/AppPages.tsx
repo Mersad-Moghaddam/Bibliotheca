@@ -1,4 +1,5 @@
 export { Dashboard } from './app/dashboard-page'
+export { Coach } from './app/coach-page'
 export { Library } from './app/library-page'
 export { Reading, Finished, Next } from './app/book-status-page'
 export { Wishlist } from './app/wishlist-page'
