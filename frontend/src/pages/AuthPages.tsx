@@ -24,8 +24,11 @@ import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
 const wrap = 'app-shell min-h-screen px-3 py-5 sm:px-4 sm:py-7 md:px-8 md:py-10'
 const formCard = 'mx-auto w-full max-w-md space-y-5 p-4 sm:p-6 md:p-7'
 
-const FieldError = ({ message }: { message?: string }) =>
-  message ? <p className="mt-1 text-xs text-destructive">{message}</p> : null
+const FieldError = ({ message }: { message?: string }) => {
+  const { t } = useI18n()
+  if (!message) return null
+  return <p className="mt-1 text-xs text-destructive">{message.startsWith('validation.') ? t(message) : message}</p>
+}
 
 export function Landing() {
   const { t, tm } = useI18n()

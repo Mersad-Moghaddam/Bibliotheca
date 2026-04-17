@@ -1,6 +1,7 @@
 import { LibraryBig, Sparkles } from 'lucide-react'
 
 import { Card } from '../../../components/ui/card'
+import { useI18n } from '../../../shared/i18n/i18n-provider'
 
 export const statusOptions = ['inLibrary', 'currentlyReading', 'finished', 'nextToRead'] as const
 
@@ -9,8 +10,9 @@ export function PageHeading({ title }: { title: string }) {
 }
 
 export function FieldError({ message }: { message?: string }) {
+  const { t } = useI18n()
   if (!message) return null
-  return <p className="mt-1 text-xs text-destructive">{message}</p>
+  return <p className="mt-1 text-xs text-destructive">{message.startsWith('validation.') ? t(message) : message}</p>
 }
 
 export function FieldBlock({
