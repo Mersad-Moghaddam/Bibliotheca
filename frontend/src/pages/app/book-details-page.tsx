@@ -102,9 +102,25 @@ export function BookDetails({ id }: { id: string }) {
     month: 'short',
     day: 'numeric'
   })
+  const calendarDateFormatter = new Intl.DateTimeFormat(locale === 'fa' ? 'fa-IR' : 'en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC'
+  })
 
   const formatDate = (value: string | null) => {
     if (!value) return '—'
+    return dateFormatter.format(new Date(value))
+  }
+  const formatCalendarDate = (value: string | null) => {
+    if (!value) return '—'
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return calendarDateFormatter.format(new Date(`${value}T00:00:00Z`))
+    }
+    if (/T00:00:00(?:\\.\\d+)?Z$/.test(value)) {
+      return calendarDateFormatter.format(new Date(value))
+    }
     return dateFormatter.format(new Date(value))
   }
 
@@ -166,7 +182,7 @@ export function BookDetails({ id }: { id: string }) {
               value={numberFormatter.format(book.remainingPages)}
             />
             <MiniStat
-              label={t('books.sessionsCountLabel')}
+              label={t('books.recentSessionsCountLabel')}
               value={numberFormatter.format(sessionsForBook.length)}
             />
             <MiniStat label={t('books.notesCountLabel')} value={numberFormatter.format(notes.length)} />
@@ -213,7 +229,7 @@ export function BookDetails({ id }: { id: string }) {
           {recentSessions.map((session) => (
             <div key={session.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
               <div className="flex items-center justify-between gap-2">
-                <p className="font-medium">{formatDate(session.date)}</p>
+                <p className="font-medium">{formatCalendarDate(session.date)}</p>
                 <p className="text-mutedForeground">
                   {numberFormatter.format(session.pagesRead)} {t('books.pagesShortLabel')}
                 </p>
@@ -238,23 +254,8 @@ export function BookDetails({ id }: { id: string }) {
         <div className="space-y-2">
           {notes.slice(0, 2).map((n) => (
             <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
-              <div className="flex items-start gap-2">
-                <div className="flex-1">
-                  <p>{n.note}</p>
-                  {n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 w-8 rounded-md p-0 text-mutedForeground hover:text-destructive"
-                  onClick={() => {
-                    void deleteNote.mutateAsync(n.id)
-                  }}
-                  aria-label={t('books.delete')}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+              <p>{n.note}</p>
+              {n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}
             </div>
           ))}
           {!notes.length ? <p className="text-sm text-mutedForeground">{t('books.notesEmpty')}</p> : null}
@@ -307,11 +308,11 @@ export function BookDetails({ id }: { id: string }) {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MiniStat label={t('books.completedOn')} value={formatDate(book.completedAt)} />
             <MiniStat
-              label={t('books.loggedPagesLabel')}
+              label={t('books.recentLoggedPagesLabel')}
               value={numberFormatter.format(loggedPages || book.totalPages)}
             />
             <MiniStat
-              label={t('books.totalReadingTimeLabel')}
+              label={t('books.recentReadingTimeLabel')}
               value={`${numberFormatter.format(totalMinutes)} ${t('books.minutesLabel')}`}
             />
             <MiniStat label={t('books.notesCountLabel')} value={numberFormatter.format(notes.length)} />
