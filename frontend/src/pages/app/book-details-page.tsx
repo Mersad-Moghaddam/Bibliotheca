@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { BookCheck, ChevronDown, Clock3, NotebookPen } from 'lucide-react'
+import { BookCheck, ChevronDown, Clock3, NotebookPen, Quote } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -68,6 +68,7 @@ export function BookDetails({ id }: { id: string }) {
   const noteForm = useForm<{ note: string; highlight: string }>({
     defaultValues: { note: '', highlight: '' }
   })
+  const [captureHighlight, setCaptureHighlight] = useState(false)
   const [recentlyClickedStatus, setRecentlyClickedStatus] = useState<BookStatus | null>(null)
 
   useEffect(() => {
@@ -92,6 +93,8 @@ export function BookDetails({ id }: { id: string }) {
   const timeline = buildBookTimeline(sessionsForBook, book.currentPage ?? 0, book.totalPages)
   const recentTimeline = timeline.items.slice(0, 6)
   const notes = notesQuery.data ?? []
+  const notesWithHighlights = notes.filter((note) => Boolean(note.highlight?.trim()))
+  const notesWithoutHighlights = notes.filter((note) => !note.highlight?.trim())
 
   const loggedPages = sessionsForBook.reduce((sum, session) => sum + session.pagesRead, 0)
   const totalMinutes = sessionsForBook.reduce((sum, session) => sum + session.duration, 0)
@@ -299,13 +302,24 @@ export function BookDetails({ id }: { id: string }) {
           icon={<NotebookPen className="h-4 w-4" />}
         />
         <div className="space-y-2">
-          {notes.slice(0, 2).map((n) => (
+          {notes.slice(0, 3).map((n) => (
             <div key={n.id} className="rounded-xl border border-border bg-surface p-3 text-sm">
+              <div className="mb-1 flex items-center gap-2 text-xs text-mutedForeground">
+                <span className="rounded-full border border-border px-2 py-0.5">
+                  {n.highlight ? t('books.noteTypeHighlight') : t('books.noteTypeNote')}
+                </span>
+                <span>{formatDate(n.createdAt)}</span>
+              </div>
               <p>{n.note}</p>
               {n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}
             </div>
           ))}
-          {!notes.length ? <p className="text-sm text-mutedForeground">{t('books.notesEmpty')}</p> : null}
+          {!notes.length ? (
+            <div className="rounded-xl border border-dashed border-border bg-surface p-4 text-sm text-mutedForeground">
+              <p className="font-medium text-foreground">{t('books.notesEmptyTitle')}</p>
+              <p className="mt-1">{t('books.notesEmpty')}</p>
+            </div>
+          ) : null}
         </div>
 
         <details className="group rounded-xl border border-border bg-surface p-3">
@@ -317,30 +331,76 @@ export function BookDetails({ id }: { id: string }) {
             <form
               className="space-y-2"
               onSubmit={noteForm.handleSubmit(async (values) => {
-                await addNote.mutateAsync(values)
+                const note = values.note.trim()
+                const highlight = values.highlight.trim()
+                if (!note) return
+                await addNote.mutateAsync({ note, highlight: highlight || undefined })
                 noteForm.reset()
+                setCaptureHighlight(false)
               })}
             >
               <FieldBlock label={t('books.noteLabel')}>
                 <Textarea placeholder={t('books.notePlaceholder')} {...noteForm.register('note')} />
               </FieldBlock>
-              <FieldBlock label={t('books.highlightLabel')}>
-                <Input
-                  placeholder={t('books.highlightPlaceholder')}
-                  {...noteForm.register('highlight')}
-                />
-              </FieldBlock>
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 text-xs font-medium text-mutedForeground hover:text-foreground"
+                onClick={() => {
+                  setCaptureHighlight((value) => !value)
+                  if (captureHighlight) noteForm.setValue('highlight', '')
+                }}
+              >
+                <Quote className="h-3.5 w-3.5" />
+                {captureHighlight ? t('books.removeHighlightField') : t('books.addHighlightField')}
+              </button>
+              {captureHighlight ? (
+                <FieldBlock label={t('books.highlightLabel')}>
+                  <Input
+                    placeholder={t('books.highlightPlaceholder')}
+                    {...noteForm.register('highlight')}
+                  />
+                </FieldBlock>
+              ) : null}
               <Button type="submit" size="sm" className="w-full sm:w-auto">
                 {t('books.saveNote')}
               </Button>
             </form>
 
-            {notes.slice(2).map((n) => (
-              <div key={n.id} className="rounded-xl border border-border bg-background p-3 text-sm">
-                <p>{n.note}</p>
-                {n.highlight ? <p className="mt-1 text-mutedForeground">“{n.highlight}”</p> : null}
+            {notes.length ? (
+              <div className="space-y-3">
+                {notesWithHighlights.length ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-wide text-mutedForeground">
+                      {t('books.highlightsGroupLabel', {
+                        count: numberFormatter.format(notesWithHighlights.length)
+                      })}
+                    </p>
+                    {notesWithHighlights.map((n) => (
+                      <div key={n.id} className="rounded-xl border border-border bg-background p-3 text-sm">
+                        <p>{n.note}</p>
+                        <p className="mt-1 text-mutedForeground">“{n.highlight}”</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {notesWithoutHighlights.length ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-wide text-mutedForeground">
+                      {t('books.notesGroupLabel', {
+                        count: numberFormatter.format(notesWithoutHighlights.length)
+                      })}
+                    </p>
+                    {notesWithoutHighlights.map((n) => (
+                      <div key={n.id} className="rounded-xl border border-border bg-background p-3 text-sm">
+                        <p>{n.note}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            ))}
+            ) : (
+              <p className="text-sm text-mutedForeground">{t('books.notesCaptureHint')}</p>
+            )}
           </div>
         </details>
       </SectionCard>

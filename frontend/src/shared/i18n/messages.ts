@@ -458,10 +458,18 @@ export const messages = {
       updateError: 'Failed to update book details.',
       noteLabel: 'Your reading note',
       highlightLabel: 'Optional highlight',
-      notePlaceholder: 'Your note',
+      notePlaceholder: 'What stood out while reading?',
       highlightPlaceholder: 'Optional quote/highlight',
+      addHighlightField: 'Add a quote',
+      removeHighlightField: 'Remove quote',
+      noteTypeNote: 'Note',
+      noteTypeHighlight: 'Highlight',
+      highlightsGroupLabel: 'Highlights ({count})',
+      notesGroupLabel: 'Notes ({count})',
       saveNote: 'Save note',
-      notesEmpty: 'No notes yet. Capture your first thought from this book.'
+      notesEmptyTitle: 'No notes yet',
+      notesEmpty: 'Capture your first thought from this book.',
+      notesCaptureHint: 'Keep it simple: one thought, one quote, then continue reading.'
     },
     query: {
       errorTitle: 'Something went wrong',
@@ -927,10 +935,18 @@ export const messages = {
       updateError: 'به‌روزرسانی مشخصات کتاب ناموفق بود.',
       noteLabel: 'یادداشت مطالعه',
       highlightLabel: 'نکتهٔ مهم (اختیاری)',
-      notePlaceholder: 'یادداشت شما',
+      notePlaceholder: 'هنگام مطالعه چه چیزی برایت مهم بود؟',
       highlightPlaceholder: 'یک نقل‌قول یا نکتهٔ مهم (اختیاری)',
+      addHighlightField: 'افزودن نقل‌قول',
+      removeHighlightField: 'حذف نقل‌قول',
+      noteTypeNote: 'یادداشت',
+      noteTypeHighlight: 'هایلایت',
+      highlightsGroupLabel: 'هایلایت‌ها ({count})',
+      notesGroupLabel: 'یادداشت‌ها ({count})',
       saveNote: 'ذخیره یادداشت',
-      notesEmpty: 'هنوز یادداشتی ثبت نشده است. اولین برداشتت را بنویس.'
+      notesEmptyTitle: 'هنوز یادداشتی ثبت نشده',
+      notesEmpty: 'اولین برداشتت را از این کتاب ثبت کن.',
+      notesCaptureHint: 'ساده نگه‌دار: یک فکر کوتاه، یک نقل‌قول اختیاری، و ادامهٔ مطالعه.'
     },
     query: {
       errorTitle: 'مشکلی پیش آمد',
