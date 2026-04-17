@@ -34,7 +34,7 @@ import { BookStatus } from '../../types'
 import { BookCover, FieldBlock, FieldError, statusOptions } from './shared/page-primitives'
 
 export function BookDetails({ id }: { id: string }) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const toast = useToast()
   const nav = useNavigate()
   const query = useBookQuery(id)
@@ -92,6 +92,7 @@ export function BookDetails({ id }: { id: string }) {
     }, 500)
     await updateStatus.mutateAsync({ id: book.id, status })
   }
+  const numberFormatter = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US')
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -106,7 +107,8 @@ export function BookDetails({ id }: { id: string }) {
           <BookCover title={book.title} coverUrl={book.coverUrl} />
           <div className="min-w-0 space-y-2">
             <p>
-              {t('books.readingProgress')}: {Math.round(book.progressPercentage)}%
+              {t('books.readingProgress')}:{' '}
+              {numberFormatter.format(Math.round(book.progressPercentage))}%
             </p>
             <Progress value={book.progressPercentage} />
             <div className="flex flex-wrap gap-2 text-xs text-mutedForeground">

@@ -97,7 +97,7 @@ export function Dashboard() {
                 </div>
               </div>
               <Badge className="border-primary/20 bg-primary/10 text-foreground">
-                {Math.round(activeBook.progressPercentage)}%
+                {numberFormatter.format(Math.round(activeBook.progressPercentage))}%
               </Badge>
             </div>
             <Progress value={activeBook.progressPercentage} />

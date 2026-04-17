@@ -109,8 +109,17 @@ export function Coach() {
       <SectionCard>
         <SectionHeader title={t('coach.rhythmTitle')} description={t('coach.rhythmDescription')} />
         <div className="space-y-2 text-sm text-mutedForeground">
-          <p>{t('coach.weeklyPages', { current: weeklyPagesRead, target: weeklyPagesGoal })}</p>
-          <p>{t('coach.weeklySessions', { count: sessionsQuery.data?.length ?? 0 })}</p>
+          <p>
+            {t('coach.weeklyPages', {
+              current: numberFormatter.format(weeklyPagesRead),
+              target: numberFormatter.format(weeklyPagesGoal)
+            })}
+          </p>
+          <p>
+            {t('coach.weeklySessions', {
+              count: numberFormatter.format(sessionsQuery.data?.length ?? 0)
+            })}
+          </p>
           {reminderQuery.data ? (
             <p>
               {reminderQuery.data.enabled
@@ -142,7 +151,7 @@ export function Coach() {
               </div>
               <div className="metric-tile">
                 <p>{t('dashboard.completionRate')}</p>
-                <p>{analyticsQuery.data.base.completionRate}%</p>
+                <p>{numberFormatter.format(analyticsQuery.data.base.completionRate)}%</p>
               </div>
               <div className="metric-tile">
                 <p>{t('dashboard.readingPace')}</p>
@@ -150,7 +159,7 @@ export function Coach() {
               </div>
               <div className="metric-tile">
                 <p>{t('dashboard.consistency')}</p>
-                <p>{analyticsQuery.data.consistencyScore}%</p>
+                <p>{numberFormatter.format(analyticsQuery.data.consistencyScore)}%</p>
               </div>
             </div>
           ) : null}
