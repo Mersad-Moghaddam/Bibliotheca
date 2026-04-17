@@ -207,6 +207,11 @@ export const messages = {
       },
       noActiveTitle: 'No active books yet',
       noActiveDescription: 'Move a title to Currently Reading to start seeing your progress here.',
+      coachHubTitle: 'Reading coach',
+      coachHubDesc: 'Insights, analytics, and goals now live in one calm place.',
+      coachHubBody:
+        'Open Reading Coach to review suggestions, study your reading stats, and adjust goals.',
+      openCoach: 'Open reading coach',
       goLibrary: 'Go to library',
       needsAttention: 'Needs attention',
       tidyTitle: 'Everything is tidy',
@@ -620,6 +625,11 @@ export const messages = {
       },
       noActiveTitle: 'فعلاً کتاب فعالی نداری',
       noActiveDescription: 'یک کتاب را به «در حال مطالعه» ببر تا این بخش فعال شود.',
+      coachHubTitle: 'مربی مطالعه',
+      coachHubDesc: 'پیشنهادها، آمار و اهداف حالا در یک فضای خلوت کنار هم هستند.',
+      coachHubBody:
+        'مربی مطالعه را باز کن تا پیشنهادها را ببینی، آمار را مرور کنی و هدف‌ها را تنظیم کنی.',
+      openCoach: 'باز کردن مربی مطالعه',
       goLibrary: 'برو به کتابخانه',
       needsAttention: 'نیازمند توجه',
       tidyTitle: 'همه‌چیز مرتب است',

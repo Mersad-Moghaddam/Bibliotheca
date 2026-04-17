@@ -3,26 +3,30 @@ import { Link } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 import { SectionCard } from '../../components/ui/card'
 import { SectionHeader } from '../../components/ui/section-header'
+import { useBooksQuery } from '../../features/books/queries/use-books'
+import { ReadingGoalsCard } from '../../features/dashboard/components/reading-goals-card'
 import { ReadingInsightsCard } from '../../features/dashboard/components/reading-insights-card'
 import { buildReadingInsight } from '../../features/dashboard/insights/insight-engine'
 import {
   useDashboardAnalytics,
   useDashboardReminder,
   useGoalProgress,
+  useSaveGoalMutation,
   useSessions
 } from '../../features/dashboard/queries/use-dashboard'
-import { useBooksQuery } from '../../features/books/queries/use-books'
+import { QueryState } from '../../shared/components/query-state'
 import { useI18n } from '../../shared/i18n/i18n-provider'
 
 import { PageHeading } from './shared/page-primitives'
 
 export function Coach() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const booksQuery = useBooksQuery()
   const analyticsQuery = useDashboardAnalytics()
   const goalsQuery = useGoalProgress()
   const sessionsQuery = useSessions()
   const reminderQuery = useDashboardReminder()
+  const saveGoal = useSaveGoalMutation()
 
   const readingInsight = buildReadingInsight({
     books: booksQuery.data ?? [],
@@ -53,6 +57,7 @@ export function Coach() {
 
   const weeklyPagesRead = goalsQuery.data?.weekly.pagesRead ?? 0
   const weeklyPagesGoal = goalsQuery.data?.weekly.targetPages ?? 0
+  const numberFormatter = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US')
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -114,6 +119,53 @@ export function Coach() {
             </p>
           ) : null}
         </div>
+      </SectionCard>
+
+      <SectionCard>
+        <SectionHeader
+          title={t('dashboard.analyticsTitle')}
+          description={t('dashboard.analyticsDesc')}
+        />
+        <QueryState
+          isLoading={analyticsQuery.isLoading}
+          isError={analyticsQuery.isError}
+          isEmpty={!analyticsQuery.data}
+          emptyTitle={t('dashboard.emptyAnalyticsTitle')}
+          emptyDescription={t('dashboard.emptyAnalyticsDescription')}
+          onRetry={() => void analyticsQuery.refetch()}
+        >
+          {analyticsQuery.data ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="metric-tile">
+                <p>{t('dashboard.totalPagesRead')}</p>
+                <p>{numberFormatter.format(analyticsQuery.data.base.totalPagesRead)}</p>
+              </div>
+              <div className="metric-tile">
+                <p>{t('dashboard.completionRate')}</p>
+                <p>{analyticsQuery.data.base.completionRate}%</p>
+              </div>
+              <div className="metric-tile">
+                <p>{t('dashboard.readingPace')}</p>
+                <p>{numberFormatter.format(analyticsQuery.data.base.readingPacePerMonth)}</p>
+              </div>
+              <div className="metric-tile">
+                <p>{t('dashboard.consistency')}</p>
+                <p>{analyticsQuery.data.consistencyScore}%</p>
+              </div>
+            </div>
+          ) : null}
+        </QueryState>
+      </SectionCard>
+
+      <SectionCard>
+        <SectionHeader title={t('dashboard.goalsTitle')} description={t('dashboard.goalsDesc')} />
+        <ReadingGoalsCard
+          goals={goalsQuery.data}
+          isSaving={saveGoal.isPending}
+          onSave={async (payload) => {
+            await saveGoal.mutateAsync(payload)
+          }}
+        />
       </SectionCard>
     </div>
   )
