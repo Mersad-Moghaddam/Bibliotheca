@@ -77,7 +77,10 @@ export function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => 
       >
         <div className="mb-3 flex items-center justify-between gap-3 border-b border-border pb-3">
           <div className="min-w-0">
-            <p id={labelId} className="truncate text-xs font-medium uppercase tracking-wide text-mutedForeground">
+            <p
+              id={labelId}
+              className="truncate text-xs font-medium uppercase tracking-wide text-mutedForeground opacity-0"
+            >
               {t('nav.workspace')}
             </p>
             <BrandBlock compact />
