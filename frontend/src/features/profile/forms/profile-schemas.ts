@@ -1,17 +1,17 @@
 import { z } from 'zod'
 
 export const nameSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters')
+  name: z.string().min(2, 'validation.nameMin')
 })
 
 export const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(6, 'New password must be at least 6 characters')
+  currentPassword: z.string().min(1, 'validation.currentPasswordRequired'),
+  newPassword: z.string().min(6, 'validation.newPasswordMin')
 })
 
 export const reminderSchema = z.object({
   enabled: z.boolean(),
-  time: z.string().min(1, 'Time is required'),
+  time: z.string().min(1, 'validation.timeRequired'),
   frequency: z.enum(['daily', 'weekdays', 'weekends', 'weekly'])
 })
 

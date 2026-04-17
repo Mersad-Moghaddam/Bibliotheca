@@ -1,20 +1,20 @@
 import { z } from 'zod'
 
 export const loginSchema = z.object({
-  email: z.string().email('Enter a valid email'),
-  password: z.string().min(1, 'Password is required')
+  email: z.string().email('validation.validEmail'),
+  password: z.string().min(1, 'validation.passwordRequired')
 })
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Enter a valid email'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string().min(6, 'Confirm your password')
+    name: z.string().min(2, 'validation.nameMin'),
+    email: z.string().email('validation.validEmail'),
+    password: z.string().min(6, 'validation.passwordMin'),
+    confirmPassword: z.string().min(6, 'validation.confirmPasswordRequired')
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ['confirmPassword'],
-    message: 'Passwords do not match'
+    message: 'validation.passwordMismatch'
   })
 
 export type LoginFormValues = z.infer<typeof loginSchema>
