@@ -120,7 +120,6 @@ export function Landing() {
 function AuthHeader() {
   return (
     <div className="mx-auto mb-3 flex w-full max-w-md justify-end gap-2 sm:mb-5">
-      <LanguageToggle />
       <ThemeToggle />
     </div>
   )
