@@ -89,13 +89,25 @@ func (s *Service) Update(ctx context.Context, b *book.Book) error {
 	}
 	return s.repo.Update(ctx, b)
 }
-func (s *Service) UpdateStatus(ctx context.Context, userID, id uuid.UUID, status string, finishRating *int, finishReflection, finishHighlight *string) (*book.Book, error) {
+func (s *Service) UpdateStatus(
+	ctx context.Context,
+	userID, id uuid.UUID,
+	status *string,
+	finishRating *int,
+	finishReflection, finishHighlight *string,
+	nextToReadFocus *bool,
+	nextToReadNote *string,
+) (*book.Book, error) {
 	b, err := s.repo.GetByID(ctx, userID, id)
 	if err != nil {
 		return nil, err
 	}
-	b.Status = status
-	if status == constants.BookStatusFinished {
+	nextStatus := b.Status
+	if status != nil {
+		nextStatus = *status
+	}
+	b.Status = nextStatus
+	if nextStatus == constants.BookStatusFinished {
 		now := time.Now()
 		b.CompletedAt = &now
 		cp := b.TotalPages
@@ -110,11 +122,37 @@ func (s *Service) UpdateStatus(ctx context.Context, userID, id uuid.UUID, status
 			b.FinishHighlight = finishHighlight
 		}
 	}
-	if status == constants.BookStatusCurrentlyRead && b.CurrentPage == nil {
+	if nextStatus == constants.BookStatusCurrentlyRead && b.CurrentPage == nil {
 		v := 0
 		b.CurrentPage = &v
 	}
-	if status == constants.BookStatusNextToRead || status == constants.BookStatusInLibrary {
+	if nextStatus == constants.BookStatusNextToRead {
+		b.CompletedAt = nil
+		b.CurrentPage = nil
+		b.FinishRating = nil
+		b.FinishReflection = nil
+		b.FinishHighlight = nil
+		if nextToReadNote != nil {
+			if *nextToReadNote == "" {
+				b.NextToReadNote = nil
+			} else {
+				b.NextToReadNote = nextToReadNote
+			}
+		}
+		if nextToReadFocus != nil {
+			b.NextToReadFocus = *nextToReadFocus
+		}
+		if b.NextToReadFocus {
+			if err := s.repo.ClearNextToReadFocus(ctx, userID, &b.ID); err != nil {
+				return nil, err
+			}
+		}
+	}
+	if nextStatus == constants.BookStatusInLibrary || nextStatus == constants.BookStatusCurrentlyRead || nextStatus == constants.BookStatusFinished {
+		b.NextToReadFocus = false
+		b.NextToReadNote = nil
+	}
+	if nextStatus == constants.BookStatusInLibrary {
 		b.CompletedAt = nil
 		b.CurrentPage = nil
 		b.FinishRating = nil

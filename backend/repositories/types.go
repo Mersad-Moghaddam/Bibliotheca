@@ -56,6 +56,7 @@ type BookRepository interface {
 	Create(ctx context.Context, b *book.Book) error
 	GetByID(ctx context.Context, userID, bookID uuid.UUID) (*book.Book, error)
 	Update(ctx context.Context, b *book.Book) error
+	ClearNextToReadFocus(ctx context.Context, userID uuid.UUID, exceptBookID *uuid.UUID) error
 	Delete(ctx context.Context, userID, bookID uuid.UUID) error
 	SummaryCounts(ctx context.Context, userID uuid.UUID) (map[string]int64, error)
 	Recent(ctx context.Context, userID uuid.UUID, limit int) ([]book.Book, error)

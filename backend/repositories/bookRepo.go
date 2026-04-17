@@ -41,7 +41,12 @@ func (r *bookRepo) List(ctx context.Context, userID uuid.UUID, filter BookFilter
 	if filter.Order != "" {
 		order = filter.Order
 	}
-	query := q.Order(fmt.Sprintf("%s %s", orderBy, order))
+	query := q
+	if filter.Status == constants.BookStatusNextToRead && orderBy == "updated_at" {
+		query = query.Order("next_to_read_focus DESC").Order("updated_at DESC")
+	} else {
+		query = query.Order(fmt.Sprintf("%s %s", orderBy, order))
+	}
 	if filter.Limit > 0 {
 		query = query.Offset((filter.Page - 1) * filter.Limit).Limit(filter.Limit)
 	}
@@ -112,6 +117,17 @@ func (r *bookRepo) Update(ctx context.Context, b *book.Book) error {
 		return tx.Create(&event).Error
 	})
 }
+
+func (r *bookRepo) ClearNextToReadFocus(ctx context.Context, userID uuid.UUID, exceptBookID *uuid.UUID) error {
+	query := r.db.WithContext(ctx).
+		Model(&book.Book{}).
+		Where("user_id = ? AND next_to_read_focus = ?", userID, true)
+	if exceptBookID != nil {
+		query = query.Where("id <> ?", *exceptBookID)
+	}
+	return query.Update("next_to_read_focus", false).Error
+}
+
 func (r *bookRepo) Delete(ctx context.Context, userID, bookID uuid.UUID) error {
 	res := r.db.WithContext(ctx).Where("id = ? AND user_id = ?", bookID, userID).Delete(&book.Book{})
 	if res.Error != nil {

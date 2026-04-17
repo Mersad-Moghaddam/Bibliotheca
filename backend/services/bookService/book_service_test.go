@@ -47,6 +47,16 @@ func (f *fakeBookRepo) Update(_ context.Context, b *book.Book) error {
 	f.items[b.ID] = *b
 	return nil
 }
+func (f *fakeBookRepo) ClearNextToReadFocus(_ context.Context, _ uuid.UUID, exceptBookID *uuid.UUID) error {
+	for id, item := range f.items {
+		if exceptBookID != nil && id == *exceptBookID {
+			continue
+		}
+		item.NextToReadFocus = false
+		f.items[id] = item
+	}
+	return nil
+}
 
 func (f *fakeBookRepo) Delete(_ context.Context, _, _ uuid.UUID) error { return nil }
 func (f *fakeBookRepo) SummaryCounts(_ context.Context, _ uuid.UUID) (map[string]int64, error) {
@@ -82,7 +92,8 @@ func TestUpdateStatusTransitions(t *testing.T) {
 	}}
 	svc := New(repo)
 
-	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusCurrentlyRead, nil, nil, nil)
+	readingStatus := constants.BookStatusCurrentlyRead
+	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, &readingStatus, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to reading, got %v", err)
 	}
@@ -90,7 +101,8 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		t.Fatal("expected current page to initialize at zero")
 	}
 
-	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusFinished, nil, nil, nil)
+	finishedStatus := constants.BookStatusFinished
+	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, &finishedStatus, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to finished, got %v", err)
 	}
@@ -101,7 +113,8 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		t.Fatal("expected completedAt to be set")
 	}
 
-	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusNextToRead, nil, nil, nil)
+	backlogStatus := constants.BookStatusNextToRead
+	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, &backlogStatus, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to backlog, got %v", err)
 	}
@@ -117,6 +130,78 @@ func TestCreateRejectsInvalidPages(t *testing.T) {
 	err := svc.Create(context.Background(), &book.Book{Title: "", Author: "", TotalPages: 0})
 	if !errors.Is(err, customErr.ErrBadRequest) {
 		t.Fatalf("expected bad request, got %v", err)
+	}
+}
+
+func TestUpdateStatusDoesNotClearFocusedQueueOnUnrelatedBook(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	queueID := uuid.New()
+	finishedID := uuid.New()
+	note := "Start this on the weekend"
+	repo := &fakeBookRepo{items: map[uuid.UUID]book.Book{
+		queueID: {
+			ID:              queueID,
+			UserID:          userID,
+			Title:           "Queued",
+			Author:          "Author",
+			TotalPages:      300,
+			Status:          constants.BookStatusNextToRead,
+			NextToReadFocus: true,
+			NextToReadNote:  &note,
+		},
+		finishedID: {
+			ID:         finishedID,
+			UserID:     userID,
+			Title:      "Done",
+			Author:     "Author",
+			TotalPages: 200,
+			Status:     constants.BookStatusFinished,
+		},
+	}}
+	svc := New(repo)
+
+	status := constants.BookStatusFinished
+	if _, err := svc.UpdateStatus(context.Background(), userID, finishedID, &status, nil, nil, nil, nil, nil); err != nil {
+		t.Fatalf("unexpected error updating unrelated book: %v", err)
+	}
+
+	queued, err := repo.GetByID(context.Background(), userID, queueID)
+	if err != nil {
+		t.Fatalf("expected queued book to exist: %v", err)
+	}
+	if !queued.NextToReadFocus {
+		t.Fatal("expected focused next-to-read book to stay focused")
+	}
+}
+
+func TestUpdateStatusCanClearNextToReadNote(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	bookID := uuid.New()
+	note := "Read before vacation"
+	repo := &fakeBookRepo{items: map[uuid.UUID]book.Book{
+		bookID: {
+			ID:             bookID,
+			UserID:         userID,
+			Title:          "Queued",
+			Author:         "Author",
+			TotalPages:     250,
+			Status:         constants.BookStatusNextToRead,
+			NextToReadNote: &note,
+		},
+	}}
+	svc := New(repo)
+
+	clear := ""
+	updated, err := svc.UpdateStatus(context.Background(), userID, bookID, nil, nil, nil, nil, nil, &clear)
+	if err != nil {
+		t.Fatalf("unexpected error clearing note: %v", err)
+	}
+	if updated.NextToReadNote != nil {
+		t.Fatal("expected next-to-read note to be cleared")
 	}
 }
 

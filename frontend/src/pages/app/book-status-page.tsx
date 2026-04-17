@@ -27,12 +27,18 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
   const updateStatus = useUpdateBookStatusMutation()
   const updateProgress = useUpdateBookProgressMutation()
   const [activeFinishId, setActiveFinishId] = useState<string | null>(null)
+  const [activeQueueNoteId, setActiveQueueNoteId] = useState<string | null>(null)
   const [finishDrafts, setFinishDrafts] = useState<Record<string, FinishDraft>>({})
+  const [queueNotes, setQueueNotes] = useState<Record<string, string>>({})
   const { t, locale } = useI18n()
   const numberFormatter = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US')
   const isSubmittingFinish = (id: string) => updateStatus.isPending && updateStatus.variables?.id === id
 
   const getDraft = (id: string): FinishDraft => finishDrafts[id] ?? { reflection: '', highlight: '' }
+  const getQueueNote = (id: string, defaultValue?: string | null) => queueNotes[id] ?? defaultValue ?? ''
+  const queueBooks = status === 'nextToRead' ? query.data ?? [] : []
+  const nextPick = queueBooks.find((book) => book.nextToReadFocus) ?? queueBooks[0]
+  const queueBacklog = nextPick ? queueBooks.filter((book) => book.id !== nextPick.id) : []
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -44,8 +50,27 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
         emptyTitle={t('books.emptyTitle')}
         emptyDescription={t('books.emptyDescription')}
       >
+        {status === 'nextToRead' && nextPick ? (
+          <SectionCard>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-mutedForeground">{t('books.primaryNextLabel')}</p>
+              <Button size="sm" variant="secondary" onClick={() => updateStatus.mutate({ id: nextPick.id, status: 'currentlyReading' })}>
+                {t('books.startReading')}
+              </Button>
+            </div>
+            <div className="flex items-start gap-3">
+              <BookCover title={nextPick.title} coverUrl={nextPick.coverUrl} />
+              <div className="min-w-0">
+                <p className="truncate font-semibold">{nextPick.title}</p>
+                <p className="truncate text-small text-mutedForeground">{nextPick.author}</p>
+                {nextPick.nextToReadNote ? <p className="mt-2 text-sm text-mutedForeground">{nextPick.nextToReadNote}</p> : null}
+              </div>
+            </div>
+          </SectionCard>
+        ) : null}
+        {status === 'nextToRead' && queueBacklog.length ? <p className="text-sm text-mutedForeground">{t('books.nextBacklogLabel')}</p> : null}
         <div className="grid gap-3 md:grid-cols-2">
-          {query.data?.map((book) => (
+          {(status === 'nextToRead' ? queueBacklog : query.data)?.map((book) => (
             <SectionCard key={book.id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="flex min-w-0 items-start gap-3">
@@ -73,12 +98,21 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
                   </Button>
                 ) : null}
                 {status === 'nextToRead' ? (
-                  <Button
-                    className="w-full sm:w-auto"
-                    onClick={() => updateStatus.mutate({ id: book.id, status: 'currentlyReading' })}
-                  >
-                    {t('books.startReading')}
-                  </Button>
+                  <>
+                    <Button className="w-full sm:w-auto" onClick={() => updateStatus.mutate({ id: book.id, status: 'currentlyReading' })}>
+                      {t('books.startReading')}
+                    </Button>
+                    <Button className="w-full sm:w-auto" variant="secondary" onClick={() => updateStatus.mutate({ id: book.id, status: 'nextToRead', nextToReadFocus: true })}>
+                      {t('books.makePrimaryNext')}
+                    </Button>
+                    <Button
+                      className="w-full sm:w-auto"
+                      variant="ghost"
+                      onClick={() => setActiveQueueNoteId((current) => (current === book.id ? null : book.id))}
+                    >
+                      {t('books.whyNextAction')}
+                    </Button>
+                  </>
                 ) : null}
                 {status === 'currentlyReading' ? (
                   <Button
@@ -100,6 +134,46 @@ function BookListByStatus({ status, title }: { status: BookStatus; title: string
                   </Button>
                 </Link>
               </div>
+              {status === 'nextToRead' && activeQueueNoteId === book.id ? (
+                <div className="space-y-2 rounded-xl border border-border bg-surface p-3">
+                  <label className="block space-y-1">
+                    <span className="text-xs text-mutedForeground">{t('books.whyNextLabel')}</span>
+                    <Textarea
+                      rows={2}
+                      maxLength={240}
+                      placeholder={t('books.whyNextPlaceholder')}
+                      value={getQueueNote(book.id, book.nextToReadNote)}
+                      onChange={(event) => setQueueNotes((current) => ({ ...current, [book.id]: event.target.value }))}
+                    />
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        updateStatus
+                          .mutateAsync({ id: book.id, nextToReadNote: getQueueNote(book.id, book.nextToReadNote).trim() })
+                          .then(() => setActiveQueueNoteId(null))
+                      }
+                    >
+                      {t('common.save')}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        updateStatus
+                          .mutateAsync({ id: book.id, nextToReadNote: '' })
+                          .then(() => {
+                            setQueueNotes((current) => ({ ...current, [book.id]: '' }))
+                            setActiveQueueNoteId(null)
+                          })
+                      }
+                    >
+                      {t('common.clear')}
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
               {status === 'currentlyReading' && activeFinishId === book.id ? (
                 <div className="space-y-3 rounded-xl border border-border bg-surface p-3">
                   <div className="space-y-1">

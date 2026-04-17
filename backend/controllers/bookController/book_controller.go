@@ -2,6 +2,7 @@ package bookController
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -107,8 +108,10 @@ func (h *BookController) UpdateStatus(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	errFields := validation.Errors{}
-	req.Status = validation.Required(req.Status, "status", errFields)
-	validation.Enum(req.Status, "status", allowedBookStatus, errFields)
+	if req.Status != nil {
+		*req.Status = validation.Required(*req.Status, "status", errFields)
+		validation.Enum(*req.Status, "status", allowedBookStatus, errFields)
+	}
 	if req.FinishRating != nil && (*req.FinishRating < 1 || *req.FinishRating > 5) {
 		errFields.Add("finishRating", "must be between 1 and 5")
 	}
@@ -120,12 +123,31 @@ func (h *BookController) UpdateStatus(c *fiber.Ctx) error {
 		*req.FinishHighlight = validation.Required(*req.FinishHighlight, "finishHighlight", errFields)
 		validation.StringLength(*req.FinishHighlight, "finishHighlight", 1, 600, errFields)
 	}
+	if req.NextToReadNote != nil {
+		trimmed := strings.TrimSpace(*req.NextToReadNote)
+		if trimmed == "" {
+			req.NextToReadNote = &trimmed
+		} else {
+			req.NextToReadNote = &trimmed
+			validation.StringLength(trimmed, "nextToReadNote", 1, 240, errFields)
+		}
+	}
 	if errFields.HasAny() {
 		return apiresponse.ValidationError(c, errFields)
 	}
 	uid, _ := uuid.Parse(c.Locals("userID").(string))
 	id, _ := uuid.Parse(c.Params("id"))
-	b, err := h.service.Book.UpdateStatus(c.Context(), uid, id, req.Status, req.FinishRating, req.FinishReflection, req.FinishHighlight)
+	b, err := h.service.Book.UpdateStatus(
+		c.Context(),
+		uid,
+		id,
+		req.Status,
+		req.FinishRating,
+		req.FinishReflection,
+		req.FinishHighlight,
+		req.NextToReadFocus,
+		req.NextToReadNote,
+	)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -203,5 +225,5 @@ func withBookComputed(b *book.Book) map[string]any {
 	if b.CurrentPage != nil && b.TotalPages > 0 {
 		progress = int(float64(*b.CurrentPage) / float64(b.TotalPages) * 100)
 	}
-	return map[string]any{"id": b.ID, "userId": b.UserID, "title": b.Title, "author": b.Author, "totalPages": b.TotalPages, "status": b.Status, "currentPage": b.CurrentPage, "remainingPages": remaining, "progressPercentage": progress, "coverUrl": b.CoverURL, "genre": b.Genre, "isbn": b.ISBN, "completedAt": b.CompletedAt, "finishRating": b.FinishRating, "finishReflection": b.FinishReflection, "finishHighlight": b.FinishHighlight, "createdAt": b.CreatedAt, "updatedAt": b.UpdatedAt}
+	return map[string]any{"id": b.ID, "userId": b.UserID, "title": b.Title, "author": b.Author, "totalPages": b.TotalPages, "status": b.Status, "currentPage": b.CurrentPage, "remainingPages": remaining, "progressPercentage": progress, "coverUrl": b.CoverURL, "genre": b.Genre, "isbn": b.ISBN, "completedAt": b.CompletedAt, "finishRating": b.FinishRating, "finishReflection": b.FinishReflection, "finishHighlight": b.FinishHighlight, "nextToReadFocus": b.NextToReadFocus, "nextToReadNote": b.NextToReadNote, "createdAt": b.CreatedAt, "updatedAt": b.UpdatedAt}
 }

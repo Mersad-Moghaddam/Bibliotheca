@@ -22,6 +22,8 @@ type Book struct {
 	FinishRating     *int       `gorm:"type:tinyint" json:"finishRating"`
 	FinishReflection *string    `gorm:"type:text" json:"finishReflection"`
 	FinishHighlight  *string    `gorm:"type:text" json:"finishHighlight"`
+	NextToReadFocus  bool       `gorm:"not null;default:false" json:"nextToReadFocus"`
+	NextToReadNote   *string    `gorm:"size:240" json:"nextToReadNote"`
 	CreatedAt        time.Time  `json:"createdAt"`
 	UpdatedAt        time.Time  `json:"updatedAt"`
 }
