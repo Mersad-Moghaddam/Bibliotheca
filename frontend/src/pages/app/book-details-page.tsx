@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckCircle2, NotebookPen } from 'lucide-react'
+import { NotebookPen } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -65,7 +65,7 @@ export function BookDetails({ id }: { id: string }) {
   const noteForm = useForm<{ note: string; highlight: string }>({
     defaultValues: { note: '', highlight: '' }
   })
-  const [recentlyMovedStatus, setRecentlyMovedStatus] = useState<BookStatus | null>(null)
+  const [recentlyClickedStatus, setRecentlyClickedStatus] = useState<BookStatus | null>(null)
 
   useEffect(() => {
     if (!query.data) return
@@ -86,11 +86,11 @@ export function BookDetails({ id }: { id: string }) {
   const book = query.data
 
   const handleMoveStatus = async (status: BookStatus) => {
-    await updateStatus.mutateAsync({ id: book.id, status })
-    setRecentlyMovedStatus(status)
+    setRecentlyClickedStatus(status)
     window.setTimeout(() => {
-      setRecentlyMovedStatus((current) => (current === status ? null : current))
-    }, 1200)
+      setRecentlyClickedStatus((current) => (current === status ? null : current))
+    }, 500)
+    await updateStatus.mutateAsync({ id: book.id, status })
   }
 
   return (
@@ -274,13 +274,13 @@ export function BookDetails({ id }: { id: string }) {
         <SectionHeader title={t('books.actions')} description={t('books.actionsDescription')} />
         <div className="flex flex-wrap gap-2">
           {statusOptions.map((status) => {
-            const isMoved = recentlyMovedStatus === status
+            const isClicked = recentlyClickedStatus === status
             return (
               <Button
                 key={status}
                 size="sm"
                 variant="secondary"
-                className={`w-full transition-all duration-300 sm:w-auto ${isMoved ? 'scale-[1.02] border-primary/40 bg-primary/10' : ''}`}
+                className={`w-full transition-colors duration-200 sm:w-auto ${isClicked ? 'border-primary/30 bg-primary/10' : ''}`}
                 onClick={() => {
                   void handleMoveStatus(status)
                 }}
@@ -290,14 +290,6 @@ export function BookDetails({ id }: { id: string }) {
             )
           })}
         </div>
-        {recentlyMovedStatus ? (
-          <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs text-foreground animate-pulse">
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-            <span>
-              {t('books.moveTo')} {t(`status.${recentlyMovedStatus}`)}
-            </span>
-          </div>
-        ) : null}
         <form
           className="mt-3 flex flex-col gap-2 sm:flex-row"
           onSubmit={form.handleSubmit(async (values) =>
