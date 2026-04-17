@@ -81,7 +81,7 @@ type PurchaseLinkRepository interface {
 type ReadingProgressRepository interface {
 	UpdateCurrentPage(ctx context.Context, userID, bookID uuid.UUID, currentPage int) (*book.Book, error)
 	CreateSession(ctx context.Context, session *readingSession.ReadingSession) error
-	ListSessions(ctx context.Context, userID uuid.UUID, limit int) ([]readingSession.ReadingSession, error)
+	ListSessions(ctx context.Context, userID uuid.UUID, bookID *uuid.UUID, limit int) ([]readingSession.ReadingSession, error)
 	UpsertGoal(ctx context.Context, goal *readingGoal.ReadingGoal) error
 	FindGoalByWindow(ctx context.Context, userID uuid.UUID, period string, startDate, endDate time.Time) (*readingGoal.ReadingGoal, error)
 	ListGoals(ctx context.Context, userID uuid.UUID) ([]readingGoal.ReadingGoal, error)

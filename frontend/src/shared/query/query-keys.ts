@@ -15,6 +15,7 @@ export const queryKeys = {
     analytics: ['dashboard', 'analytics'] as const,
     goals: ['dashboard', 'goals'] as const,
     sessions: ['dashboard', 'sessions'] as const,
+    sessionsByBook: (bookId: string) => ['dashboard', 'sessions', 'book', bookId] as const,
     insights: ['dashboard', 'insights'] as const,
     reminder: ['dashboard', 'reminder'] as const
   },

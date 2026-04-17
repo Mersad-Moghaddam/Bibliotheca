@@ -36,6 +36,11 @@ export async function fetchSessions() {
   return extractData(response).items
 }
 
+export async function fetchBookSessions(bookId: string) {
+  const response = await api.get<{ items: ReadingSession[] }>('/reading/sessions', { params: { bookId } })
+  return extractData(response).items
+}
+
 export async function createSession(payload: { bookId: string; date: string; duration: number; pages: number }) {
   await api.post('/reading/sessions', payload)
 }
