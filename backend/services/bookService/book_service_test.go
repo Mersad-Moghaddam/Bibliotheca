@@ -47,6 +47,16 @@ func (f *fakeBookRepo) Update(_ context.Context, b *book.Book) error {
 	f.items[b.ID] = *b
 	return nil
 }
+func (f *fakeBookRepo) ClearNextToReadFocus(_ context.Context, _ uuid.UUID, exceptBookID *uuid.UUID) error {
+	for id, item := range f.items {
+		if exceptBookID != nil && id == *exceptBookID {
+			continue
+		}
+		item.NextToReadFocus = false
+		f.items[id] = item
+	}
+	return nil
+}
 
 func (f *fakeBookRepo) Delete(_ context.Context, _, _ uuid.UUID) error { return nil }
 func (f *fakeBookRepo) SummaryCounts(_ context.Context, _ uuid.UUID) (map[string]int64, error) {
@@ -82,7 +92,8 @@ func TestUpdateStatusTransitions(t *testing.T) {
 	}}
 	svc := New(repo)
 
-	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusCurrentlyRead, nil, nil, nil)
+	readingStatus := constants.BookStatusCurrentlyRead
+	reading, err := svc.UpdateStatus(context.Background(), userID, bookID, &readingStatus, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to reading, got %v", err)
 	}
@@ -90,7 +101,8 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		t.Fatal("expected current page to initialize at zero")
 	}
 
-	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusFinished, nil, nil, nil)
+	finishedStatus := constants.BookStatusFinished
+	finished, err := svc.UpdateStatus(context.Background(), userID, bookID, &finishedStatus, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to finished, got %v", err)
 	}
@@ -101,7 +113,8 @@ func TestUpdateStatusTransitions(t *testing.T) {
 		t.Fatal("expected completedAt to be set")
 	}
 
-	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, constants.BookStatusNextToRead, nil, nil, nil)
+	backlogStatus := constants.BookStatusNextToRead
+	backlog, err := svc.UpdateStatus(context.Background(), userID, bookID, &backlogStatus, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("expected no error moving to backlog, got %v", err)
 	}

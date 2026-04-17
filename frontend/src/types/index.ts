@@ -18,6 +18,8 @@ export type Book = {
   finishRating?: number | null
   finishReflection?: string | null
   finishHighlight?: string | null
+  nextToReadFocus?: boolean
+  nextToReadNote?: string | null
   createdAt: string
   updatedAt: string
 }

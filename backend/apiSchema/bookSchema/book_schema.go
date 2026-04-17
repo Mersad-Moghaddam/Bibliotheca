@@ -11,10 +11,12 @@ type BookRequest struct {
 }
 
 type BookStatusRequest struct {
-	Status           string  `json:"status"`
+	Status           *string `json:"status"`
 	FinishRating     *int    `json:"finishRating"`
 	FinishReflection *string `json:"finishReflection"`
 	FinishHighlight  *string `json:"finishHighlight"`
+	NextToReadFocus  *bool   `json:"nextToReadFocus"`
+	NextToReadNote   *string `json:"nextToReadNote"`
 }
 
 type BookNoteRequest struct {

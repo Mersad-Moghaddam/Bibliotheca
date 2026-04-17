@@ -41,7 +41,14 @@ export async function updateBook(
 
 export async function updateBookStatus(
   id: string,
-  payload: { status: BookStatus; finishRating?: number; finishReflection?: string; finishHighlight?: string }
+  payload: {
+    status?: BookStatus
+    finishRating?: number
+    finishReflection?: string
+    finishHighlight?: string
+    nextToReadFocus?: boolean
+    nextToReadNote?: string
+  }
 ) {
   await api.patch(`/books/${id}/status`, payload)
 }

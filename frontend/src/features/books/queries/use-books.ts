@@ -134,14 +134,18 @@ export function useUpdateBookStatusMutation() {
       status,
       finishRating,
       finishReflection,
-      finishHighlight
+      finishHighlight,
+      nextToReadFocus,
+      nextToReadNote
     }: {
       id: string
-      status: BookStatus
+      status?: BookStatus
       finishRating?: number
       finishReflection?: string
       finishHighlight?: string
-    }) => updateBookStatus(id, { status, finishRating, finishReflection, finishHighlight }),
+      nextToReadFocus?: boolean
+      nextToReadNote?: string
+    }) => updateBookStatus(id, { status, finishRating, finishReflection, finishHighlight, nextToReadFocus, nextToReadNote }),
     onSuccess: (_data, variables) => {
       void invalidateReadingDerivedQueries(queryClient, variables.id)
     }
