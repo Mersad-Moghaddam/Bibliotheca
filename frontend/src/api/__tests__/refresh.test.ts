@@ -8,7 +8,7 @@ describe('shouldAttemptTokenRefresh', () => {
     const error = {
       response: { status: 401 },
       config: { url: '/books', _retry: false }
-    } as AxiosError
+    } as unknown as AxiosError
 
     expect(shouldAttemptTokenRefresh(error, 'token')).toBe(true)
   })
@@ -17,7 +17,7 @@ describe('shouldAttemptTokenRefresh', () => {
     const error = {
       response: { status: 401 },
       config: { url: '/books', _retry: true }
-    } as AxiosError
+    } as unknown as AxiosError
 
     expect(shouldAttemptTokenRefresh(error, 'token')).toBe(false)
   })
@@ -26,7 +26,7 @@ describe('shouldAttemptTokenRefresh', () => {
     const error = {
       response: { status: 401 },
       config: { url: '/auth/refresh', _retry: false }
-    } as AxiosError
+    } as unknown as AxiosError
 
     expect(shouldAttemptTokenRefresh(error, 'token')).toBe(false)
   })
