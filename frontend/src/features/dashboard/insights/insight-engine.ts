@@ -131,6 +131,26 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     })
   }
 
+  if (lastActivityDays !== null && lastActivityDays >= 4 && recent7.length === 0 && activeBooks.length > 0) {
+    const recommendationKey = nearCompletionBook
+      ? 'dashboard.insights.recommendations.finishClosestBook'
+      : activeBooks.length >= 3
+        ? 'dashboard.insights.recommendations.focusOneBook'
+        : 'dashboard.insights.recommendations.logProgressOnCurrent'
+
+    candidates.push({
+      variant: 'inactive',
+      priority: 92,
+      titleKey: 'dashboard.insights.titles.stuck',
+      messageKey: 'dashboard.insights.messages.stuck',
+      recommendationKey,
+      signals: [
+        { labelKey: 'dashboard.insights.signals.daysSinceLastActivity', value: lastActivityDays, format: 'number' },
+        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' }
+      ]
+    })
+  }
+
   if (nearCompletionBook) {
     candidates.push({
       variant: 'positive',
