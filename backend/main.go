@@ -45,7 +45,7 @@ func main() {
 	}
 	appLogger.Info("startup", zap.String("phase", "mysql_connected"))
 
-	if err = repositories.AssertSchema(db); err != nil {
+	if err = repositories.AssertSchema(db, cfg.RequiredSchemaVersion); err != nil {
 		appLogger.Fatal("schema_check_failed", zap.String("dependency", "mysql"), zap.Error(err))
 	}
 	appLogger.Info("startup", zap.String("phase", "schema_verified"))

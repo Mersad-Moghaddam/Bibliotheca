@@ -8,23 +8,24 @@ import (
 )
 
 type Config struct {
-	AppPort              string
-	AppEnv               string
-	LogLevel             string
-	JWTSecret            string
-	AccessTokenTTL       time.Duration
-	RefreshTokenTTL      time.Duration
-	MySQLHost            string
-	MySQLPort            string
-	MySQLUser            string
-	MySQLPassword        string
-	MySQLDatabase        string
-	RedisAddr            string
-	RedisPassword        string
-	RedisDB              int
-	RateLimitWindow      time.Duration
-	RateLimitMaxAttempts int64
-	FrontendURL          string
+	AppPort               string
+	AppEnv                string
+	LogLevel              string
+	JWTSecret             string
+	AccessTokenTTL        time.Duration
+	RefreshTokenTTL       time.Duration
+	MySQLHost             string
+	MySQLPort             string
+	MySQLUser             string
+	MySQLPassword         string
+	MySQLDatabase         string
+	RedisAddr             string
+	RedisPassword         string
+	RedisDB               int
+	RateLimitWindow       time.Duration
+	RateLimitMaxAttempts  int64
+	FrontendURL           string
+	RequiredSchemaVersion uint
 }
 
 func Load() (*Config, error) {
@@ -92,24 +93,27 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
+	requiredSchemaVersion := uint(parseIntOrDefault("REQUIRED_SCHEMA_VERSION", 12))
+
 	return &Config{
-		AppPort:              appPort,
-		AppEnv:               envOrDefault("APP_ENV", "development"),
-		LogLevel:             envOrDefault("LOG_LEVEL", ""),
-		JWTSecret:            jwtSecret,
-		AccessTokenTTL:       accessTTL,
-		RefreshTokenTTL:      refreshTTL,
-		MySQLHost:            mysqlHost,
-		MySQLPort:            mysqlPort,
-		MySQLUser:            mysqlUser,
-		MySQLPassword:        mysqlPassword,
-		MySQLDatabase:        mysqlDatabase,
-		RedisAddr:            redisAddr,
-		RedisPassword:        os.Getenv("REDIS_PASSWORD"),
-		RedisDB:              redisDB,
-		RateLimitWindow:      rateWindow,
-		RateLimitMaxAttempts: rateMax,
-		FrontendURL:          frontendURL,
+		AppPort:               appPort,
+		AppEnv:                envOrDefault("APP_ENV", "development"),
+		LogLevel:              envOrDefault("LOG_LEVEL", ""),
+		JWTSecret:             jwtSecret,
+		AccessTokenTTL:        accessTTL,
+		RefreshTokenTTL:       refreshTTL,
+		MySQLHost:             mysqlHost,
+		MySQLPort:             mysqlPort,
+		MySQLUser:             mysqlUser,
+		MySQLPassword:         mysqlPassword,
+		MySQLDatabase:         mysqlDatabase,
+		RedisAddr:             redisAddr,
+		RedisPassword:         os.Getenv("REDIS_PASSWORD"),
+		RedisDB:               redisDB,
+		RateLimitWindow:       rateWindow,
+		RateLimitMaxAttempts:  rateMax,
+		FrontendURL:           frontendURL,
+		RequiredSchemaVersion: requiredSchemaVersion,
 	}, nil
 }
 
@@ -153,4 +157,16 @@ func envOrDefault(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func parseIntOrDefault(key string, fallback int) int {
+	v := os.Getenv(key)
+	if v == "" {
+		return fallback
+	}
+	iv, err := strconv.Atoi(v)
+	if err != nil {
+		return fallback
+	}
+	return iv
 }

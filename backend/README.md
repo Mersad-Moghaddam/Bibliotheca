@@ -4,8 +4,8 @@ Production-hardened Fiber + MySQL + Redis backend for Negar.
 
 ## Key Runtime Guarantees
 
-- Migration-driven schema only (no runtime `AutoMigrate`).
-- Strict config validation on startup (fail-fast).
+- SQL migrations are the source of truth (no runtime `AutoMigrate` in production boot).
+- Startup is fail-fast on config, DB/Redis connectivity, and migration-version safety checks.
 - Unified API response envelopes.
 - Explicit request validation for write endpoints.
 - Request IDs + JSON structured logs.
@@ -24,16 +24,27 @@ All variables are required unless noted.
 - `MYSQL_USER`
 - `MYSQL_PASSWORD`
 - `MYSQL_DATABASE`
+- `MYSQL_DSN` (optional override for migration command)
 - `REDIS_ADDR`
 - `REDIS_PASSWORD` (optional)
 - `REDIS_DB`
 - `AUTH_RATE_LIMIT_WINDOW`
 - `AUTH_RATE_LIMIT_MAX`
 - `FRONTEND_URL`
+- `REQUIRED_SCHEMA_VERSION` (optional, default: latest migration version expected by backend)
 
-## Migrations (Dev + Prod)
+---
 
-Schema is managed under `migrations/`:
+## Migration Philosophy
+
+Negar uses **`golang-migrate/migrate v4`** with SQL migration files under `backend/migrations`.
+
+- Migrations are explicit `*.up.sql` / `*.down.sql` pairs.
+- Migration history is deterministic and ordered by numeric prefix.
+- Backend runtime does **not** alter schema.
+- Schema evolution is an explicit pre-start step in local/dev/CI/prod.
+
+### Current migration set
 
 - `000001_create_users_table`
 - `000002_create_books_table`
@@ -46,20 +57,121 @@ Schema is managed under `migrations/`:
 - `000009_add_books_finish_flow_fields`
 - `000010_add_next_to_read_queue_fields`
 - `000011_phase3_foundations`
+- `000012_schema_hardening`
 
-### Development workflow
+---
 
-1. Start DB/Redis.
-2. Apply all `*.up.sql` migrations in order.
-3. Run backend with `go run .`.
-4. For schema changes: add a new numbered `up/down` migration pair, run it locally, then update models/repositories.
+## Migration Command Workflow
 
-### Production workflow
+All migration commands run from repo root via `make`, or directly from `backend/` using `go run ./cmd/migrate`.
+
+### Create a new migration
+
+```bash
+make migrate-create NAME=add_book_language
+```
+
+### Apply all pending migrations
+
+```bash
+make migrate-up
+```
+
+### Roll back one or more migrations
+
+```bash
+make migrate-down STEPS=1
+make migrate-down STEPS=2
+```
+
+### Move by relative steps (forward/backward)
+
+```bash
+make migrate-steps STEPS=1
+make migrate-steps STEPS=-1
+```
+
+### Check current schema version / dirty state
+
+```bash
+make migrate-version
+```
+
+### Force-fix dirty state (after manual correction)
+
+```bash
+make migrate-force VERSION=12
+```
+
+### Move directly to a version
+
+```bash
+make migrate-goto VERSION=12
+```
+
+### Drop all managed tables (local/dev only)
+
+```bash
+make migrate-drop
+```
+
+---
+
+## Local Development Workflow
+
+1. Start MySQL + Redis.
+2. Run migrations: `make migrate-up`.
+3. Optional seed data: `make seed`.
+4. Start backend: `cd backend && go run .`.
+
+If startup fails with `schema_check_failed`, inspect `make migrate-version`, apply missing migrations, and retry.
+
+---
+
+## Docker / Compose Workflow
+
+When using Compose, run migration command against containerized MySQL before starting traffic:
+
+```bash
+# from repo root (with mysql service available)
+cd backend && go run ./cmd/migrate -action up
+```
+
+Then start/roll backend container.
+
+---
+
+## Production Workflow
 
 1. Build and deploy artifact.
-2. Run migrations before app rollout (or as a release pre-step).
-3. Start application; it performs schema presence checks and fails fast when tables are missing.
-4. Rollback with matching `*.down.sql` only when explicitly required.
+2. Run migration command as a release pre-step (`make migrate-up` or equivalent pipeline command).
+3. Verify migration status (`make migrate-version` => latest version, `dirty=false`).
+4. Start backend.
+
+Rollback strategy:
+- Prefer forward-fix migrations for production incidents.
+- Use `down` migrations only with explicit operator intent and data impact review.
+
+---
+
+## Seeds and Migrations
+
+- Schema changes belong in migrations.
+- Demo/sample data belongs in `seeds/seed.sql`.
+- Run seeds only after migrations are at expected version.
+
+---
+
+## Startup Schema Safety Behavior
+
+On startup, backend:
+
+1. Connects to MySQL.
+2. Verifies `schema_migrations` exists and is not dirty.
+3. Verifies schema version is at least `REQUIRED_SCHEMA_VERSION`.
+4. Performs model/table column presence assertions as an additional guardrail.
+
+Backend exits early if checks fail, preventing runtime behavior against partial schema.
 
 ## Response Contract
 
@@ -97,7 +209,6 @@ go run .
 ```bash
 go test ./...
 ```
-
 
 ## OpenAPI
 

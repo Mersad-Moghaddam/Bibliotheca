@@ -2,7 +2,8 @@
 
 ## Production readiness checks
 - Confirm all required backend env variables are set.
-- Run SQL migrations before deploying the backend.
+- Run database migrations as an explicit pre-release step using `cd backend && go run ./cmd/migrate -action up` (or `make migrate-up`).
+- Verify migration metadata reports latest version and clean state: `make migrate-version`.
 - Verify MySQL and Redis reachability from backend runtime.
 - Validate `FRONTEND_URL` and reverse-proxy `/api/v1` path.
 
