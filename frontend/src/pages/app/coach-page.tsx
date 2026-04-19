@@ -19,6 +19,11 @@ import { useI18n } from '../../shared/i18n/i18n-provider'
 
 import { PageHeading } from './shared/page-primitives'
 
+const libraryActionRecommendations = new Set([
+  'dashboard.insights.recommendations.focusOneBook',
+  'dashboard.insights.recommendations.logFirstSession'
+])
+
 export function Coach() {
   const { t, locale } = useI18n()
   const booksQuery = useBooksQuery()
@@ -58,6 +63,17 @@ export function Coach() {
   const weeklyPagesRead = goalsQuery.data?.weekly.pagesRead ?? 0
   const weeklyPagesGoal = goalsQuery.data?.weekly.targetPages ?? 0
   const numberFormatter = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US')
+  const isCoachDataLoading =
+    booksQuery.isLoading || analyticsQuery.isLoading || goalsQuery.isLoading || sessionsQuery.isLoading
+  const isCoachDataError =
+    booksQuery.isError || analyticsQuery.isError || goalsQuery.isError || sessionsQuery.isError
+
+  const recommendationKey = readingInsight.recommendationKey
+  const recommendationText = recommendationKey ? t(recommendationKey) : t('coach.primaryActionBody')
+  const primaryActionRoute =
+    recommendationKey && libraryActionRecommendations.has(recommendationKey) ? '/library' : '/reading'
+  const primaryActionLabel = primaryActionRoute === '/library' ? t('dashboard.openLibrary') : t('coach.openReading')
+  const primaryActionBody = isCoachDataLoading || isCoachDataError ? t('coach.primaryActionBody') : recommendationText
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -69,10 +85,10 @@ export function Coach() {
           description={t('coach.primaryActionDescription')}
         />
         <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
-          <p className="text-sm text-mutedForeground">{t('coach.primaryActionBody')}</p>
+          <p className="text-sm text-mutedForeground">{primaryActionBody}</p>
           <div>
-            <Link to="/reading">
-              <Button>{t('coach.openReading')}</Button>
+            <Link to={primaryActionRoute}>
+              <Button>{primaryActionLabel}</Button>
             </Link>
           </div>
         </div>
@@ -85,18 +101,8 @@ export function Coach() {
         />
         <ReadingInsightsCard
           insight={readingInsight}
-          isLoading={
-            booksQuery.isLoading ||
-            analyticsQuery.isLoading ||
-            goalsQuery.isLoading ||
-            sessionsQuery.isLoading
-          }
-          isError={
-            booksQuery.isError ||
-            analyticsQuery.isError ||
-            goalsQuery.isError ||
-            sessionsQuery.isError
-          }
+          isLoading={isCoachDataLoading}
+          isError={isCoachDataError}
           onRetry={() => {
             void booksQuery.refetch()
             void analyticsQuery.refetch()

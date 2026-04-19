@@ -253,6 +253,7 @@ export const messages = {
         },
         titles: {
           inactive: 'Your momentum has cooled down',
+          stuck: 'You might be stuck between books',
           nearCompletion: 'You are very close to finishing a book',
           resumed: 'Great job getting back into reading',
           consistency: 'Your reading routine is becoming consistent',
@@ -265,6 +266,8 @@ export const messages = {
         messages: {
           inactive:
             'No progress was logged in recent days. A small session today can quickly restore momentum.',
+          stuck:
+            'You have active books, but this week has been quiet so far. One focused check-in can restart your flow.',
           nearCompletion: 'Finishing your closest book now will create a strong completion boost.',
           resumed: 'You returned this week after a quiet stretch. Keep the comeback going.',
           consistency:
@@ -757,6 +760,7 @@ export const messages = {
         },
         titles: {
           inactive: 'شتاب مطالعه‌ات کمی افت کرده',
+          stuck: 'احتمالاً بین چند کتاب گیر کرده‌ای',
           nearCompletion: 'خیلی نزدیکِ تمام‌کردن یکی از کتاب‌ها هستی',
           resumed: 'عالیه که دوباره به مطالعه برگشتی',
           consistency: 'برنامه مطالعه‌ات دارد منظم می‌شود',
@@ -769,6 +773,8 @@ export const messages = {
         messages: {
           inactive:
             'در چند روز اخیر پیشرفتی ثبت نشده است. یک جلسه کوتاه امروز می‌تواند ریتمت را برگرداند.',
+          stuck:
+            'کتاب فعال داری، اما این هفته هنوز آرام بوده است. یک ثبت متمرکز می‌تواند دوباره مسیرت را راه بیندازد.',
           nearCompletion: 'اگر همین حالا کتاب نزدیک به پایان را تمام کنی، شتاب خوبی می‌گیری.',
           resumed: 'این هفته بعد از یک وقفه برگشتی. همین روند بازگشت را حفظ کن.',
           consistency: 'این هفته در چند روز مختلف مطالعه ثبت کرده‌ای؛ نشانه خوبی از ثبات است.',

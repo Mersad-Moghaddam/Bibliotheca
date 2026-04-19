@@ -29,7 +29,7 @@ export function Library() {
   const booksQuery = useBooksQuery({ search, status, genre, sortBy, order: 'desc' })
   const createBookMutation = useCreateBookMutation()
   const deleteBookMutation = useDeleteBookMutation()
-  const [showAddBookForm, setShowAddBookForm] = useState(true)
+  const [showAddBookForm, setShowAddBookForm] = useState(false)
 
   const addBookForm = useForm<AddBookValues>({
     resolver: zodResolver(addBookSchema),

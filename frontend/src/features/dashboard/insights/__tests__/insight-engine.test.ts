@@ -130,4 +130,35 @@ describe('buildReadingInsight', () => {
 
     expect(insight.titleKey).not.toBe('dashboard.insights.titles.resumed')
   })
+
+  it('surfaces a stuck insight after a short quiet spell and picks a focused recommendation', () => {
+    const insight = buildReadingInsight({
+      books: [makeBook({ updatedAt: '2026-04-04T00:00:00.000Z' })],
+      analytics: makeAnalytics(),
+      goals: [],
+      sessions: [makeSession('2026-04-04T00:00:00.000Z', 22), makeSession('2026-03-20T00:00:00.000Z', 15)]
+    })
+
+    expect(insight.titleKey).toBe('dashboard.insights.titles.stuck')
+    expect(insight.recommendationKey).toBe('dashboard.insights.recommendations.logProgressOnCurrent')
+  })
+
+  it('uses finish recommendation for stuck state when a book is near completion', () => {
+    const insight = buildReadingInsight({
+      books: [
+        makeBook({
+          progressPercentage: 92,
+          currentPage: 276,
+          remainingPages: 24,
+          updatedAt: '2026-04-04T00:00:00.000Z'
+        })
+      ],
+      analytics: makeAnalytics(),
+      goals: [],
+      sessions: [makeSession('2026-04-04T00:00:00.000Z', 20), makeSession('2026-03-19T00:00:00.000Z', 10)]
+    })
+
+    expect(insight.titleKey).toBe('dashboard.insights.titles.stuck')
+    expect(insight.recommendationKey).toBe('dashboard.insights.recommendations.finishClosestBook')
+  })
 })
