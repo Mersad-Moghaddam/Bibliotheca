@@ -3,12 +3,12 @@ import { Flame, Sparkles, Timer } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { authStore } from '../../contexts/authStore'
 import { Button } from '../../components/ui/button'
 import { SectionCard } from '../../components/ui/card'
 import { Input } from '../../components/ui/input'
 import { SectionHeader } from '../../components/ui/section-header'
 import { Select } from '../../components/ui/select'
+import { authStore } from '../../contexts/authStore'
 import {
   nameSchema,
   NameValues,
