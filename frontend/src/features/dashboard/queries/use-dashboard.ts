@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { analyticsEvents } from '../../../shared/analytics/events'
+import { analytics } from '../../../shared/analytics/tracker'
 import { queryKeys } from '../../../shared/query/query-keys'
 import {
   createSession,
@@ -45,6 +47,7 @@ export function useSaveGoalMutation() {
   return useMutation({
     mutationFn: updateGoal,
     onSuccess: () => {
+      analytics.track(analyticsEvents.goalUpdated)
       void qc.invalidateQueries({ queryKey: queryKeys.dashboard.goals })
       void qc.invalidateQueries({ queryKey: queryKeys.dashboard.analytics })
     }
@@ -55,9 +58,13 @@ export function useCreateSessionMutation() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: createSession,
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      analytics.track(analyticsEvents.readingSessionLogged, { book_id: variables.bookId })
       void qc.invalidateQueries({ queryKey: queryKeys.dashboard.sessions })
+      void qc.invalidateQueries({ queryKey: queryKeys.dashboard.sessionsByBook(variables.bookId) })
       void qc.invalidateQueries({ queryKey: queryKeys.dashboard.goals })
+      void qc.invalidateQueries({ queryKey: queryKeys.dashboard.summary })
+      void qc.invalidateQueries({ queryKey: queryKeys.dashboard.insights })
       void qc.invalidateQueries({ queryKey: queryKeys.books.all })
       void qc.invalidateQueries({ queryKey: queryKeys.dashboard.analytics })
     }

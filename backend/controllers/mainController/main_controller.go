@@ -4,18 +4,26 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"libro-backend/pkg/apiresponse"
-	"libro-backend/services/apiErrCode"
-	"libro-backend/services/authService"
-	"libro-backend/services/bookService"
-	"libro-backend/services/readingService"
-	"libro-backend/statics/constants"
+	"go.uber.org/zap"
+	"negar-backend/middleware/requestctx"
+	"negar-backend/pkg/apiresponse"
+	"negar-backend/pkg/bookview"
+	"negar-backend/pkg/observability"
+	"negar-backend/pkg/reminders"
+	"negar-backend/pkg/requestutil"
+	"negar-backend/services/apiErrCode"
+	"negar-backend/services/authService"
+	"negar-backend/services/bookService"
+	"negar-backend/services/mainlogic"
+	"negar-backend/services/readingService"
+	"negar-backend/statics/constants"
 )
 
 type MainService struct {
-	books   *bookService.Service
-	reading *readingService.Service
-	users   *authService.UserService
+	books     *bookService.Service
+	reading   *readingService.Service
+	users     *authService.UserService
+	readiness ReadinessChecker
 }
 
 type MainController struct{ service *MainService }
@@ -29,11 +37,25 @@ func (c *MainController) Health(ctx *fiber.Ctx) error {
 }
 
 func (c *MainController) Ready(ctx *fiber.Ctx) error {
+	if c.service.readiness != nil {
+		if err := c.service.readiness.Check(ctx.Context()); err != nil {
+			requestctx.LoggerFromCtx(ctx, zap.NewNop()).Warn("readiness_check_failed", zap.Error(err))
+			return apiresponse.Error(ctx, fiber.StatusServiceUnavailable, "not_ready", "Service not ready.", nil)
+		}
+	}
 	return apiresponse.OK(ctx, fiber.Map{"status": constants.HealthStatusOK}, nil)
 }
 
+func (c *MainController) Metrics(ctx *fiber.Ctx) error {
+	ctx.Set("Content-Type", "text/plain; version=0.0.4")
+	return ctx.SendString(observability.MetricsText())
+}
+
 func (c *MainController) DashboardSummary(ctx *fiber.Ctx) error {
-	uid := parseUUID(ctx.Locals("userID").(string))
+	uid, err := requestutil.UserID(ctx)
+	if err != nil {
+		return apiErrCode.RespondError(ctx, err)
+	}
 	counts, recent, readingBooks, err := c.service.books.Summary(ctx.Context(), uid)
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
@@ -46,11 +68,20 @@ func (c *MainController) DashboardSummary(ctx *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
 	}
-	return apiresponse.OK(ctx, fiber.Map{"counts": counts, "recentBooks": withBooksComputed(recent), "currentlyReading": withBooksComputed(readingBooks), "goalProgress": goals, "nextReminderAt": nextReminderAt(u.ReminderEnabled, u.ReminderTime)}, nil)
+	return apiresponse.OK(ctx, fiber.Map{
+		"counts":           counts,
+		"recentBooks":      bookview.SummaryList(recent),
+		"currentlyReading": bookview.SummaryList(readingBooks),
+		"goalProgress":     goals,
+		"nextReminderAt":   reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency),
+	}, nil)
 }
 
 func (c *MainController) DashboardAnalytics(ctx *fiber.Ctx) error {
-	uid := parseUUID(ctx.Locals("userID").(string))
+	uid, err := requestutil.UserID(ctx)
+	if err != nil {
+		return apiErrCode.RespondError(ctx, err)
+	}
 	analytics, err := c.service.books.Analytics(ctx.Context(), uid)
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
@@ -59,34 +90,15 @@ func (c *MainController) DashboardAnalytics(ctx *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
 	}
-	trend := make([]fiber.Map, 0, len(sessions))
-	activeDays := map[string]struct{}{}
-	totalPages := 0
-	for _, s := range sessions {
-		day := s.Date.Format("2006-01-02")
-		activeDays[day] = struct{}{}
-		totalPages += s.PagesRead
-		trend = append(trend, fiber.Map{"date": day, "pages": s.PagesRead, "duration": s.Duration})
-	}
-	consistency := 0
-	if len(sessions) > 0 {
-		consistency = int(float64(len(activeDays)) / 30.0 * 100)
-		if consistency > 100 {
-			consistency = 100
-		}
-	}
-	backlogHealth := "balanced"
-	backlogCount := analytics.StatusDistribution[constants.BookStatusInLibrary] + analytics.StatusDistribution[constants.BookStatusNextToRead]
-	if backlogCount >= 10 {
-		backlogHealth = "heavy"
-	} else if backlogCount <= 2 {
-		backlogHealth = "light"
-	}
-	return apiresponse.OK(ctx, fiber.Map{"base": analytics, "trend": trend, "consistencyScore": consistency, "backlogHealth": backlogHealth, "sessionPages": totalPages}, nil)
+	view := mainlogic.BuildDashboardAnalyticsView(analytics.StatusDistribution, sessions)
+	return apiresponse.OK(ctx, fiber.Map{"base": analytics, "trend": view.Trend, "consistencyScore": view.ConsistencyScore, "backlogHealth": view.BacklogHealth, "sessionPages": view.SessionPages}, nil)
 }
 
 func (c *MainController) DashboardInsights(ctx *fiber.Ctx) error {
-	uid := parseUUID(ctx.Locals("userID").(string))
+	uid, err := requestutil.UserID(ctx)
+	if err != nil {
+		return apiErrCode.RespondError(ctx, err)
+	}
 	insights, err := c.service.books.Insights(ctx.Context(), uid)
 	if err != nil {
 		return apiErrCode.RespondError(ctx, err)
@@ -101,21 +113,4 @@ func (c *MainController) DashboardInsights(ctx *fiber.Ctx) error {
 		}
 	}
 	return apiresponse.OK(ctx, fiber.Map{"items": insights}, nil)
-}
-
-func nextReminderAt(enabled bool, reminderTime string) *string {
-	if !enabled {
-		return nil
-	}
-	now := time.Now()
-	candidate, err := time.ParseInLocation("15:04", reminderTime, now.Location())
-	if err != nil {
-		return nil
-	}
-	next := time.Date(now.Year(), now.Month(), now.Day(), candidate.Hour(), candidate.Minute(), 0, 0, now.Location())
-	if !next.After(now) {
-		next = next.Add(24 * time.Hour)
-	}
-	formatted := next.Format(time.RFC3339)
-	return &formatted
 }

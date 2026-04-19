@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"libro-backend/models/purchaseLink"
-	"libro-backend/models/wishlist"
-	"libro-backend/repositories"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/purchaseLink"
+	"negar-backend/models/wishlist"
+	"negar-backend/repositories"
+	"negar-backend/statics/customErr"
 )
 
 type Service struct {

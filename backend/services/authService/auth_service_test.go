@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/user"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/user"
+	"negar-backend/statics/customErr"
 )
 
 type fakeUserRepo struct {
@@ -86,7 +86,7 @@ func TestRegisterLoginAndRefresh(t *testing.T) {
 	auth := &fakeAuthRepo{tokens: map[string]string{}}
 	svc := newAuthServiceForTest(users, auth)
 
-	created, err := svc.Register(context.Background(), "Ada", "ADA@Example.com ", "123456")
+	created, err := svc.Register(context.Background(), "Ada", "ADA@Example.com ", "12345678")
 	if err != nil {
 		t.Fatalf("register failed: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestRegisterLoginAndRefresh(t *testing.T) {
 		t.Fatalf("expected normalized email, got %s", created.Email)
 	}
 
-	loggedInUser, pair, _, err := svc.Login(context.Background(), "127.0.0.1", "ada@example.com", "123456")
+	loggedInUser, pair, _, err := svc.Login(context.Background(), "127.0.0.1", "ada@example.com", "12345678")
 	if err != nil {
 		t.Fatalf("login failed: %v", err)
 	}

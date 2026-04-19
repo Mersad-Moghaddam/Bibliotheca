@@ -17,6 +17,8 @@ import {
 } from '../features/auth/forms/auth-schemas'
 import { useLoginMutation, useRegisterMutation } from '../features/auth/queries/use-auth-mutations'
 import { cn } from '../lib/cn'
+import { analyticsEvents } from '../shared/analytics/events'
+import { analytics } from '../shared/analytics/tracker'
 import { useI18n } from '../shared/i18n/i18n-provider'
 import { useToast } from '../shared/toast/toast-provider'
 import { LanguageToggle } from '../widgets/language-toggle/language-toggle'
@@ -27,7 +29,11 @@ const formCard = 'mx-auto w-full max-w-md space-y-5 p-4 sm:p-6 md:p-7'
 const FieldError = ({ message }: { message?: string }) => {
   const { t } = useI18n()
   if (!message) return null
-  return <p className="mt-1 text-xs text-destructive">{message.startsWith('validation.') ? t(message) : message}</p>
+  return (
+    <p className="mt-1 text-xs text-destructive" role="alert" aria-live="polite">
+      {message.startsWith('validation.') ? t(message) : message}
+    </p>
+  )
 }
 
 export function Landing() {
@@ -59,13 +65,22 @@ export function Landing() {
             <p className="max-w-xl text-sm text-mutedForeground sm:text-body">{t('landing.subtitle')}</p>
             <div className="grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <Link to="/register">
-                <Button className="w-full gap-2 sm:w-auto">
+                <Button
+                  className="w-full gap-2 sm:w-auto"
+                  onClick={() => analytics.track(analyticsEvents.landingCtaClicked, { cta: 'hero_register' })}
+                >
                   {t('landing.ctaPrimary')}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="secondary" className="w-full sm:w-auto">{t('landing.ctaSecondary')}</Button>
+                <Button
+                  variant="secondary"
+                  className="w-full sm:w-auto"
+                  onClick={() => analytics.track(analyticsEvents.landingCtaClicked, { cta: 'secondary_login' })}
+                >
+                  {t('landing.ctaSecondary')}
+                </Button>
               </Link>
             </div>
           </div>
@@ -112,7 +127,11 @@ export function Landing() {
             <p className="mt-1 text-sm text-mutedForeground">{t('landing.finalCtaSubtitle')}</p>
           </div>
           <Link to="/register">
-            <Button size="lg" className="w-full gap-2 sm:w-auto">
+            <Button
+              size="lg"
+              className="w-full gap-2 sm:w-auto"
+              onClick={() => analytics.track(analyticsEvents.landingCtaClicked, { cta: 'final_register' })}
+            >
               <Sparkles className="h-4 w-4" />
               {t('landing.ctaPrimary')}
             </Button>
@@ -157,10 +176,12 @@ export function Register() {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       await registerMutation.mutateAsync(values)
+      analytics.track(analyticsEvents.registerSucceeded)
       toast.success(t('auth.signUp'))
       nav('/login')
     } catch (error) {
       const apiError = parseApiError(error)
+      analytics.track(analyticsEvents.registerFailed, { code: apiError.code ?? 'unknown_error' })
       if (apiError.code === 'email_already_exists') return toast.error(t('auth.emailAlreadyExists'))
       if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
       if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
@@ -172,9 +193,9 @@ export function Register() {
     <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
       <AuthHeader />
       <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
-        <form onSubmit={onSubmit} className="space-y-3">
+        <form onSubmit={onSubmit} className="space-y-3" noValidate aria-busy={registerMutation.isPending}>
           <div>
-            <Input placeholder={t('auth.name')} {...form.register('name')} />
+            <Input aria-label={t('auth.name')} placeholder={t('auth.name')} {...form.register('name')} />
             <FieldError message={form.formState.errors.name?.message} />
           </div>
           <div>
@@ -218,10 +239,12 @@ export function Login() {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       await loginMutation.mutateAsync(values)
+      analytics.track(analyticsEvents.loginSucceeded)
       toast.success(t('auth.welcomeBack'))
       nav('/dashboard')
     } catch (error) {
       const apiError = parseApiError(error)
+      analytics.track(analyticsEvents.loginFailed, { code: apiError.code ?? 'unknown_error' })
       if (apiError.code === 'invalid_credentials') return toast.error(t('auth.invalidCredentials'))
       if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
       if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
@@ -233,7 +256,7 @@ export function Login() {
     <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
       <AuthHeader />
       <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
-        <form onSubmit={onSubmit} className="space-y-3">
+        <form onSubmit={onSubmit} className="space-y-3" noValidate aria-busy={loginMutation.isPending}>
           <div>
             <Input type="email" placeholder={t('auth.email')} {...form.register('email')} />
             <FieldError message={form.formState.errors.email?.message} />

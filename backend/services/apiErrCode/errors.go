@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
-	"libro-backend/pkg/apiresponse"
-	"libro-backend/statics/customErr"
+	"negar-backend/pkg/apiresponse"
+	"negar-backend/statics/customErr"
 )
 
 func RespondError(c *fiber.Ctx, err error) error {

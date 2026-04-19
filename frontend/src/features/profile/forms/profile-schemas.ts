@@ -6,7 +6,7 @@ export const nameSchema = z.object({
 
 export const passwordSchema = z.object({
   currentPassword: z.string().min(1, 'validation.currentPasswordRequired'),
-  newPassword: z.string().min(6, 'validation.newPasswordMin')
+  newPassword: z.string().min(8, 'validation.newPasswordMin')
 })
 
 export const reminderSchema = z.object({

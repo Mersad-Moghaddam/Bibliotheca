@@ -4,13 +4,14 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"libro-backend/apiSchema/readingSchema"
-	"libro-backend/models/readingSession"
-	"libro-backend/pkg/apiresponse"
-	"libro-backend/pkg/validation"
-	"libro-backend/services/apiErrCode"
-	"libro-backend/services/readingService"
+	"negar-backend/apiSchema/readingSchema"
+	"negar-backend/models/readingSession"
+	"negar-backend/pkg/apiresponse"
+	"negar-backend/pkg/bookview"
+	"negar-backend/pkg/requestutil"
+	"negar-backend/pkg/validation"
+	"negar-backend/services/apiErrCode"
+	"negar-backend/services/readingService"
 )
 
 type ServiceBridge struct{ Reading *readingService.Service }
@@ -31,21 +32,26 @@ func (h *ReadingController) UpdateProgress(c *fiber.Ctx) error {
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	b, err := h.service.Reading.UpdateProgress(c.Context(), uid, id, req.CurrentPage)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	remaining := b.TotalPages - req.CurrentPage
-	if remaining < 0 {
-		remaining = 0
-	}
-	percentage := 0
-	if b.TotalPages > 0 {
-		percentage = int(float64(req.CurrentPage) / float64(b.TotalPages) * 100)
-	}
-	return apiresponse.OK(c, fiber.Map{"id": b.ID, "status": b.Status, "currentPage": b.CurrentPage, "remainingPages": remaining, "progressPercentage": percentage}, nil)
+	remaining, percentage := bookview.ProgressStats(b)
+	return apiresponse.OK(c, fiber.Map{
+		"id":                 b.ID,
+		"status":             b.Status,
+		"currentPage":        b.CurrentPage,
+		"remainingPages":     remaining,
+		"progressPercentage": percentage,
+	}, nil)
 }
 
 func (h *ReadingController) AddSession(c *fiber.Ctx) error {
@@ -60,15 +66,19 @@ func (h *ReadingController) AddSession(c *fiber.Ctx) error {
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	bookID, err := uuid.Parse(req.BookID)
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	bookID, err := requestutil.ParseUUID(req.BookID, "bookId")
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
 	date := time.Now()
 	if req.Date != "" {
-		if parsed, parseErr := time.Parse("2006-01-02", req.Date); parseErr == nil {
-			date = parsed
+		date, err = requestutil.ParseDate(req.Date)
+		if err != nil {
+			return apiErrCode.RespondError(c, err)
 		}
 	}
 	session := &readingSession.ReadingSession{UserID: uid, BookID: bookID, Date: date, Duration: req.Duration, PagesRead: req.PagesRead}
@@ -79,7 +89,10 @@ func (h *ReadingController) AddSession(c *fiber.Ctx) error {
 }
 
 func (h *ReadingController) ListSessions(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	bookIDParam := c.Query("bookId")
 	limit := 50
 	if bookIDParam != "" {
@@ -97,7 +110,10 @@ func (h *ReadingController) UpsertGoal(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	if err := h.service.Reading.SaveGoals(c.Context(), uid, mapInput(req.Weekly), mapInput(req.Monthly), req.ApplySuggestion); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -116,7 +132,10 @@ func mapInput(in *readingSchema.GoalTargetRequest) *readingService.GoalUpdateInp
 }
 
 func (h *ReadingController) Goals(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	overview, err := h.service.Reading.GetGoalsOverview(c.Context(), uid)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)

@@ -3,6 +3,8 @@ import { AlertTriangle, BrainCircuit, Lightbulb, PauseCircle } from 'lucide-reac
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
 import { Skeleton } from '../../../components/ui/skeleton'
+import { analyticsEvents } from '../../../shared/analytics/events'
+import { analytics } from '../../../shared/analytics/tracker'
 import { useI18n } from '../../../shared/i18n/i18n-provider'
 import { ReadingInsightModel } from '../insights/insight-engine'
 
@@ -53,7 +55,17 @@ export function ReadingInsightsCard({
       <div className="rounded-xl border border-border bg-surface p-4">
         <p className="font-medium">{t('dashboard.insights.states.error.title')}</p>
         <p className="mt-1 text-sm text-mutedForeground">{t('dashboard.insights.states.error.description')}</p>
-        <Button className="mt-3" size="sm" variant="secondary" onClick={onRetry}>{t('dashboard.insights.states.error.retry')}</Button>
+        <Button
+          className="mt-3"
+          size="sm"
+          variant="secondary"
+          onClick={() => {
+            analytics.track(analyticsEvents.coachInsightInteracted, { action: 'retry' })
+            onRetry()
+          }}
+        >
+          {t('dashboard.insights.states.error.retry')}
+        </Button>
       </div>
     )
   }

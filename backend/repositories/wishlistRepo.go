@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/wishlist"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/wishlist"
+	"negar-backend/statics/customErr"
 )
 
 type wishlistRepo struct{ db *gorm.DB }

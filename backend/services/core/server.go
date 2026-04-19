@@ -8,15 +8,16 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"go.uber.org/zap"
-	"libro-backend/controllers/authController"
-	"libro-backend/controllers/bookController"
-	"libro-backend/controllers/mainController"
-	"libro-backend/controllers/readingController"
-	"libro-backend/controllers/userController"
-	"libro-backend/controllers/wishlistController"
-	"libro-backend/middleware/auth"
-	"libro-backend/middleware/requestctx"
-	"libro-backend/statics/configs"
+	"negar-backend/controllers/authController"
+	"negar-backend/controllers/bookController"
+	"negar-backend/controllers/mainController"
+	"negar-backend/controllers/readingController"
+	"negar-backend/controllers/userController"
+	"negar-backend/controllers/wishlistController"
+	"negar-backend/middleware/auth"
+	"negar-backend/middleware/observability"
+	"negar-backend/middleware/requestctx"
+	"negar-backend/statics/configs"
 )
 
 func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *zap.Logger) *fiber.App {
@@ -43,6 +44,7 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *
 	})
 	app.Use(requestid.New(requestid.Config{Header: requestctx.RequestIDHeader}))
 	app.Use(requestctx.RequestLogger(logger))
+	app.Use(observability.MetricsMiddleware())
 	app.Use(recover.New(recover.Config{
 		EnableStackTrace: true,
 		StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
@@ -60,6 +62,7 @@ func NewServer(cfg *configs.Config, deps mainController.ControllerDeps, logger *
 
 	app.Get("/health", mainCtrl.Health)
 	app.Get("/ready", mainCtrl.Ready)
+	app.Get("/metrics", mainCtrl.Metrics)
 
 	api := app.Group("/api/v1")
 	authRoutes := api.Group("/auth")

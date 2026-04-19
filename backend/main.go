@@ -12,12 +12,12 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"libro-backend/controllers/mainController"
-	"libro-backend/pkg/logger"
-	"libro-backend/repositories"
-	"libro-backend/repositories/initRepositories"
-	"libro-backend/services/core"
-	"libro-backend/statics/configs"
+	"negar-backend/controllers/mainController"
+	"negar-backend/pkg/logger"
+	"negar-backend/repositories"
+	"negar-backend/repositories/initRepositories"
+	"negar-backend/services/core"
+	"negar-backend/statics/configs"
 )
 
 func main() {

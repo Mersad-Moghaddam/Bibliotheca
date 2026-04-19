@@ -5,14 +5,14 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"libro-backend/models/book"
-	"libro-backend/models/bookNote"
-	"libro-backend/models/purchaseLink"
-	"libro-backend/models/readingEvent"
-	"libro-backend/models/readingGoal"
-	"libro-backend/models/readingSession"
-	"libro-backend/models/user"
-	"libro-backend/models/wishlist"
+	"negar-backend/models/book"
+	"negar-backend/models/bookNote"
+	"negar-backend/models/purchaseLink"
+	"negar-backend/models/readingEvent"
+	"negar-backend/models/readingGoal"
+	"negar-backend/models/readingSession"
+	"negar-backend/models/user"
+	"negar-backend/models/wishlist"
 )
 
 const migrationHint = "run SQL migrations from backend/migrations (including 000006_reading_deep_features.up.sql + later migrations)"

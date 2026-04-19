@@ -1,4 +1,4 @@
-module libro-backend
+module negar-backend
 
 go 1.24.0
 

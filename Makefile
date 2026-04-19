@@ -27,7 +27,7 @@ format:
 	cd frontend && npm run format
 
 seed:
-	docker compose exec -T mysql mysql -uroot -p$${MYSQL_ROOT_PASSWORD:-root} $${MYSQL_DATABASE:-libro} < backend/seeds/seed.sql
+	docker compose exec -T mysql mysql -uroot -p$${MYSQL_ROOT_PASSWORD:-root} $${MYSQL_DATABASE:-negar} < backend/seeds/seed.sql
 
 prod-up:
 	docker compose -f docker-compose.prod.yml up --build -d

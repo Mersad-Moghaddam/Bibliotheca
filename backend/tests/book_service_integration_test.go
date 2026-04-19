@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"libro-backend/models/book"
-	"libro-backend/models/readingEvent"
-	"libro-backend/repositories"
-	"libro-backend/services/bookService"
-	"libro-backend/statics/constants"
+	"negar-backend/models/book"
+	"negar-backend/models/readingEvent"
+	"negar-backend/repositories"
+	"negar-backend/services/bookService"
+	"negar-backend/statics/constants"
 )
 
 func TestBookServiceWithRepository(t *testing.T) {

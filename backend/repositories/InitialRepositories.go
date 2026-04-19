@@ -1,6 +1,10 @@
 package repositories
 
-import "libro-backend/repositories/initRepositories"
+import (
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
+	"negar-backend/repositories/initRepositories"
+)
 
 type InitialRepositories struct {
 	Auth         AuthRepository
@@ -9,6 +13,8 @@ type InitialRepositories struct {
 	Wishlist     WishlistRepository
 	PurchaseLink PurchaseLinkRepository
 	Reading      ReadingProgressRepository
+	db           *gorm.DB
+	redis        *redis.Client
 }
 
 func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialRepositories {
@@ -24,5 +30,15 @@ func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialReposit
 		Wishlist:     wishlistRepo,
 		PurchaseLink: purchaseRepo,
 		Reading:      NewReadingProgressRepo(deps.DB, bookRepo),
+		db:           deps.DB,
+		redis:        deps.Redis,
 	}
+}
+
+func (ir *InitialRepositories) DB() *gorm.DB {
+	return ir.db
+}
+
+func (ir *InitialRepositories) Redis() *redis.Client {
+	return ir.redis
 }

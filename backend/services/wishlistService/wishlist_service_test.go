@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"libro-backend/models/purchaseLink"
-	"libro-backend/models/wishlist"
-	"libro-backend/repositories"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/purchaseLink"
+	"negar-backend/models/wishlist"
+	"negar-backend/repositories"
+	"negar-backend/statics/customErr"
 )
 
 type fakeWishlistRepo struct {
@@ -20,11 +20,15 @@ type fakeWishlistRepo struct {
 func (f *fakeWishlistRepo) List(_ context.Context, _ uuid.UUID, _ repositories.WishlistFilter) ([]wishlist.Wishlist, int64, error) {
 	return nil, 0, errors.New("not implemented")
 }
-func (f *fakeWishlistRepo) Create(_ context.Context, _ *wishlist.Wishlist) error { return errors.New("not implemented") }
+func (f *fakeWishlistRepo) Create(_ context.Context, _ *wishlist.Wishlist) error {
+	return errors.New("not implemented")
+}
 func (f *fakeWishlistRepo) GetByID(_ context.Context, _ uuid.UUID, _ uuid.UUID) (*wishlist.Wishlist, error) {
 	return nil, errors.New("not implemented")
 }
-func (f *fakeWishlistRepo) Update(_ context.Context, _ *wishlist.Wishlist) error { return errors.New("not implemented") }
+func (f *fakeWishlistRepo) Update(_ context.Context, _ *wishlist.Wishlist) error {
+	return errors.New("not implemented")
+}
 
 func (f *fakeWishlistRepo) Delete(_ context.Context, userID, id uuid.UUID) error {
 	if f.err != nil {

@@ -5,7 +5,7 @@ export function LanguageToggle() {
   const { locale, setLocale } = useI18n()
 
   return (
-    <div className="inline-flex w-full rounded-md border border-border bg-surface p-1">
+    <div className="inline-flex w-full rounded-md border border-border bg-surface p-1" role="group" aria-label="Language">
       <Button
         className="flex-1"
         size="sm"

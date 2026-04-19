@@ -6,12 +6,12 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/book"
-	"libro-backend/models/readingEvent"
-	"libro-backend/models/readingGoal"
-	"libro-backend/models/readingSession"
-	"libro-backend/statics/constants"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/book"
+	"negar-backend/models/readingEvent"
+	"negar-backend/models/readingGoal"
+	"negar-backend/models/readingSession"
+	"negar-backend/statics/constants"
+	"negar-backend/statics/customErr"
 )
 
 type readingProgressRepo struct {

@@ -2,12 +2,15 @@ package authService
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
-	"libro-backend/models/user"
-	"libro-backend/pkg/security"
-	"libro-backend/repositories"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/user"
+	"negar-backend/pkg/reminders"
+	"negar-backend/pkg/security"
+	"negar-backend/pkg/validation"
+	"negar-backend/repositories"
+	"negar-backend/statics/customErr"
 )
 
 type UserService struct{ repo repositories.UserRepository }
@@ -17,6 +20,7 @@ func (s *UserService) Get(ctx context.Context, userID uuid.UUID) (*user.User, er
 	return s.repo.GetByID(ctx, userID)
 }
 func (s *UserService) UpdateName(ctx context.Context, userID uuid.UUID, name string) (*user.User, error) {
+	name = strings.TrimSpace(name)
 	if name == "" {
 		return nil, customErr.ErrBadRequest
 	}
@@ -28,7 +32,7 @@ func (s *UserService) UpdateName(ctx context.Context, userID uuid.UUID, name str
 	return u, s.repo.Update(ctx, u)
 }
 func (s *UserService) UpdatePassword(ctx context.Context, userID uuid.UUID, currentPassword, newPassword string) error {
-	if len(newPassword) < 6 {
+	if len(newPassword) < validation.MinPasswordLength || len(newPassword) > validation.MaxPasswordLength {
 		return customErr.ErrBadRequest
 	}
 	u, err := s.repo.GetByID(ctx, userID)
@@ -47,7 +51,8 @@ func (s *UserService) UpdatePassword(ctx context.Context, userID uuid.UUID, curr
 }
 
 func (s *UserService) UpdateReminderSettings(ctx context.Context, userID uuid.UUID, enabled bool, reminderTime, frequency string) (*user.User, error) {
-	if reminderTime == "" || frequency == "" {
+	reminderTime, frequency, ok := reminders.NormalizeAndValidateSettings(reminderTime, frequency)
+	if !ok {
 		return nil, customErr.ErrBadRequest
 	}
 	u, err := s.repo.GetByID(ctx, userID)

@@ -1,18 +1,25 @@
 package mainController
 
 import (
-	"libro-backend/controllers/authController"
-	"libro-backend/controllers/bookController"
-	"libro-backend/controllers/readingController"
-	"libro-backend/controllers/userController"
-	"libro-backend/controllers/wishlistController"
-	"libro-backend/repositories"
-	"libro-backend/services/authService"
-	"libro-backend/services/bookService"
-	"libro-backend/services/readingService"
-	"libro-backend/services/wishlistService"
-	"libro-backend/statics/configs"
+	"context"
+
+	"negar-backend/controllers/authController"
+	"negar-backend/controllers/bookController"
+	"negar-backend/controllers/readingController"
+	"negar-backend/controllers/userController"
+	"negar-backend/controllers/wishlistController"
+	"negar-backend/repositories"
+	"negar-backend/services/authService"
+	"negar-backend/services/bookService"
+	"negar-backend/services/readingService"
+	"negar-backend/services/runtimecheck"
+	"negar-backend/services/wishlistService"
+	"negar-backend/statics/configs"
 )
+
+type ReadinessChecker interface {
+	Check(ctx context.Context) error
+}
 
 type ControllerDeps struct {
 	Main     *MainService
@@ -29,9 +36,10 @@ func DepsFromInitialRepositories(ir *repositories.InitialRepositories, cfg *conf
 	bookSvc := bookService.New(ir.Book)
 	readSvc := readingService.New(ir.Reading)
 	wishSvc := wishlistService.New(ir.Wishlist, ir.PurchaseLink)
+	readiness := runtimecheck.New(ir.DB(), ir.Redis())
 
 	return ControllerDeps{
-		Main:     &MainService{books: bookSvc, reading: readSvc, users: userSvc},
+		Main:     &MainService{books: bookSvc, reading: readSvc, users: userSvc, readiness: readiness},
 		Auth:     &authController.ServiceBridge{Auth: authSvc, User: userSvc},
 		Book:     &bookController.ServiceBridge{Book: bookSvc},
 		Reading:  &readingController.ServiceBridge{Reading: readSvc},

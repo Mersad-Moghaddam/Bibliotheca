@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios'
 
 import { authStore } from '../contexts/authStore'
+import { analyticsEvents } from '../shared/analytics/events'
+import { analytics } from '../shared/analytics/tracker'
 
 import { extractData } from './http'
 import { RetryableRequestConfig, shouldAttemptTokenRefresh } from './refresh'
@@ -55,6 +57,7 @@ api.interceptors.response.use(
       originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`
       return api(originalRequest)
     } catch (refreshError) {
+      analytics.track(analyticsEvents.forcedLogoutRefreshFailure)
       authStore.getState().logout()
       return Promise.reject(refreshError)
     }

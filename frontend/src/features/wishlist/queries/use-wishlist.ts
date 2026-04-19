@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { analyticsEvents } from '../../../shared/analytics/events'
+import { analytics } from '../../../shared/analytics/tracker'
 import { queryKeys } from '../../../shared/query/query-keys'
 import { addWishlistItem, addWishlistLink, deleteWishlistItem, fetchWishlist } from '../api/wishlist-api'
 
@@ -13,6 +15,7 @@ export function useAddWishlistItemMutation() {
   return useMutation({
     mutationFn: addWishlistItem,
     onSuccess: () => {
+      analytics.track(analyticsEvents.wishlistItemCreated)
       void queryClient.invalidateQueries({ queryKey: queryKeys.wishlist.list })
     }
   })
@@ -25,6 +28,7 @@ export function useAddWishlistLinkMutation() {
     mutationFn: ({ itemId, label, url }: { itemId: string; label?: string; url: string }) =>
       addWishlistLink(itemId, { label, url }),
     onSuccess: () => {
+      analytics.track(analyticsEvents.wishlistLinkCreated)
       void queryClient.invalidateQueries({ queryKey: queryKeys.wishlist.list })
     }
   })
@@ -36,6 +40,7 @@ export function useDeleteWishlistItemMutation() {
   return useMutation({
     mutationFn: deleteWishlistItem,
     onSuccess: () => {
+      analytics.track(analyticsEvents.wishlistItemDeleted)
       void queryClient.invalidateQueries({ queryKey: queryKeys.wishlist.list })
     }
   })

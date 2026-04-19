@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
+import { analyticsEvents } from '../analytics/events'
+import { analytics } from '../analytics/tracker'
+
 import { Locale, messages } from './messages'
 
 type TranslationParams = Record<string, string | number>
@@ -44,6 +47,10 @@ function interpolate(value: string, params?: TranslationParams): string {
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState<Locale>(getInitialLocale)
+  const setLocaleTracked = (nextLocale: Locale) => {
+    setLocale(nextLocale)
+    analytics.track(analyticsEvents.localeChanged, { locale: nextLocale })
+  }
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, locale)
@@ -55,7 +62,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<I18nContextType>(
     () => ({
       locale,
-      setLocale,
+      setLocale: setLocaleTracked,
       isRtl: locale === 'fa',
       t: (key, params) => {
         const active = getByPath(messages[locale], key)

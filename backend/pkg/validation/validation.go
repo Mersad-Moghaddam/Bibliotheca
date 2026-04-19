@@ -3,8 +3,16 @@ package validation
 import (
 	"fmt"
 	"net/mail"
+	"regexp"
 	"strings"
 )
+
+const (
+	MinPasswordLength = 8
+	MaxPasswordLength = 72
+)
+
+var hhmmPattern = regexp.MustCompile(`^(?:[01]\d|2[0-3]):[0-5]\d$`)
 
 type Errors map[string]string
 
@@ -55,5 +63,14 @@ func Email(value, field string, errs Errors) {
 	}
 	if _, err := mail.ParseAddress(value); err != nil {
 		errs.Add(field, "is invalid")
+	}
+}
+
+func TimeHHMM(value, field string, errs Errors) {
+	if value == "" {
+		return
+	}
+	if !hhmmPattern.MatchString(value) {
+		errs.Add(field, "must use HH:MM format")
 	}
 }

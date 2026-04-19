@@ -4,18 +4,18 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"libro-backend/apiSchema/purchaseLinkSchema"
-	"libro-backend/apiSchema/wishlistSchema"
-	"libro-backend/models/commonPagination"
-	"libro-backend/models/purchaseLink"
-	"libro-backend/models/wishlist"
-	"libro-backend/pkg/apiresponse"
-	"libro-backend/pkg/pagination"
-	"libro-backend/pkg/validation"
-	"libro-backend/repositories"
-	"libro-backend/services/apiErrCode"
-	"libro-backend/services/wishlistService"
+	"negar-backend/apiSchema/purchaseLinkSchema"
+	"negar-backend/apiSchema/wishlistSchema"
+	"negar-backend/models/commonPagination"
+	"negar-backend/models/purchaseLink"
+	"negar-backend/models/wishlist"
+	"negar-backend/pkg/apiresponse"
+	"negar-backend/pkg/pagination"
+	"negar-backend/pkg/requestutil"
+	"negar-backend/pkg/validation"
+	"negar-backend/repositories"
+	"negar-backend/services/apiErrCode"
+	"negar-backend/services/wishlistService"
 )
 
 type ServiceBridge struct{ Wishlist *wishlistService.Service }
@@ -29,9 +29,9 @@ func NewWishlistController(service *ServiceBridge) *WishlistController {
 }
 
 func (h *WishlistController) List(c *fiber.Ctx) error {
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
@@ -59,9 +59,9 @@ func (h *WishlistController) Create(c *fiber.Ctx) error {
 	if errs := validateWishlistRequest(req); errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	w := &wishlist.Wishlist{UserID: uid, Title: req.Title, Author: req.Author, ExpectedPrice: req.ExpectedPrice, Notes: req.Notes}
 	if err := h.service.Wishlist.Create(c.Context(), w); err != nil {
@@ -70,13 +70,13 @@ func (h *WishlistController) Create(c *fiber.Ctx) error {
 	return apiresponse.Created(c, w)
 }
 func (h *WishlistController) Get(c *fiber.Ctx) error {
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	id, err := uuid.Parse(c.Params("id"))
+	id, err := requestutil.ParamUUID(c, "id")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	item, err := h.service.Wishlist.Get(c.Context(), uid, id)
 	if err != nil {
@@ -85,13 +85,13 @@ func (h *WishlistController) Get(c *fiber.Ctx) error {
 	return apiresponse.OK(c, item, nil)
 }
 func (h *WishlistController) Update(c *fiber.Ctx) error {
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	id, err := uuid.Parse(c.Params("id"))
+	id, err := requestutil.ParamUUID(c, "id")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	item, err := h.service.Wishlist.Get(c.Context(), uid, id)
 	if err != nil {
@@ -111,13 +111,13 @@ func (h *WishlistController) Update(c *fiber.Ctx) error {
 	return apiresponse.OK(c, item, nil)
 }
 func (h *WishlistController) Delete(c *fiber.Ctx) error {
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	id, err := uuid.Parse(c.Params("id"))
+	id, err := requestutil.ParamUUID(c, "id")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	if err := h.service.Wishlist.Delete(c.Context(), uid, id); err != nil {
 		return apiErrCode.RespondError(c, err)
@@ -132,13 +132,13 @@ func (h *WishlistController) AddLink(c *fiber.Ctx) error {
 	if errs := validateLinkRequest(req); errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	wid, err := uuid.Parse(c.Params("id"))
+	wid, err := requestutil.ParamUUID(c, "id")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	link := &purchaseLink.PurchaseLink{Label: req.Label, URL: req.URL}
 	if err := h.service.Wishlist.AddLink(c.Context(), uid, wid, link); err != nil {
@@ -154,17 +154,17 @@ func (h *WishlistController) UpdateLink(c *fiber.Ctx) error {
 	if errs := validateLinkRequest(req); errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	wid, err := uuid.Parse(c.Params("id"))
+	wid, err := requestutil.ParamUUID(c, "id")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	lid, err := uuid.Parse(c.Params("linkId"))
+	lid, err := requestutil.ParamUUID(c, "linkId")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	link, err := h.service.Wishlist.UpdateLink(c.Context(), uid, wid, lid, req.Label, req.URL)
 	if err != nil {
@@ -173,17 +173,17 @@ func (h *WishlistController) UpdateLink(c *fiber.Ctx) error {
 	return apiresponse.OK(c, link, nil)
 }
 func (h *WishlistController) DeleteLink(c *fiber.Ctx) error {
-	uid, err := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	wid, err := uuid.Parse(c.Params("id"))
+	wid, err := requestutil.ParamUUID(c, "id")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
-	lid, err := uuid.Parse(c.Params("linkId"))
+	lid, err := requestutil.ParamUUID(c, "linkId")
 	if err != nil {
-		return apiErrCode.RespondError(c, fiber.ErrBadRequest)
+		return apiErrCode.RespondError(c, err)
 	}
 	if err := h.service.Wishlist.DeleteLink(c.Context(), uid, wid, lid); err != nil {
 		return apiErrCode.RespondError(c, err)

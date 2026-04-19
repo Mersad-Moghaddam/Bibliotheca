@@ -8,6 +8,7 @@ type State = {
   refreshToken: string | null
   hydrated: boolean
   setAuth: (u: User, a: string, r: string) => void
+  setUser: (u: User | null) => void
   setTokens: (a: string, r: string) => void
   logout: () => void
   hydrate: () => void
@@ -24,6 +25,14 @@ export const authStore = create<State>((set, get) => ({
   setAuth: (user, accessToken, refreshToken) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ user, accessToken, refreshToken }))
     set({ user, accessToken, refreshToken })
+  },
+  setUser: (user) => {
+    const state = get()
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ user, accessToken: state.accessToken, refreshToken: state.refreshToken })
+    )
+    set({ user })
   },
   setTokens: (accessToken, refreshToken) => {
     const state = get()

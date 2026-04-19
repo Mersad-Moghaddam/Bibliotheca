@@ -1,0 +1,429 @@
+openapi: 3.0.3
+info:
+  title: Negar API
+  version: 1.0.0
+  description: |
+    API for the Negar reading tracker. This spec mirrors the current Fiber routes under `/api/v1`.
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RegisterRequest'}
+      responses:
+        '201': {description: Registered, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '400': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/LoginRequest'}
+      responses:
+        '200': {description: Login success, headers: {X-RateLimit-Remaining: {schema: {type: integer}}}, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+        '429': {$ref: '#/components/responses/Error'}
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/RefreshRequest'}}}
+      responses:
+        '200': {description: Tokens rotated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+  /auth/logout:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: false
+        content: {application/json: {schema: {$ref: '#/components/schemas/RefreshRequest'}}}
+      responses:
+        '200': {description: Logout success, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /auth/me:
+    get:
+      tags: [Auth]
+      responses:
+        '200': {description: Current user, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+  /dashboard/summary:
+    get:
+      tags: [Dashboard]
+      responses:
+        '200': {description: Summary payload, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /dashboard/analytics:
+    get:
+      tags: [Analytics]
+      responses:
+        '200': {description: Analytics payload, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /dashboard/insights:
+    get:
+      tags: [Analytics]
+      responses:
+        '200': {description: Insights payload, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /books:
+    get:
+      tags: [Books]
+      parameters:
+        - in: query
+          name: page
+          schema: {type: integer, minimum: 1}
+        - in: query
+          name: pageSize
+          schema: {type: integer, minimum: 1}
+        - in: query
+          name: status
+          schema: {type: string}
+      responses:
+        '200': {description: Books list, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+    post:
+      tags: [Books]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/BookCreateRequest'}}}
+      responses:
+        '201': {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '400': {$ref: '#/components/responses/Error'}
+  /books/{id}:
+    get:
+      tags: [Books]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses:
+        '200': {description: Book details, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '404': {$ref: '#/components/responses/Error'}
+    put:
+      tags: [Books]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/BookUpdateRequest'}}}
+      responses:
+        '200': {description: Updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+    delete:
+      tags: [Books]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses:
+        '200': {description: Deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /books/{id}/status:
+    patch:
+      tags: [Books]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/BookStatusRequest'}}}
+      responses:
+        '200': {description: Status updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /books/{id}/progress:
+    patch:
+      tags: [Reading]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/ProgressRequest'}}}
+      responses:
+        '200': {description: Progress updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /books/{id}/notes:
+    get:
+      tags: [Notes]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses:
+        '200': {description: Notes list, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+    post:
+      tags: [Notes]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/BookNoteRequest'}}}
+      responses:
+        '201': {description: Note created, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /books/{id}/notes/{noteId}:
+    delete:
+      tags: [Notes]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - in: path
+          name: noteId
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200': {description: Note deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /reading/sessions:
+    get:
+      tags: [Sessions]
+      parameters:
+        - in: query
+          name: bookId
+          schema: {type: string, format: uuid}
+      responses:
+        '200': {description: Sessions list, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+    post:
+      tags: [Sessions]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/SessionRequest'}}}
+      responses:
+        '201': {description: Session created, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /reading/goals:
+    get:
+      tags: [Goals]
+      responses:
+        '200': {description: Goals overview, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+    put:
+      tags: [Goals]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/GoalUpdateRequest'}}}
+      responses:
+        '200': {description: Goals updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /wishlist:
+    get:
+      tags: [Wishlist]
+      responses:
+        '200': {description: Wishlist items, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+    post:
+      tags: [Wishlist]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/WishlistCreateRequest'}}}
+      responses:
+        '201': {description: Wishlist item created, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+  /wishlist/{id}:
+    get:
+      tags: [Wishlist]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses: {'200': {description: Wishlist item, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+    put:
+      tags: [Wishlist]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/WishlistUpdateRequest'}}}
+      responses: {'200': {description: Wishlist updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+    delete:
+      tags: [Wishlist]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      responses: {'200': {description: Wishlist deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /wishlist/{id}/links:
+    post:
+      tags: [Wishlist]
+      parameters: [{$ref: '#/components/parameters/ID'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/PurchaseLinkRequest'}}}
+      responses: {'201': {description: Link created, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /wishlist/{id}/links/{linkId}:
+    put:
+      tags: [Wishlist]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - in: path
+          name: linkId
+          required: true
+          schema: {type: string, format: uuid}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/PurchaseLinkRequest'}}}
+      responses: {'200': {description: Link updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+    delete:
+      tags: [Wishlist]
+      parameters:
+        - {$ref: '#/components/parameters/ID'}
+        - in: path
+          name: linkId
+          required: true
+          schema: {type: string, format: uuid}
+      responses: {'200': {description: Link deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /users/profile:
+    put:
+      tags: [Profile]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/UpdateProfileRequest'}}}
+      responses: {'200': {description: Profile updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /users/password:
+    put:
+      tags: [Profile]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/UpdatePasswordRequest'}}}
+      responses: {'200': {description: Password updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /users/reminders:
+    get:
+      tags: [Reminders]
+      responses: {'200': {description: Reminder settings, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+    put:
+      tags: [Reminders]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/ReminderSettingsRequest'}}}
+      responses: {'200': {description: Reminder settings updated, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /health:
+    get:
+      tags: [Health]
+      security: []
+      responses: {'200': {description: Service alive, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}}
+  /ready:
+    get:
+      tags: [Health]
+      security: []
+      responses:
+        '200': {description: Dependencies ready, content: {application/json: {schema: {$ref: '#/components/schemas/DataEnvelope'}}}}
+        '503': {$ref: '#/components/responses/Error'}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    ID:
+      in: path
+      name: id
+      required: true
+      schema: {type: string, format: uuid}
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+  schemas:
+    DataEnvelope:
+      type: object
+      properties:
+        data: {type: object, additionalProperties: true}
+        meta: {type: object, additionalProperties: true}
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        details: {type: object, additionalProperties: true}
+    RegisterRequest:
+      type: object
+      required: [name, email, password, confirmPassword]
+      properties:
+        name: {type: string, minLength: 2, maxLength: 120}
+        email: {type: string, format: email}
+        password: {type: string, minLength: 8, maxLength: 72}
+        confirmPassword: {type: string}
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: {type: string, format: email}
+        password: {type: string}
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: {type: string}
+    BookCreateRequest:
+      type: object
+      required: [title, totalPages]
+      properties:
+        title: {type: string}
+        author: {type: string}
+        totalPages: {type: integer, minimum: 1}
+        status: {type: string}
+    BookUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/BookCreateRequest'
+    BookStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status: {type: string}
+    ProgressRequest:
+      type: object
+      required: [currentPage]
+      properties:
+        currentPage: {type: integer, minimum: 0}
+    BookNoteRequest:
+      type: object
+      required: [content]
+      properties:
+        content: {type: string}
+    SessionRequest:
+      type: object
+      required: [bookId, duration, pages]
+      properties:
+        bookId: {type: string, format: uuid}
+        date: {type: string, format: date}
+        duration: {type: integer, minimum: 1}
+        pages: {type: integer, minimum: 0}
+    GoalTargetRequest:
+      type: object
+      properties:
+        pages: {type: integer, minimum: 0}
+        books: {type: integer, minimum: 0}
+    GoalUpdateRequest:
+      type: object
+      properties:
+        weekly: {$ref: '#/components/schemas/GoalTargetRequest'}
+        monthly: {$ref: '#/components/schemas/GoalTargetRequest'}
+        applySuggestion: {type: boolean}
+    WishlistCreateRequest:
+      type: object
+      required: [title]
+      properties:
+        title: {type: string}
+        author: {type: string}
+        reason: {type: string}
+    WishlistUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/WishlistCreateRequest'
+    PurchaseLinkRequest:
+      type: object
+      required: [label, url]
+      properties:
+        label: {type: string}
+        url: {type: string, format: uri}
+        price: {type: number, format: float, minimum: 0}
+        currency: {type: string}
+    UpdateProfileRequest:
+      type: object
+      required: [name]
+      properties:
+        name: {type: string, minLength: 2, maxLength: 120}
+    UpdatePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: {type: string}
+        newPassword: {type: string, minLength: 8, maxLength: 72}
+    ReminderSettingsRequest:
+      type: object
+      required: [enabled, time, frequency]
+      properties:
+        enabled: {type: boolean}
+        time: {type: string, pattern: '^(?:[01]\\d|2[0-3]):[0-5]\\d$'}
+        frequency: {type: string, enum: [daily, weekly, weekdays, weekends]}
+tags:
+  - {name: Auth}
+  - {name: Dashboard}
+  - {name: Analytics}
+  - {name: Books}
+  - {name: Reading}
+  - {name: Notes}
+  - {name: Sessions}
+  - {name: Goals}
+  - {name: Wishlist}
+  - {name: Profile}
+  - {name: Reminders}
+  - {name: Health}

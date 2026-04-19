@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Flame, Sparkles, Timer } from 'lucide-react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '../../components/ui/button'
@@ -7,6 +8,7 @@ import { SectionCard } from '../../components/ui/card'
 import { Input } from '../../components/ui/input'
 import { SectionHeader } from '../../components/ui/section-header'
 import { Select } from '../../components/ui/select'
+import { authStore } from '../../contexts/authStore'
 import {
   nameSchema,
   NameValues,
@@ -33,10 +35,17 @@ export function Profile() {
   const updateName = useUpdateProfileNameMutation()
   const updatePassword = useUpdatePasswordMutation()
   const updateReminder = useUpdateReminderMutation()
+  const user = authStore((state) => state.user)
 
   const nameForm = useForm<NameValues>({ resolver: zodResolver(nameSchema), defaultValues: { name: '' } })
   const passwordForm = useForm<PasswordValues>({ resolver: zodResolver(passwordSchema), defaultValues: { currentPassword: '', newPassword: '' } })
   const reminderForm = useForm<ReminderValues>({ resolver: zodResolver(reminderSchema), values: reminderQuery.data ?? { enabled: false, time: '20:00', frequency: 'daily' } })
+
+  useEffect(() => {
+    if (user?.name) {
+      nameForm.reset({ name: user.name })
+    }
+  }, [nameForm, user?.name])
 
   return (
     <div className="space-y-4 sm:space-y-5">

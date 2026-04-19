@@ -27,7 +27,7 @@ export function QueryState({
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" role="status" aria-live="polite" aria-label={t('common.loading')}>
         <Skeleton className="h-24" />
         <Skeleton className="h-24" />
       </div>
@@ -42,7 +42,7 @@ export function QueryState({
         description={t('query.errorDescription')}
         action={
           onRetry ? (
-            <Button size="sm" onClick={onRetry}>
+            <Button size="sm" onClick={onRetry} aria-label={t('query.retry')}>
               {t('query.retry')}
             </Button>
           ) : undefined

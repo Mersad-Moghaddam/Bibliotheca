@@ -5,17 +5,18 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"libro-backend/apiSchema/bookSchema"
-	"libro-backend/models/book"
-	"libro-backend/models/commonPagination"
-	"libro-backend/pkg/apiresponse"
-	"libro-backend/pkg/pagination"
-	"libro-backend/pkg/validation"
-	"libro-backend/repositories"
-	"libro-backend/services/apiErrCode"
-	"libro-backend/services/bookService"
-	"libro-backend/statics/constants"
+	"negar-backend/apiSchema/bookSchema"
+	"negar-backend/models/book"
+	"negar-backend/models/commonPagination"
+	"negar-backend/pkg/apiresponse"
+	"negar-backend/pkg/bookview"
+	"negar-backend/pkg/pagination"
+	"negar-backend/pkg/requestutil"
+	"negar-backend/pkg/validation"
+	"negar-backend/repositories"
+	"negar-backend/services/apiErrCode"
+	"negar-backend/services/bookService"
+	"negar-backend/statics/constants"
 )
 
 type ServiceBridge struct{ Book *bookService.Service }
@@ -30,7 +31,10 @@ func NewBookController(service *ServiceBridge) *BookController {
 }
 
 func (h *BookController) List(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
 	page, limit = pagination.Normalize(page, limit)
@@ -47,7 +51,7 @@ func (h *BookController) List(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	meta := commonPagination.Meta{Page: page, Limit: limit, Total: total, HasNext: int64(page*limit) < total}
-	return apiresponse.OK(c, withBooksComputed(books), meta)
+	return apiresponse.OK(c, bookview.FullList(books), meta)
 }
 func (h *BookController) Create(c *fiber.Ctx) error {
 	var req bookSchema.BookRequest
@@ -57,25 +61,40 @@ func (h *BookController) Create(c *fiber.Ctx) error {
 	if errs := validateBookRequest(req); errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	b := &book.Book{UserID: uid, Title: req.Title, Author: req.Author, TotalPages: req.TotalPages, Status: req.Status, CoverURL: req.CoverURL, Genre: req.Genre, ISBN: req.ISBN}
 	if err := h.service.Book.Create(c.Context(), b); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.Created(c, withBookComputed(b))
+	return apiresponse.Created(c, bookview.Full(b))
 }
 func (h *BookController) Get(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	b, err := h.service.Book.Get(c.Context(), uid, id)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, withBookComputed(b), nil)
+	return apiresponse.OK(c, bookview.Full(b), nil)
 }
 func (h *BookController) Update(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	b, err := h.service.Book.Get(c.Context(), uid, id)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
@@ -92,11 +111,17 @@ func (h *BookController) Update(c *fiber.Ctx) error {
 	if err = h.service.Book.Update(c.Context(), b); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, withBookComputed(b), nil)
+	return apiresponse.OK(c, bookview.Full(b), nil)
 }
 func (h *BookController) Delete(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	if err := h.service.Book.Delete(c.Context(), uid, id); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -135,8 +160,14 @@ func (h *BookController) UpdateStatus(c *fiber.Ctx) error {
 	if errFields.HasAny() {
 		return apiresponse.ValidationError(c, errFields)
 	}
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	b, err := h.service.Book.UpdateStatus(
 		c.Context(),
 		uid,
@@ -151,12 +182,18 @@ func (h *BookController) UpdateStatus(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, withBookComputed(b), nil)
+	return apiresponse.OK(c, bookview.Full(b), nil)
 }
 
 func (h *BookController) ListNotes(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	notes, err := h.service.Book.ListNotes(c.Context(), uid, id)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
@@ -174,8 +211,14 @@ func (h *BookController) AddNote(c *fiber.Ctx) error {
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	id, _ := uuid.Parse(c.Params("id"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	id, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	note, err := h.service.Book.CreateNote(c.Context(), uid, id, req.Note, req.Highlight)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
@@ -184,9 +227,18 @@ func (h *BookController) AddNote(c *fiber.Ctx) error {
 }
 
 func (h *BookController) DeleteNote(c *fiber.Ctx) error {
-	uid, _ := uuid.Parse(c.Locals("userID").(string))
-	bookID, _ := uuid.Parse(c.Params("id"))
-	noteID, _ := uuid.Parse(c.Params("noteId"))
+	uid, err := requestutil.UserID(c)
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	bookID, err := requestutil.ParamUUID(c, "id")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
+	noteID, err := requestutil.ParamUUID(c, "noteId")
+	if err != nil {
+		return apiErrCode.RespondError(c, err)
+	}
 	if err := h.service.Book.DeleteNote(c.Context(), uid, bookID, noteID); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -203,27 +255,4 @@ func validateBookRequest(req bookSchema.BookRequest) validation.Errors {
 	validation.Enum(req.Status, "status", allowedBookStatus, errs)
 	validation.MinInt(req.TotalPages, "totalPages", 1, errs)
 	return errs
-}
-
-func withBooksComputed(books []book.Book) []map[string]any {
-	resp := make([]map[string]any, 0, len(books))
-	for i := range books {
-		b := books[i]
-		resp = append(resp, withBookComputed(&b))
-	}
-	return resp
-}
-func withBookComputed(b *book.Book) map[string]any {
-	remaining := b.TotalPages
-	if b.CurrentPage != nil {
-		remaining = b.TotalPages - *b.CurrentPage
-	}
-	if remaining < 0 {
-		remaining = 0
-	}
-	progress := 0
-	if b.CurrentPage != nil && b.TotalPages > 0 {
-		progress = int(float64(*b.CurrentPage) / float64(b.TotalPages) * 100)
-	}
-	return map[string]any{"id": b.ID, "userId": b.UserID, "title": b.Title, "author": b.Author, "totalPages": b.TotalPages, "status": b.Status, "currentPage": b.CurrentPage, "remainingPages": remaining, "progressPercentage": progress, "coverUrl": b.CoverURL, "genre": b.Genre, "isbn": b.ISBN, "completedAt": b.CompletedAt, "finishRating": b.FinishRating, "finishReflection": b.FinishReflection, "finishHighlight": b.FinishHighlight, "nextToReadFocus": b.NextToReadFocus, "nextToReadNote": b.NextToReadNote, "createdAt": b.CreatedAt, "updatedAt": b.UpdatedAt}
 }

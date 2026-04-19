@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/book"
-	"libro-backend/models/readingEvent"
-	"libro-backend/models/readingGoal"
-	"libro-backend/models/readingSession"
+	"negar-backend/models/book"
+	"negar-backend/models/readingEvent"
+	"negar-backend/models/readingGoal"
+	"negar-backend/models/readingSession"
 )
 
 type fakeReadingRepo struct {

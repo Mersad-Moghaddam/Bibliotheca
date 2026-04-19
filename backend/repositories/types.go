@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"libro-backend/models/book"
-	"libro-backend/models/bookNote"
-	"libro-backend/models/purchaseLink"
-	"libro-backend/models/readingEvent"
-	"libro-backend/models/readingGoal"
-	"libro-backend/models/readingSession"
-	"libro-backend/models/user"
-	"libro-backend/models/wishlist"
+	"negar-backend/models/book"
+	"negar-backend/models/bookNote"
+	"negar-backend/models/purchaseLink"
+	"negar-backend/models/readingEvent"
+	"negar-backend/models/readingGoal"
+	"negar-backend/models/readingSession"
+	"negar-backend/models/user"
+	"negar-backend/models/wishlist"
 )
 
 type PageFilter struct {

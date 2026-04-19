@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/purchaseLink"
+	"negar-backend/models/purchaseLink"
 )
 
 type purchaseLinkRepo struct {

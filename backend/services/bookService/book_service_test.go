@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"libro-backend/models/book"
-	"libro-backend/models/bookNote"
-	"libro-backend/repositories"
-	"libro-backend/statics/constants"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/book"
+	"negar-backend/models/bookNote"
+	"negar-backend/repositories"
+	"negar-backend/statics/constants"
+	"negar-backend/statics/customErr"
 )
 
 type fakeBookRepo struct {

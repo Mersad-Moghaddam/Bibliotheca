@@ -9,11 +9,12 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/auth"
-	"libro-backend/models/user"
-	"libro-backend/pkg/security"
-	"libro-backend/repositories"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/auth"
+	"negar-backend/models/user"
+	"negar-backend/pkg/security"
+	"negar-backend/pkg/validation"
+	"negar-backend/repositories"
+	"negar-backend/statics/customErr"
 )
 
 type Service struct {
@@ -31,8 +32,9 @@ func New(users repositories.UserRepository, authRepo repositories.AuthRepository
 }
 
 func (s *Service) Register(ctx context.Context, name, email, password string) (*user.User, error) {
+	name = strings.TrimSpace(name)
 	email = strings.TrimSpace(strings.ToLower(email))
-	if name == "" || email == "" || len(password) < 6 {
+	if name == "" || email == "" || len(password) < validation.MinPasswordLength || len(password) > validation.MaxPasswordLength {
 		return nil, customErr.ErrBadRequest
 	}
 	_, err := s.users.GetByEmail(ctx, email)

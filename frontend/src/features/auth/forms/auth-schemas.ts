@@ -9,8 +9,8 @@ export const registerSchema = z
   .object({
     name: z.string().min(2, 'validation.nameMin'),
     email: z.string().email('validation.validEmail'),
-    password: z.string().min(6, 'validation.passwordMin'),
-    confirmPassword: z.string().min(6, 'validation.confirmPasswordRequired')
+    password: z.string().min(8, 'validation.passwordMin'),
+    confirmPassword: z.string().min(8, 'validation.confirmPasswordRequired')
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ['confirmPassword'],

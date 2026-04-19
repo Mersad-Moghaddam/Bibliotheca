@@ -5,6 +5,8 @@ import api from '../../api/client'
 import { ThemeToggle } from '../../components/ThemeToggle'
 import { Button } from '../../components/ui/button'
 import { authStore } from '../../contexts/authStore'
+import { analyticsEvents } from '../../shared/analytics/events'
+import { analytics } from '../../shared/analytics/tracker'
 import { useI18n } from '../../shared/i18n/i18n-provider'
 import { LanguageToggle } from '../../widgets/language-toggle/language-toggle'
 
@@ -30,6 +32,7 @@ export function LayoutControls({ onLoggedOut }: { onLoggedOut?: () => void }) {
                 // fallback local logout
               }
             }
+            analytics.track(analyticsEvents.logout, { source: 'user_action' })
             logout()
             onLoggedOut?.()
             nav('/login')

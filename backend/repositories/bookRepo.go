@@ -7,11 +7,11 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"libro-backend/models/book"
-	"libro-backend/models/bookNote"
-	"libro-backend/models/readingEvent"
-	"libro-backend/statics/constants"
-	"libro-backend/statics/customErr"
+	"negar-backend/models/book"
+	"negar-backend/models/bookNote"
+	"negar-backend/models/readingEvent"
+	"negar-backend/statics/constants"
+	"negar-backend/statics/customErr"
 )
 
 type bookRepo struct{ db *gorm.DB }
