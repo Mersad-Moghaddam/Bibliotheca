@@ -11,10 +11,14 @@ import (
 	"negar-backend/pkg/requestutil"
 	"negar-backend/pkg/validation"
 	"negar-backend/services/apiErrCode"
+	"negar-backend/services/auditService"
 	"negar-backend/services/readingService"
 )
 
-type ServiceBridge struct{ Reading *readingService.Service }
+type ServiceBridge struct {
+	Reading *readingService.Service
+	Audit   *auditService.Service
+}
 
 type ReadingController struct{ service *ServiceBridge }
 
@@ -45,6 +49,9 @@ func (h *ReadingController) UpdateProgress(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	remaining, percentage := bookview.ProgressStats(b)
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "book.progress.updated", ResourceType: "book", ResourceID: &id, Metadata: map[string]any{"currentPage": req.CurrentPage}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	return apiresponse.OK(c, fiber.Map{
 		"id":                 b.ID,
 		"status":             b.Status,
@@ -84,6 +91,9 @@ func (h *ReadingController) AddSession(c *fiber.Ctx) error {
 	session := &readingSession.ReadingSession{UserID: uid, BookID: bookID, Date: date, Duration: req.Duration, PagesRead: req.PagesRead}
 	if err := h.service.Reading.CreateSession(c.Context(), session); err != nil {
 		return apiErrCode.RespondError(c, err)
+	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "reading.session.created", ResourceType: "reading_session", ResourceID: &session.ID, Metadata: map[string]any{"bookId": session.BookID, "pagesRead": session.PagesRead}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
 	}
 	return apiresponse.Created(c, session)
 }

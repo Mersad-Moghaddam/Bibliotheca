@@ -37,11 +37,19 @@ func (f *fakeUserRepo) GetByEmail(_ context.Context, email string) (*user.User, 
 	return u, nil
 }
 
-func (f *fakeUserRepo) GetByID(_ context.Context, _ uuid.UUID) (*user.User, error) {
-	return nil, errors.New("not implemented")
+func (f *fakeUserRepo) GetByID(_ context.Context, id uuid.UUID) (*user.User, error) {
+	for _, u := range f.byEmail {
+		if u.ID == id {
+			return u, nil
+		}
+	}
+	return nil, gorm.ErrRecordNotFound
 }
 func (f *fakeUserRepo) Update(_ context.Context, _ *user.User) error {
 	return errors.New("not implemented")
+}
+func (f *fakeUserRepo) ListReminderEnabled(_ context.Context) ([]user.User, error) {
+	return nil, nil
 }
 
 type fakeAuthRepo struct {

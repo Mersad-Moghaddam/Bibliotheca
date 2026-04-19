@@ -17,6 +17,7 @@ import (
 	"negar-backend/repositories"
 	"negar-backend/repositories/initRepositories"
 	"negar-backend/services/core"
+	"negar-backend/services/reminderService"
 	"negar-backend/statics/configs"
 )
 
@@ -58,6 +59,9 @@ func main() {
 	deps := initRepositories.New(db, rdb)
 	ir := repositories.NewInitialRepositories(deps)
 	server := core.NewServer(cfg, mainController.DepsFromInitialRepositories(ir, cfg), appLogger)
+	reminderSvc := reminderService.New(ir.User, ir.ReminderDelivery, reminderService.NewLogSender(appLogger), appLogger)
+	reminderWorker := reminderService.NewWorker(reminderSvc, appLogger, time.Minute)
+	reminderWorker.Start(context.Background())
 
 	listenErrCh := make(chan error, 1)
 	go func() {
@@ -95,6 +99,8 @@ func main() {
 			appLogger.Error("mysql_close_failed", zap.Error(closeErr))
 		}
 	}
+
+	reminderWorker.Stop(3 * time.Second)
 
 	if err = rdb.Close(); err != nil {
 		appLogger.Error("redis_close_failed", zap.Error(err))

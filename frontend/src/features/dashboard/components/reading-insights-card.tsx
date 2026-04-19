@@ -77,7 +77,7 @@ export function ReadingInsightsCard({
           <span className="mr-1 inline-flex">{variantIcon(insight.variant)}</span>
           {t(`dashboard.insights.variants.${insight.variant}`)}
         </Badge>
-        <p className="text-xs text-mutedForeground">{t('dashboard.insights.priorityLabel')}</p>
+        <p className="text-xs text-mutedForeground">{t(`dashboard.insights.confidence.${insight.confidence}`)}</p>
       </div>
       <div>
         <p className="font-semibold">{t(insight.titleKey)}</p>
@@ -94,6 +94,8 @@ export function ReadingInsightsCard({
           </div>
         ))}
       </div>
+
+      <p className="text-xs text-mutedForeground">{t(insight.explanationKey)}</p>
 
       {insight.recommendationKey ? (
         <div className="rounded-lg border border-dashed border-border px-3 py-2">

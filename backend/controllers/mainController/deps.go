@@ -9,6 +9,7 @@ import (
 	"negar-backend/controllers/userController"
 	"negar-backend/controllers/wishlistController"
 	"negar-backend/repositories"
+	"negar-backend/services/auditService"
 	"negar-backend/services/authService"
 	"negar-backend/services/bookService"
 	"negar-backend/services/readingService"
@@ -33,6 +34,7 @@ type ControllerDeps struct {
 func DepsFromInitialRepositories(ir *repositories.InitialRepositories, cfg *configs.Config) ControllerDeps {
 	authSvc := authService.New(ir.User, ir.Auth, cfg.JWTSecret, cfg.AccessTokenTTL, cfg.RefreshTokenTTL, cfg.RateLimitWindow, cfg.RateLimitMaxAttempts)
 	userSvc := authService.NewUserService(ir.User)
+	auditSvc := auditService.New(ir.Audit)
 	bookSvc := bookService.New(ir.Book)
 	readSvc := readingService.New(ir.Reading)
 	wishSvc := wishlistService.New(ir.Wishlist, ir.PurchaseLink)
@@ -41,9 +43,9 @@ func DepsFromInitialRepositories(ir *repositories.InitialRepositories, cfg *conf
 	return ControllerDeps{
 		Main:     &MainService{books: bookSvc, reading: readSvc, users: userSvc, readiness: readiness},
 		Auth:     &authController.ServiceBridge{Auth: authSvc, User: userSvc},
-		Book:     &bookController.ServiceBridge{Book: bookSvc},
-		Reading:  &readingController.ServiceBridge{Reading: readSvc},
-		User:     &userController.ServiceBridge{User: userSvc},
-		Wishlist: &wishlistController.ServiceBridge{Wishlist: wishSvc},
+		Book:     &bookController.ServiceBridge{Book: bookSvc, Audit: auditSvc},
+		Reading:  &readingController.ServiceBridge{Reading: readSvc, Audit: auditSvc},
+		User:     &userController.ServiceBridge{User: userSvc, Audit: auditSvc},
+		Wishlist: &wishlistController.ServiceBridge{Wishlist: wishSvc, Audit: auditSvc},
 	}
 }

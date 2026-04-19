@@ -76,7 +76,7 @@ func (s *Service) Login(ctx context.Context, ip, email, password string) (*user.
 	if err = s.auth.DeleteRefreshTokensByUser(ctx, u.ID.String()); err != nil {
 		return nil, nil, remaining, err
 	}
-	t, err := s.createTokens(ctx, u.ID.String())
+	t, err := s.createTokens(ctx, u.ID.String(), u.Role)
 	return u, t, remaining, err
 }
 
@@ -90,7 +90,11 @@ func (s *Service) Refresh(ctx context.Context, refreshToken string) (*auth.Token
 		return nil, customErr.ErrInvalidRefreshToken
 	}
 	_ = s.auth.DeleteRefreshToken(ctx, claims.TokenID)
-	return s.createTokens(ctx, claims.UserID)
+	u, userErr := s.users.GetByID(ctx, uuid.MustParse(claims.UserID))
+	if userErr != nil {
+		return nil, customErr.ErrInvalidRefreshToken
+	}
+	return s.createTokens(ctx, claims.UserID, u.Role)
 }
 
 func (s *Service) Logout(ctx context.Context, refreshToken string) {
@@ -100,13 +104,13 @@ func (s *Service) Logout(ctx context.Context, refreshToken string) {
 	}
 }
 
-func (s *Service) createTokens(ctx context.Context, userID string) (*auth.TokenPair, error) {
+func (s *Service) createTokens(ctx context.Context, userID, role string) (*auth.TokenPair, error) {
 	tokenID := uuid.NewString()
-	access, err := security.GenerateToken(s.jwtSecret, userID, "", "access", s.accessTTL)
+	access, err := security.GenerateToken(s.jwtSecret, userID, role, "", "access", s.accessTTL)
 	if err != nil {
 		return nil, err
 	}
-	refresh, err := security.GenerateToken(s.jwtSecret, userID, tokenID, "refresh", s.refreshTTL)
+	refresh, err := security.GenerateToken(s.jwtSecret, userID, role, tokenID, "refresh", s.refreshTTL)
 	if err != nil {
 		return nil, err
 	}

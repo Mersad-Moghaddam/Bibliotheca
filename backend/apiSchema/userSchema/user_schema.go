@@ -13,4 +13,5 @@ type ReminderSettingsRequest struct {
 	Enabled   bool   `json:"enabled"`
 	Time      string `json:"time"`
 	Frequency string `json:"frequency"`
+	Timezone  string `json:"timezone"`
 }

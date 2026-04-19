@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"negar-backend/models/auditEvent"
 	"negar-backend/models/book"
 	"negar-backend/models/bookNote"
 	"negar-backend/models/purchaseLink"
 	"negar-backend/models/readingEvent"
 	"negar-backend/models/readingGoal"
 	"negar-backend/models/readingSession"
+	"negar-backend/models/reminderDelivery"
 	"negar-backend/models/user"
 	"negar-backend/models/wishlist"
 )
@@ -49,6 +51,7 @@ type UserRepository interface {
 	GetByEmail(ctx context.Context, email string) (*user.User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*user.User, error)
 	Update(ctx context.Context, u *user.User) error
+	ListReminderEnabled(ctx context.Context) ([]user.User, error)
 }
 
 type BookRepository interface {
@@ -90,4 +93,16 @@ type ReadingProgressRepository interface {
 	SumEventPagesBetween(ctx context.Context, userID uuid.UUID, startDate, endDate time.Time) (int, error)
 	SumEventCompletionsBetween(ctx context.Context, userID uuid.UUID, startDate, endDate time.Time) (int, error)
 	ListEventsBetween(ctx context.Context, userID uuid.UUID, startDate, endDate time.Time) ([]readingEvent.ReadingEvent, error)
+}
+
+type AuditRepository interface {
+	Create(ctx context.Context, event *auditEvent.AuditEvent) error
+}
+
+type ReminderDeliveryRepository interface {
+	CreatePending(ctx context.Context, delivery *reminderDelivery.ReminderDelivery) (bool, error)
+	ListDispatchable(ctx context.Context, now time.Time, limit int) ([]reminderDelivery.ReminderDelivery, error)
+	MarkProcessing(ctx context.Context, id uuid.UUID) error
+	MarkSent(ctx context.Context, id uuid.UUID, sentAt time.Time) error
+	MarkFailed(ctx context.Context, id uuid.UUID, nextAttempt time.Time, lastErr string) error
 }

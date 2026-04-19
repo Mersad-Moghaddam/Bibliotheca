@@ -9,13 +9,14 @@ import (
 
 type Claims struct {
 	UserID  string `json:"userId"`
+	Role    string `json:"role,omitempty"`
 	TokenID string `json:"tokenId,omitempty"`
 	Type    string `json:"type"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(secret, userID, tokenID, tokenType string, ttl time.Duration) (string, error) {
-	claims := Claims{UserID: userID, TokenID: tokenID, Type: tokenType, RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)), IssuedAt: jwt.NewNumericDate(time.Now())}}
+func GenerateToken(secret, userID, role, tokenID, tokenType string, ttl time.Duration) (string, error) {
+	claims := Claims{UserID: userID, Role: role, TokenID: tokenID, Type: tokenType, RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(ttl)), IssuedAt: jwt.NewNumericDate(time.Now())}}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
 }
 func ParseToken(secret, tokenStr string) (*Claims, error) {

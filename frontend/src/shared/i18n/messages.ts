@@ -233,6 +233,7 @@ export const messages = {
       insights: {
         priorityLabel: 'Primary insight',
         recommendationLabel: 'Best next step',
+        confidence: { low: 'Low confidence', medium: 'Medium confidence', high: 'High confidence' },
         variants: {
           positive: 'Strong signal',
           neutral: 'Insight',
@@ -288,7 +289,21 @@ export const messages = {
           maintainGoal: 'Keep your pace and stretch toward your next weekly milestone.',
           smallSessionToday: 'Schedule one short session today to get back on target.',
           focusOneBook: 'Choose one active title as your focus book for this week.',
-          logProgressOnCurrent: 'Log progress on your current book to sharpen your insights.'
+          logProgressOnCurrent: 'Log progress on your current book to sharpen your insights.',
+          pickShortBook: 'Pick one shorter backlog title for a quick completion win.'
+        },
+        explanations: {
+          noHistory: 'There is not enough history yet, so the coach starts with setup guidance.',
+          longGap: 'The recommendation is driven by recent inactivity and low weekly sessions.',
+          stalledBooks: 'Active books exist, but no recent activity suggests stalled momentum.',
+          nearFinish: 'A nearly finished title is the strongest immediate completion opportunity.',
+          shortBookPattern: 'Recent completions show a pattern of finishing shorter books faster.',
+          recentFinish: 'Recent completions and active sessions indicate momentum worth protecting.',
+          goalRisk: 'Current weekly goal progress is below target and needs a small intervention.',
+          tooManyActive: 'Too many active books with limited pages can dilute progress.',
+          resumePattern: 'You resumed after a gap, so consistency reinforcement has high value.',
+          consistentWeek: 'Multiple active days and session volume indicate reliable rhythm.',
+          steady: 'No strong anomaly was found, so the coach suggests a safe next action.'
         },
         signals: {
           activeBooks: 'Active books',
@@ -299,7 +314,9 @@ export const messages = {
           pagesThisWeek: 'Pages this week',
           pagesLastWeek: 'Pages last week',
           closestBookProgress: 'Closest book progress',
-          goalProgress: 'Weekly goal progress'
+          goalProgress: 'Weekly goal progress',
+          backlogSize: 'Backlog size',
+          finishedShortBooks: 'Short books finished'
         }
       }
     },
@@ -741,6 +758,7 @@ export const messages = {
       insights: {
         priorityLabel: 'بینش اصلی',
         recommendationLabel: 'بهترین اقدام بعدی',
+        confidence: { low: 'اطمینان کم', medium: 'اطمینان متوسط', high: 'اطمینان بالا' },
         variants: {
           positive: 'سیگنال مثبت',
           neutral: 'بینش',
@@ -792,7 +810,21 @@ export const messages = {
           maintainGoal: 'همین سرعت را نگه دار و به هدف بعدی هفتگی فکر کن.',
           smallSessionToday: 'امروز یک جلسه کوتاه برنامه‌ریزی کن تا دوباره روی هدف قرار بگیری.',
           focusOneBook: 'این هفته یک کتاب فعال را به‌عنوان تمرکز اصلی انتخاب کن.',
-          logProgressOnCurrent: 'پیشرفت کتاب فعلی را ثبت کن تا بینش‌ها دقیق‌تر شوند.'
+          logProgressOnCurrent: 'پیشرفت کتاب فعلی را ثبت کن تا بینش‌ها دقیق‌تر شوند.',
+          pickShortBook: 'از کتاب‌های کوتاه‌تر صف انتظار یکی را برای یک برد سریع انتخاب کن.'
+        },
+        explanations: {
+          noHistory: 'هنوز داده کافی وجود ندارد و مربی با پیشنهاد پایه شروع می‌کند.',
+          longGap: 'این پیشنهاد بر اساس وقفه اخیر و کمبود جلسه‌های این هفته است.',
+          stalledBooks: 'کتاب فعال داری اما فعالیت اخیر کم بوده و ریتمت کند شده است.',
+          nearFinish: 'یک کتاب نزدیکِ پایان، بهترین فرصت برای یک موفقیت سریع است.',
+          shortBookPattern: 'الگوی اتمام اخیر نشان می‌دهد کتاب‌های کوتاه‌تر سریع‌تر تمام می‌شوند.',
+          recentFinish: 'اتمام‌های اخیر و جلسه‌های فعال، نشان می‌دهد حفظ ریتم ارزشمند است.',
+          goalRisk: 'پیشرفت هدف هفتگی پایین‌تر از حد انتظار است و مداخله کوچک لازم دارد.',
+          tooManyActive: 'تعداد زیاد کتاب فعال با صفحات کم می‌تواند تمرکز را پخش کند.',
+          resumePattern: 'بعد از وقفه برگشتی؛ تقویت ثبات الان بیشترین ارزش را دارد.',
+          consistentWeek: 'روزهای فعال و تعداد جلسه‌ها نشان‌دهنده ریتم قابل اتکا هستند.',
+          steady: 'نشانه خیلی قوی مثبت یا منفی دیده نشد؛ یک اقدام امن پیشنهاد می‌شود.'
         },
         signals: {
           activeBooks: 'کتاب‌های فعال',
@@ -803,7 +835,9 @@ export const messages = {
           pagesThisWeek: 'صفحه این هفته',
           pagesLastWeek: 'صفحه هفته قبل',
           closestBookProgress: 'پیشرفت نزدیک‌ترین کتاب',
-          goalProgress: 'پیشرفت هدف هفتگی'
+          goalProgress: 'پیشرفت هدف هفتگی',
+          backlogSize: 'اندازه صف انتظار',
+          finishedShortBooks: 'کتاب کوتاهِ تمام‌شده'
         }
       }
     },

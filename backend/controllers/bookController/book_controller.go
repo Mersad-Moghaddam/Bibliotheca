@@ -15,11 +15,15 @@ import (
 	"negar-backend/pkg/validation"
 	"negar-backend/repositories"
 	"negar-backend/services/apiErrCode"
+	"negar-backend/services/auditService"
 	"negar-backend/services/bookService"
 	"negar-backend/statics/constants"
 )
 
-type ServiceBridge struct{ Book *bookService.Service }
+type ServiceBridge struct {
+	Book  *bookService.Service
+	Audit *auditService.Service
+}
 
 type BookController struct{ service *ServiceBridge }
 
@@ -69,6 +73,9 @@ func (h *BookController) Create(c *fiber.Ctx) error {
 	if err := h.service.Book.Create(c.Context(), b); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "book.created", ResourceType: "book", ResourceID: &b.ID, Metadata: map[string]any{"status": b.Status}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	return apiresponse.Created(c, bookview.Full(b))
 }
 func (h *BookController) Get(c *fiber.Ctx) error {
@@ -83,6 +90,9 @@ func (h *BookController) Get(c *fiber.Ctx) error {
 	b, err := h.service.Book.Get(c.Context(), uid, id)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
+	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "book.status.updated", ResourceType: "book", ResourceID: &b.ID, Metadata: map[string]any{"status": b.Status}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
 	}
 	return apiresponse.OK(c, bookview.Full(b), nil)
 }
@@ -111,6 +121,9 @@ func (h *BookController) Update(c *fiber.Ctx) error {
 	if err = h.service.Book.Update(c.Context(), b); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "book.updated", ResourceType: "book", ResourceID: &b.ID, Metadata: map[string]any{"status": b.Status}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	return apiresponse.OK(c, bookview.Full(b), nil)
 }
 func (h *BookController) Delete(c *fiber.Ctx) error {
@@ -124,6 +137,9 @@ func (h *BookController) Delete(c *fiber.Ctx) error {
 	}
 	if err := h.service.Book.Delete(c.Context(), uid, id); err != nil {
 		return apiErrCode.RespondError(c, err)
+	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "book.deleted", ResourceType: "book", ResourceID: &id, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
 	}
 	return apiresponse.OK(c, fiber.Map{"message": "deleted"}, nil)
 }

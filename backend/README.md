@@ -45,6 +45,7 @@ Schema is managed under `migrations/`:
 - `000008_create_reading_events`
 - `000009_add_books_finish_flow_fields`
 - `000010_add_next_to_read_queue_fields`
+- `000011_phase3_foundations`
 
 ### Development workflow
 

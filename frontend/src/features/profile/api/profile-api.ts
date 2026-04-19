@@ -16,5 +16,6 @@ export async function fetchReminderSettings() {
 }
 
 export async function updateReminderSettings(payload: ReminderSettings) {
-  await api.put('/users/reminders', payload)
+  const timezone = payload.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC'
+  await api.put('/users/reminders', { ...payload, timezone })
 }
