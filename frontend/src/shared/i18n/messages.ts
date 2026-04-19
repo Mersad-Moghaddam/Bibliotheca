@@ -28,29 +28,26 @@ export const messages = {
       readingFlow: 'Reading flow',
       account: 'Account',
       platformTitle: 'Negar platform',
-      platformSubtitle: 'Focused reading operations for your personal workspace.',
+      platformSubtitle: 'Your focused reading workspace.',
       focusMode: 'Focus mode'
     },
     coach: {
       title: 'Reading coach',
       primaryActionTitle: 'One gentle next step',
-      primaryActionDescription:
-        'Keep this space focused: one clear action to protect your reading rhythm.',
-      primaryActionBody:
-        'Open your currently reading list and continue with a short focused session.',
+      primaryActionDescription: 'One clear action to keep your reading on track.',
+      primaryActionBody: 'Open your current list and log a short session.',
       openReading: 'Open reading list',
       insightTitle: 'Coach insight',
-      insightDescription: 'A single high-signal insight based on your recent reading behavior.',
+      insightDescription: 'One useful insight from recent activity.',
       rhythmTitle: 'Weekly rhythm',
-      rhythmDescription: 'A quiet summary of your current momentum.',
+      rhythmDescription: 'Your momentum this week.',
       weeklyPages: 'Pages this week: {current}/{target}',
       weeklySessions: '{count} recent sessions'
     },
     landing: {
       eyebrow: 'Reading intelligence, without clutter',
       title: 'Design a reading system you can sustain all year.',
-      subtitle:
-        'Negar combines a calm reading workflow with practical analytics, reminders, and insights so you can finish more of what matters.',
+      subtitle: 'Organize your reading, track progress, and finish more books.',
       ctaPrimary: 'Start for free',
       ctaSecondary: 'Log in',
       productPreview: 'Product preview',
@@ -60,16 +57,16 @@ export const messages = {
       previewCard3: 'Get smart nudges based on your real reading behavior.',
       valueCards: [
         {
-          title: 'Clarity-first workspace',
-          text: 'Keep your library, current queue, and finish line in one structured flow.'
+          title: 'Clear workspace',
+          text: 'Keep your library and reading queue in one place.'
         },
         {
-          title: 'Progress you can trust',
-          text: 'Track pages and completion without noisy dashboards or vanity metrics.'
+          title: 'Track real progress',
+          text: 'Track pages and completion without clutter.'
         },
         {
-          title: 'Intentional momentum',
-          text: 'Use reminders and insights to keep your reading habit active each week.'
+          title: 'Keep momentum',
+          text: 'Use reminders and insights to stay consistent.'
         }
       ],
       workflowTitle: 'Capture → organize → read → reflect → finish → plan next',
@@ -81,16 +78,15 @@ export const messages = {
         'Finish with context',
         'Plan your next title'
       ],
-      analyticsTitle: 'Reading analytics that stay practical',
-      analyticsText:
-        'A few high-signal metrics highlight your consistency, pace, and backlog health.',
+      analyticsTitle: 'Practical reading analytics',
+      analyticsText: 'Key metrics for consistency, pace, and backlog.',
       analyticsMetrics: [
         { label: 'Completion rate', value: '64%' },
         { label: 'Pages tracked', value: '1,240' },
         { label: 'Active titles', value: '3' },
         { label: 'Weekly streak', value: '4 weeks' }
       ],
-      useCasesTitle: 'Built for intentional readers',
+      useCasesTitle: 'Built for real readers',
       useCases: [
         'Students building study discipline',
         'Deep readers balancing multiple topics',
@@ -128,9 +124,9 @@ export const messages = {
           a: 'Yes. English and Persian are fully supported, including RTL behavior.'
         }
       ],
-      finalCtaTitle: 'Build a calmer, smarter reading routine',
-      finalCtaSubtitle: 'Set up your workspace in minutes and keep momentum week after week.',
-      footerTagline: 'A focused workspace for modern readers.',
+      finalCtaTitle: 'Build a reading routine that lasts',
+      finalCtaSubtitle: 'Set up in minutes and stay on track each week.',
+      footerTagline: 'A focused reading workspace.',
       footerRights: '© Negar. All rights reserved.'
     },
     auth: {
@@ -142,8 +138,8 @@ export const messages = {
       confirmPassword: 'Confirm password',
       signUp: 'Sign up',
       logIn: 'Log in',
-      registerSubtitle: 'Create a calm reading home for your books, notes, and momentum.',
-      loginSubtitle: 'Continue where you left off and return to your current reading flow.',
+      registerSubtitle: 'Set up your reading workspace.',
+      loginSubtitle: 'Pick up where you left off.',
       hasAccount: 'Already have an account?',
       needAccount: 'Need an account?',
       registrationFailed: 'Registration failed. Please check your details.',
@@ -155,7 +151,7 @@ export const messages = {
     },
     dashboard: {
       title: 'Dashboard',
-      description: 'Track momentum across your reading workflow and quickly resume what matters.',
+      description: 'Track progress and resume quickly.',
       analyticsTitle: 'Reading analytics',
       intelligenceTitle: 'Reading intelligence',
       totalPagesRead: 'Pages read',
@@ -168,7 +164,7 @@ export const messages = {
       logSession: 'Log quick session',
       sessionsCount: '{count} recent sessions',
       emptyAnalyticsTitle: 'No analytics yet',
-      emptyAnalyticsDescription: 'Add books and track progress to unlock reading analytics.',
+      emptyAnalyticsDescription: 'Add books and log progress to see analytics.',
       consistency: 'Consistency',
       goalsTitle: 'Reading goals',
       goalSummary: 'Pages {pagesRead}/{pagesGoal} · Books {booksRead}/{booksGoal}',
@@ -177,12 +173,12 @@ export const messages = {
       setWeekly: 'Set weekly',
       setMonthly: 'Set monthly',
       currentSnapshot: 'Current reading snapshot',
-      currentSnapshotDesc: 'Your active book at a glance, with fast progress actions.',
-      keepMomentum: 'Keep your reading momentum moving forward each day.',
-      intelligenceDesc: 'Signals and reminders that help you decide what to do next.',
-      analyticsDesc: 'A compact view of your most important reading metrics.',
-      goalsDesc: 'Set weekly and monthly goals to sustain a steady reading cadence.',
-      goalsEmpty: 'No goals yet. Set custom goals or use smart suggestions.',
+      currentSnapshotDesc: 'Your active book at a glance.',
+      keepMomentum: 'Keep your momentum moving.',
+      intelligenceDesc: 'Signals and reminders for your next step.',
+      analyticsDesc: 'Your key reading metrics at a glance.',
+      goalsDesc: 'Set weekly and monthly goals.',
+      goalsEmpty: 'No goals yet. Set one or use a suggestion.',
       goalPercent: '{percent}% complete',
       editGoal: 'Set / edit goals',
       editGoals: 'Edit reading goals',
@@ -209,14 +205,12 @@ export const messages = {
       noActiveTitle: 'No active books yet',
       noActiveDescription: 'Move a title to Currently Reading to start seeing your progress here.',
       coachHubTitle: 'Reading coach',
-      coachHubDesc: 'Insights, analytics, and goals now live in one calm place.',
-      coachHubBody:
-        'Open Reading Coach to review suggestions, study your reading stats, and adjust goals.',
+      coachHubDesc: 'Insights, analytics, and goals in one place.',
+      coachHubBody: 'Open Reading Coach to review insights and adjust goals.',
       openCoach: 'Open reading coach',
       libraryHubTitle: 'Library',
-      libraryHubDesc: 'Keep your reading queue clean and easy to continue from one place.',
-      libraryHubBody:
-        'Open your library to organize titles, update statuses, and quickly decide what to read next.',
+      libraryHubDesc: 'Keep your queue clear and easy to continue.',
+      libraryHubBody: 'Open your library to organize titles and pick what to read next.',
       openLibrary: 'Open library',
       goLibrary: 'Go to library',
       needsAttention: 'Needs attention',
@@ -243,14 +237,13 @@ export const messages = {
         states: {
           error: {
             title: 'Could not load reading insights',
-            description: 'Your dashboard is fine, but insights could not be prepared right now.',
+            description: 'Dashboard loaded, but insights are unavailable right now.',
             retry: 'Try again'
           }
         },
         empty: {
           title: 'Your reading coach is ready',
-          message:
-            'Add one short reading session or update progress to unlock personalized insights.'
+          message: 'Log a short session or update progress to unlock insights.'
         },
         titles: {
           inactive: 'Your momentum has cooled down',
@@ -322,9 +315,9 @@ export const messages = {
     },
     library: {
       title: 'Library',
-      description: 'Keep every title organized and route books into your reading pipeline.',
+      description: 'Keep every title organized.',
       addBook: 'Add a new book',
-      addBookDescription: 'Capture key details now and organize your reading flow later.',
+      addBookDescription: 'Add key details now. Edit later anytime.',
       titlePlaceholder: 'Title',
       authorPlaceholder: 'Author',
       totalPages: 'Total pages',
@@ -343,10 +336,9 @@ export const messages = {
       sortTitle: 'Title',
       allStatuses: 'All statuses',
       collectionSummary: '{visible} of {total} books in your library',
-      allStatusesHint:
-        'Library always includes all saved books. Status filters only narrow this view.',
+      allStatusesHint: 'Status filters only change this view.',
       noBooksTitle: 'No books found',
-      noBooksDescription: 'Start by adding your first book above, or adjust your search filters.',
+      noBooksDescription: 'Add your first book or change filters.',
       clearFilters: 'Clear filters',
       deleteConfirm: 'Are you sure you want to delete this book?',
       deleteSuccess: 'Book deleted successfully.',
@@ -355,9 +347,9 @@ export const messages = {
     },
     wishlist: {
       title: 'Wishlist',
-      description: 'Collect future purchases and keep reliable links in one organized place.',
+      description: 'Save books you may buy or read later.',
       addTitle: 'Add to wishlist',
-      addDescription: 'Save books you want to buy, borrow, or track later.',
+      addDescription: 'Add books to buy, borrow, or track.',
       expectedPrice: 'Expected price',
       notes: 'Short note',
       addAction: 'Add to wishlist',
@@ -367,13 +359,13 @@ export const messages = {
       deleteError: 'Could not remove this wishlist item.',
       deleting: 'Removing...',
       emptyTitle: 'Wishlist is empty',
-      emptyDescription: 'Save books you may want to buy or read next.',
+      emptyDescription: 'Save books to buy or read next.',
       linkLabel: 'Optional store label',
       urlPlaceholder: 'https://example.com/book'
     },
     profile: {
       title: 'Profile',
-      description: 'Manage account details and security settings.',
+      description: 'Manage your account and security settings.',
       updateName: 'Update name',
       newName: 'New name',
       updateNameAction: 'Update name',
@@ -404,11 +396,11 @@ export const messages = {
     },
     books: {
       reading: 'Currently Reading',
-      readingDesc: 'Track active books and update progress with minimal friction.',
+      readingDesc: 'Track active books and update progress fast.',
       finished: 'Finished',
-      finishedDesc: 'Review books you completed and celebrate steady progress.',
+      finishedDesc: 'Review books you finished.',
       nextToRead: 'Next To Read',
-      nextToReadDesc: 'Curate your upcoming queue and start your next title quickly.',
+      nextToReadDesc: 'Plan your next books and start quickly.',
       primaryNextLabel: 'Primary next read',
       nextBacklogLabel: 'Backlog',
       makePrimaryNext: 'Make primary next',
@@ -419,7 +411,7 @@ export const messages = {
       markFinished: 'Mark finished',
       startReading: 'Start reading',
       actions: 'Book actions',
-      actionsDescription: 'Move this title, update progress, or remove it from your library.',
+      actionsDescription: 'Move, update, or remove this title.',
       moveTo: 'Move to',
       readingHub: 'Reading hub',
       readingProgress: 'Reading progress',
@@ -429,16 +421,15 @@ export const messages = {
       lastUpdated: 'Last updated',
       completedOn: 'Completed on',
       progressSnapshotTitle: 'Progress snapshot',
-      progressSnapshotDescription:
-        'A calm checkpoint that shows where you are and what to do next.',
+      progressSnapshotDescription: 'See where you are now.',
       remainingPagesLabel: 'Remaining pages',
       sessionsCountLabel: 'Logged sessions',
       recentSessionsCountLabel: 'Recent logged sessions',
       notesCountLabel: 'Notes captured',
       recentSessionsTitle: 'Recent sessions',
-      recentSessionsDescription: 'Your latest reading activity for this title.',
+      recentSessionsDescription: 'Latest activity for this title.',
       timelineTitle: 'Reading timeline',
-      timelineDescription: 'A calm history of sessions, progress shifts, and current momentum.',
+      timelineDescription: 'Session and progress history.',
       timelineMomentumLabel: 'Momentum',
       timelineLastReadLabel: 'Last read',
       timelineRecentPagesLabel: 'Pages in last 14 days',
@@ -460,20 +451,20 @@ export const messages = {
       },
       timelineNextAction: {
         start: 'Log your first short session to begin the timeline.',
-        keep: 'Keep this rhythm with one focused session in the next day.',
-        recover: 'Resume with a gentle 15-minute session to restart momentum.',
+        keep: 'Keep this rhythm with one more session soon.',
+        recover: 'Resume with a 15-minute session.',
         finish: 'You are close to done—finish this book with one final push.'
       },
       sessionsEmpty: 'No reading sessions for this book yet.',
       minutesLabel: 'min',
       notesSummaryTitle: 'Notes & highlights summary',
-      notesSummaryDescription: 'A short look at your latest thoughts from this book.',
+      notesSummaryDescription: 'Your latest notes from this book.',
       manageNotes: 'Manage notes',
       finishSummaryTitle: 'Finish-state summary',
-      finishSummaryDescription: 'A lightweight wrap-up of your completed reading journey.',
+      finishSummaryDescription: 'A quick summary of this finished book.',
       finishConfirmation: 'Finished. Nice work — this reading journey is complete.',
       finishFlowTitle: 'Wrap up this book',
-      finishFlowDescription: 'Optional: add a short rating, reflection, or favorite quote before finishing.',
+      finishFlowDescription: 'Optional: add a rating, reflection, or quote before finishing.',
       finishRatingLabel: 'How did it feel? (optional)',
       finishRatingSummaryLabel: 'Your rating',
       finishReflectionLabel: 'Short reflection (optional)',
@@ -482,7 +473,7 @@ export const messages = {
       finishHighlightPlaceholder: 'A line you want to remember.',
       finishNowAction: 'Finish with notes',
       finishQuickAction: 'Finish quickly',
-      finishSummaryEmptyHint: 'You finished this book without extra notes. You can always add one later.',
+      finishSummaryEmptyHint: 'Finished without extra notes. You can add one later.',
       loggedPagesLabel: 'Logged pages',
       totalReadingTimeLabel: 'Reading time',
       recentLoggedPagesLabel: 'Recent logged pages',
@@ -497,7 +488,7 @@ export const messages = {
       notesTitle: 'Notes & highlights',
       isbnLabel: 'ISBN',
       editDetailsTitle: 'Edit details',
-      editDetailsDescription: 'Update the book information saved in your library.',
+      editDetailsDescription: 'Edit saved book details.',
       bookUpdated: 'Book details updated.',
       updateError: 'Failed to update book details.',
       noteLabel: 'Your reading note',
@@ -512,8 +503,8 @@ export const messages = {
       notesGroupLabel: 'Notes ({count})',
       saveNote: 'Save note',
       notesEmptyTitle: 'No notes yet',
-      notesEmpty: 'Capture your first thought from this book.',
-      notesCaptureHint: 'Keep it simple: one thought, one quote, then continue reading.'
+      notesEmpty: 'Add your first note for this book.',
+      notesCaptureHint: 'Add a note or quote.'
     },
     query: {
       errorTitle: 'Something went wrong',
@@ -573,22 +564,20 @@ export const messages = {
     coach: {
       title: 'مربی مطالعه',
       primaryActionTitle: 'یک قدم بعدی ساده',
-      primaryActionDescription: 'این بخش خلوت می‌ماند: فقط یک اقدام روشن برای حفظ ریتم مطالعه.',
-      primaryActionBody:
-        'فهرست کتاب‌های در حال مطالعه‌ات را باز کن و یک جلسه کوتاه و متمرکز ادامه بده.',
+      primaryActionDescription: 'یک اقدام روشن برای ادامه مطالعه.',
+      primaryActionBody: 'فهرست فعلی‌ات را باز کن و یک جلسه کوتاه ثبت کن.',
       openReading: 'باز کردن فهرست مطالعه',
       insightTitle: 'بینش مربی',
-      insightDescription: 'یک بینش اصلی و کاربردی بر اساس رفتار اخیر مطالعه‌ات.',
+      insightDescription: 'یک بینش کاربردی از فعالیت اخیرت.',
       rhythmTitle: 'ریتم هفتگی',
-      rhythmDescription: 'خلاصه‌ای آرام از شتاب فعلی مطالعه‌ات.',
+      rhythmDescription: 'شتاب این هفته‌ات.',
       weeklyPages: 'صفحات این هفته: {current}/{target}',
       weeklySessions: '{count} جلسه اخیر'
     },
     landing: {
       eyebrow: 'همراه مطالعه ات',
       title: 'کتاب خواندن را به یک عادت واقعی تبدیل کن.',
-      subtitle:
-        'نگار کمک می‌کند کتاب‌هایت را مرتب کنی، پیشرفتت را ببینی و بدون شلوغی، مسیر مطالعه‌ات را جلو ببری.',
+      subtitle: 'کتاب‌هایت را مرتب کن، پیشرفتت را ببین و کتاب‌های بیشتری تمام کن.',
       ctaPrimary: 'شروع رایگان',
       ctaSecondary: 'ورود',
       productPreview: '',
@@ -599,15 +588,15 @@ export const messages = {
       valueCards: [
         {
           title: 'همه‌چیز یک‌جا و مرتب',
-          text: 'کتابخانه، کتاب‌های در حال مطالعه و لیست بعدی را بدون سردرگمی مدیریت کن.'
+          text: 'کتابخانه و صف مطالعه‌ات را یک‌جا مدیریت کن.'
         },
         {
           title: 'پیشرفت قابل‌فهم',
-          text: 'با چند عدد ساده ببین چقدر جلو رفته‌ای و چه‌قدر تا پایان مانده.'
+          text: 'پیشرفت و مسیر باقی‌مانده را ساده ببین.'
         },
         {
           title: 'ریتم پایدار',
-          text: 'با یادآورها و بینش‌های کاربردی، مطالعه‌ات را هفته‌به‌هفته جلو ببر.'
+          text: 'با یادآورها و بینش‌ها منظم بمان.'
         }
       ],
       workflowTitle: 'اضافه کن → مرتب کن → بخوان → پیشرفت را ثبت کن → تمام کن → برو سراغ بعدی',
@@ -619,8 +608,8 @@ export const messages = {
         'با خیال راحت تمامش کن',
         'کتاب بعدی را انتخاب کن'
       ],
-      analyticsTitle: 'آمارهایی که واقعاً به کارت می‌آیند',
-      analyticsText: 'فقط چند شاخص مهم را می‌بینی: ریتم مطالعه، سرعت پیشرفت و وضعیت لیستت.',
+      analyticsTitle: 'آمارهای کاربردی مطالعه',
+      analyticsText: 'شاخص‌های کلیدی برای ریتم، پیشرفت و صف مطالعه.',
       analyticsMetrics: [
         { label: 'نرخ تکمیل', value: '۶۴٪' },
         { label: 'صفحات ثبت‌شده', value: '۱۲۴۰' },
@@ -652,9 +641,9 @@ export const messages = {
           a: 'بله، فارسی و انگلیسی کامل پشتیبانی می‌شوند و RTL هم به‌درستی رعایت شده است.'
         }
       ],
-      finalCtaTitle: 'مطالعه‌ات را ساده، منظم و قابل‌ادامه کن',
-      finalCtaSubtitle: 'در چند دقیقه شروع کن و قدم‌به‌قدم ریتم مطالعه‌ات را نگه دار.',
-      footerTagline: 'همراه ساده و کاربردی برای خواندن روزانه.',
+      finalCtaTitle: 'یک عادت مطالعه پایدار بساز',
+      finalCtaSubtitle: 'در چند دقیقه شروع کن و هر هفته در مسیر بمان.',
+      footerTagline: 'یک فضای متمرکز برای مطالعه.',
       footerRights: '© نگار. همهٔ حقوق محفوظ است.'
     },
     auth: {
@@ -666,8 +655,8 @@ export const messages = {
       confirmPassword: 'تکرار رمز عبور',
       signUp: 'ثبت‌نام',
       logIn: 'ورود',
-      registerSubtitle: 'خانه‌ای مرتب برای کتاب‌ها، یادداشت‌ها و ریتم مطالعه‌ات بساز.',
-      loginSubtitle: 'به برنامه مطالعه‌ات برگرد و دقیقاً از همان نقطه ادامه بده.',
+      registerSubtitle: 'فضای مطالعه‌ات را راه‌اندازی کن.',
+      loginSubtitle: 'از همان‌جا که بودی ادامه بده.',
       hasAccount: 'حساب داری؟',
       needAccount: 'حساب نداری؟',
       registrationFailed: 'ثبت‌نام ناموفق بود. اطلاعات را بررسی کنید.',
@@ -679,7 +668,7 @@ export const messages = {
     },
     dashboard: {
       title: 'داشبورد',
-      description: 'از همین‌جا ببین کجای مسیر مطالعه‌ای و سریع تصمیم بگیر قدم بعدی چیست.',
+      description: 'پیشرفتت را ببین و سریع ادامه بده.',
       analyticsTitle: 'آمار مطالعه',
       intelligenceTitle: 'پیشنهادهای مطالعه',
       totalPagesRead: 'صفحات خوانده‌شده',
@@ -692,7 +681,7 @@ export const messages = {
       logSession: 'ثبت یک جلسه سریع',
       sessionsCount: '{count} جلسه اخیر',
       emptyAnalyticsTitle: 'هنوز آماری نداریم',
-      emptyAnalyticsDescription: 'با اضافه‌کردن کتاب و ثبت پیشرفت، آمار این بخش نمایش داده می‌شود.',
+      emptyAnalyticsDescription: 'کتاب اضافه کن و پیشرفت ثبت کن تا آمار نمایش داده شود.',
       consistency: 'ثبات مطالعه',
       goalsTitle: 'اهداف مطالعه',
       goalSummary: '{pagesRead}/{pagesGoal} صفحه · {booksRead}/{booksGoal} کتاب',
@@ -701,12 +690,12 @@ export const messages = {
       setWeekly: 'هدف هفتگی',
       setMonthly: 'هدف ماهانه',
       currentSnapshot: 'وضعیت مطالعه فعلی',
-      currentSnapshotDesc: 'یک نگاه سریع به کتاب فعلی‌ات، همراه با اقدام‌های لازم برای ادامه.',
-      keepMomentum: 'شتاب مطالعه‌ات را هر روز با گام‌های کوچک حفظ کن.',
-      intelligenceDesc: 'پیشنهادها و یادآورهایی که کمک می‌کنند بدانی قدم بعدی چیست.',
-      analyticsDesc: 'نمایی فشرده از مهم‌ترین شاخص‌های مطالعه‌ات.',
-      goalsDesc: 'برای حفظ ریتم مطالعه، هدف هفتگی و ماهانه تنظیم کن.',
-      goalsEmpty: 'هنوز هدفی نداری. خودت هدف بگذار یا از پیشنهادهای آماده استفاده کن.',
+      currentSnapshotDesc: 'یک نگاه سریع به کتاب فعلی‌ات.',
+      keepMomentum: 'شتاب مطالعه‌ات را حفظ کن.',
+      intelligenceDesc: 'پیشنهادها و یادآورها برای قدم بعدی.',
+      analyticsDesc: 'مهم‌ترین شاخص‌های مطالعه‌ات.',
+      goalsDesc: 'هدف هفتگی و ماهانه تنظیم کن.',
+      goalsEmpty: 'هنوز هدفی نداری. یکی بساز یا از پیشنهاد استفاده کن.',
       goalPercent: '{percent}٪ تکمیل',
       editGoal: 'تنظیم یا ویرایش هدف',
       editGoals: 'ویرایش اهداف مطالعه',
@@ -733,14 +722,12 @@ export const messages = {
       noActiveTitle: 'فعلاً کتاب فعالی نداری',
       noActiveDescription: 'یک کتاب را به «در حال مطالعه» ببر تا این بخش فعال شود.',
       coachHubTitle: 'مربی مطالعه',
-      coachHubDesc: 'پیشنهادها، آمار و اهداف حالا در یک فضای خلوت کنار هم هستند.',
-      coachHubBody:
-        'مربی مطالعه را باز کن تا پیشنهادها را ببینی، آمار را مرور کنی و هدف‌ها را تنظیم کنی.',
+      coachHubDesc: 'پیشنهادها، آمار و اهداف یک‌جا هستند.',
+      coachHubBody: 'مربی مطالعه را باز کن و بینش‌ها و هدف‌ها را مدیریت کن.',
       openCoach: 'باز کردن مربی مطالعه',
       libraryHubTitle: 'کتابخانه',
-      libraryHubDesc: 'فهرست مطالعه‌ات را مرتب و قابل‌ادامه در یک جای ساده نگه دار.',
-      libraryHubBody:
-        'کتابخانه را باز کن تا کتاب‌ها را مرتب کنی، وضعیت‌ها را تغییر بدهی و سریع تصمیم بگیری بعدی چیست.',
+      libraryHubDesc: 'فهرست مطالعه‌ات را مرتب نگه دار.',
+      libraryHubBody: 'کتابخانه را باز کن تا کتاب‌ها را مرتب کنی و انتخاب بعدی را مشخص کنی.',
       openLibrary: 'ورود به کتابخانه',
       goLibrary: 'برو به کتابخانه',
       needsAttention: 'نیازمند توجه',
@@ -768,13 +755,13 @@ export const messages = {
         states: {
           error: {
             title: 'بارگذاری بینش‌های مطالعه انجام نشد',
-            description: 'داشبورد پایدار است، اما فعلاً تولید بینش ممکن نشد.',
+            description: 'داشبورد فعال است، اما فعلاً بینش‌ها در دسترس نیستند.',
             retry: 'تلاش دوباره'
           }
         },
         empty: {
           title: 'مربی مطالعه‌ات آماده است',
-          message: 'یک جلسه کوتاه ثبت کن یا پیشرفت کتابت را به‌روزرسانی کن تا بینش شخصی فعال شود.'
+          message: 'یک جلسه کوتاه ثبت کن یا پیشرفتت را به‌روزرسانی کن.',
         },
         titles: {
           inactive: 'شتاب مطالعه‌ات کمی افت کرده',
@@ -843,9 +830,9 @@ export const messages = {
     },
     library: {
       title: 'کتابخانه',
-      description: 'همهٔ کتاب‌هایت را یک‌جا نگه دار و برای هرکدام وضعیت درست را انتخاب کن.',
+      description: 'همهٔ کتاب‌هایت را یک‌جا مرتب کن.',
       addBook: 'افزودن کتاب جدید',
-      addBookDescription: 'اطلاعات اصلی کتاب را ثبت کن و بعداً آن را در مسیر مطالعه قرار بده.',
+      addBookDescription: 'اطلاعات اصلی را ثبت کن. بعداً هر زمان خواستی ویرایش کن.',
       titlePlaceholder: 'عنوان',
       authorPlaceholder: 'نویسنده',
       totalPages: 'تعداد صفحات',
@@ -864,8 +851,7 @@ export const messages = {
       sortTitle: 'عنوان',
       allStatuses: 'همه وضعیت‌ها',
       collectionSummary: '{visible} از {total} کتاب در کتابخانه‌ات',
-      allStatusesHint:
-        'کتابخانه همیشه همهٔ کتاب‌ها را نگه می‌دارد؛ فیلتر وضعیت فقط نمایش را محدود می‌کند.',
+      allStatusesHint: 'فیلتر وضعیت فقط نمایش را تغییر می‌دهد.',
       noBooksTitle: 'کتابی پیدا نشد',
       noBooksDescription: 'یک کتاب اضافه کن یا فیلترها را عوض کن.',
       clearFilters: 'پاک‌کردن فیلترها',
@@ -876,9 +862,9 @@ export const messages = {
     },
     wishlist: {
       title: 'فهرست خرید',
-      description: 'کتاب‌هایی را که می‌خواهی بخری یا بعداً بررسی کنی، اینجا نگه دار.',
+      description: 'کتاب‌هایی را که می‌خواهی بخری یا بعداً بخوانی ذخیره کن.',
       addTitle: 'افزودن به فهرست خرید',
-      addDescription: 'کتاب‌هایی را که می‌خواهی بخری یا بعداً بررسی کنی اینجا نگه دار.',
+      addDescription: 'برای خرید، امانت یا پیگیری کتاب اضافه کن.',
       expectedPrice: 'قیمت تقریبی',
       notes: 'یادداشت کوتاه',
       addAction: 'افزودن به فهرست',
@@ -888,13 +874,13 @@ export const messages = {
       deleteError: 'حذف این مورد ممکن نبود.',
       deleting: 'در حال حذف...',
       emptyTitle: 'فهرست خریدت خالی است',
-      emptyDescription: 'کتاب‌هایی که احتمالاً می‌خواهی بخری یا بخوانی، اینجا ذخیره کن.',
+      emptyDescription: 'کتاب‌های بعدی را اینجا ذخیره کن.',
       linkLabel: 'برچسب فروشگاه (اختیاری)',
       urlPlaceholder: 'https://example.com/book'
     },
     profile: {
       title: 'پروفایل',
-      description: 'تنظیمات حساب، امنیت و یادآورهای مطالعه‌ات را یکجا مدیریت کن.',
+      description: 'تنظیمات حساب و امنیت را مدیریت کن.',
       updateName: 'ویرایش نام',
       newName: 'نام جدید',
       updateNameAction: 'ذخیره نام',
@@ -925,11 +911,11 @@ export const messages = {
     },
     books: {
       reading: 'در حال مطالعه',
-      readingDesc: 'کتاب‌هایی که در حال خواندن‌شان هستی را ببین و پیشرفتت را سریع ثبت کن.',
+      readingDesc: 'کتاب‌های فعالت را ببین و سریع پیشرفت ثبت کن.',
       finished: 'تمام‌شده',
-      finishedDesc: 'کتاب‌هایی که تمام کرده‌ای را یک‌جا مرور کن.',
+      finishedDesc: 'کتاب‌های تمام‌شده‌ات را مرور کن.',
       nextToRead: 'بعدی برای مطالعه',
-      nextToReadDesc: 'لیست «بعدی برای مطالعه» را مرتب کن و سریع شروع کن.',
+      nextToReadDesc: 'لیست بعدی را مرتب کن و سریع شروع کن.',
       primaryNextLabel: 'انتخاب اصلی بعدی',
       nextBacklogLabel: 'صف انتظار',
       makePrimaryNext: 'انتخاب به‌عنوان بعدی',
@@ -940,7 +926,7 @@ export const messages = {
       markFinished: 'علامت‌گذاری به‌عنوان تمام‌شده',
       startReading: 'شروع مطالعه',
       actions: 'اقدامات کتاب',
-      actionsDescription: 'کتاب را جابه‌جا کن، پیشرفت را به‌روز کن یا از کتابخانه حذف کن.',
+      actionsDescription: 'کتاب را جابه‌جا، به‌روز یا حذف کن.',
       moveTo: 'انتقال به',
       readingHub: 'مرکز مطالعه',
       readingProgress: 'پیشرفت مطالعه',
@@ -950,15 +936,15 @@ export const messages = {
       lastUpdated: 'آخرین به‌روزرسانی',
       completedOn: 'تاریخ اتمام',
       progressSnapshotTitle: 'نمای وضعیت پیشرفت',
-      progressSnapshotDescription: 'یک نمای آرام و سریع برای فهمیدن موقعیت فعلی و گام بعدی.',
+      progressSnapshotDescription: 'موقعیت فعلی را سریع ببین.',
       remainingPagesLabel: 'صفحات باقی‌مانده',
       sessionsCountLabel: 'جلسه‌های ثبت‌شده',
       recentSessionsCountLabel: 'جلسه‌های اخیر ثبت‌شده',
       notesCountLabel: 'یادداشت‌های ثبت‌شده',
       recentSessionsTitle: 'جلسه‌های اخیر',
-      recentSessionsDescription: 'آخرین فعالیت‌های مطالعه برای همین کتاب.',
+      recentSessionsDescription: 'آخرین فعالیت‌های این کتاب.',
       timelineTitle: 'خط زمانی مطالعه',
-      timelineDescription: 'تاریخچه‌ای خلوت از جلسه‌ها، تغییر پیشرفت و شتاب فعلی.',
+      timelineDescription: 'تاریخچه جلسه‌ها و پیشرفت.',
       timelineMomentumLabel: 'شتاب',
       timelineLastReadLabel: 'آخرین مطالعه',
       timelineRecentPagesLabel: 'صفحات ۱۴ روز اخیر',
@@ -980,20 +966,20 @@ export const messages = {
       },
       timelineNextAction: {
         start: 'برای شروع خط زمانی، اولین جلسه کوتاهت را ثبت کن.',
-        keep: 'برای حفظ این ریتم، تا فردا یک جلسه متمرکز دیگر ثبت کن.',
-        recover: 'با یک جلسه ۱۵ دقیقه‌ای آرام دوباره ریتمت را فعال کن.',
+        keep: 'برای حفظ ریتم، یک جلسه دیگر ثبت کن.',
+        recover: 'با یک جلسه ۱۵ دقیقه‌ای دوباره شروع کن.',
         finish: 'به پایان نزدیک هستی؛ با یک تلاش آخر این کتاب را تمام کن.'
       },
       sessionsEmpty: 'هنوز جلسه‌ای برای این کتاب ثبت نشده است.',
       minutesLabel: 'دقیقه',
       notesSummaryTitle: 'خلاصه یادداشت‌ها و هایلایت‌ها',
-      notesSummaryDescription: 'مرور کوتاهی از آخرین نکته‌هایی که از این کتاب ثبت کرده‌ای.',
+      notesSummaryDescription: 'مرور آخرین یادداشت‌های این کتاب.',
       manageNotes: 'مدیریت یادداشت‌ها',
       finishSummaryTitle: 'خلاصه وضعیت اتمام',
-      finishSummaryDescription: 'جمع‌بندی سبک از مسیر خواندن این کتاب پس از اتمام.',
+      finishSummaryDescription: 'جمع‌بندی کوتاه این کتاب.',
       finishConfirmation: 'تمام شد. عالی بود — مسیر مطالعه این کتاب کامل شد.',
       finishFlowTitle: 'جمع‌بندی این کتاب',
-      finishFlowDescription: 'اختیاری: قبل از اتمام، یک امتیاز کوتاه، برداشت یا نقل‌قول ثبت کن.',
+      finishFlowDescription: 'اختیاری: قبل از اتمام، امتیاز، برداشت یا نقل‌قول ثبت کن.',
       finishRatingLabel: 'حس کلی‌ات چطور بود؟ (اختیاری)',
       finishRatingSummaryLabel: 'امتیاز تو',
       finishReflectionLabel: 'برداشت کوتاه (اختیاری)',
@@ -1002,7 +988,7 @@ export const messages = {
       finishHighlightPlaceholder: 'خطی که می‌خواهی یادت بماند.',
       finishNowAction: 'اتمام با یادداشت',
       finishQuickAction: 'اتمام سریع',
-      finishSummaryEmptyHint: 'این کتاب بدون یادداشت تکمیلی تمام شد. هر زمان خواستی می‌توانی اضافه کنی.',
+      finishSummaryEmptyHint: 'کتاب بدون یادداشت تکمیلی تمام شد. بعداً هم می‌توانی اضافه کنی.',
       loggedPagesLabel: 'صفحات ثبت‌شده',
       totalReadingTimeLabel: 'زمان مطالعه',
       recentLoggedPagesLabel: 'صفحات ثبت‌شده اخیر',
@@ -1017,7 +1003,7 @@ export const messages = {
       notesTitle: 'یادداشت‌ها و نکته‌های مهم',
       isbnLabel: 'شابک',
       editDetailsTitle: 'ویرایش اطلاعات کتاب',
-      editDetailsDescription: 'اگر لازم است اطلاعات این کتاب را همین‌جا ویرایش کن.',
+      editDetailsDescription: 'اطلاعات ذخیره‌شده کتاب را ویرایش کن.',
       bookUpdated: 'مشخصات کتاب به‌روزرسانی شد.',
       updateError: 'به‌روزرسانی مشخصات کتاب ناموفق بود.',
       noteLabel: 'یادداشت مطالعه',
@@ -1032,8 +1018,8 @@ export const messages = {
       notesGroupLabel: 'یادداشت‌ها ({count})',
       saveNote: 'ذخیره یادداشت',
       notesEmptyTitle: 'هنوز یادداشتی ثبت نشده',
-      notesEmpty: 'اولین برداشتت را از این کتاب ثبت کن.',
-      notesCaptureHint: 'ساده نگه‌دار: یک فکر کوتاه، یک نقل‌قول اختیاری، و ادامهٔ مطالعه.'
+      notesEmpty: 'اولین یادداشت این کتاب را ثبت کن.',
+      notesCaptureHint: 'یک یادداشت یا نقل‌قول اضافه کن.'
     },
     query: {
       errorTitle: 'مشکلی پیش آمد',
