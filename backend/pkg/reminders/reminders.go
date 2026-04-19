@@ -1,7 +1,10 @@
 package reminders
 
 import (
+	"strings"
 	"time"
+
+	"negar-backend/pkg/validation"
 )
 
 var AllowedFrequencies = map[string]struct{}{
@@ -14,6 +17,20 @@ var AllowedFrequencies = map[string]struct{}{
 func IsAllowedFrequency(value string) bool {
 	_, ok := AllowedFrequencies[value]
 	return ok
+}
+
+func NormalizeAndValidateSettings(reminderTime, frequency string) (string, string, bool) {
+	normalizedTime := strings.TrimSpace(reminderTime)
+	normalizedFrequency := strings.TrimSpace(frequency)
+	if normalizedTime == "" || !IsAllowedFrequency(normalizedFrequency) {
+		return "", "", false
+	}
+	errs := validation.Errors{}
+	validation.TimeHHMM(normalizedTime, "time", errs)
+	if errs.HasAny() {
+		return "", "", false
+	}
+	return normalizedTime, normalizedFrequency, true
 }
 
 func NextReminderAt(now time.Time, enabled bool, reminderTime, frequency string) *string {

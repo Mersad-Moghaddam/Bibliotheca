@@ -89,16 +89,22 @@ func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
 	errs := validation.Errors{}
 	req.Time = validation.Required(req.Time, "time", errs)
 	req.Frequency = validation.Required(req.Frequency, "frequency", errs)
-	validation.TimeHHMM(req.Time, "time", errs)
-	validation.Enum(req.Frequency, "frequency", reminders.AllowedFrequencies, errs)
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
+	}
+	normalizedTime, normalizedFrequency, ok := reminders.NormalizeAndValidateSettings(req.Time, req.Frequency)
+	if !ok {
+		validation.TimeHHMM(req.Time, "time", errs)
+		validation.Enum(req.Frequency, "frequency", reminders.AllowedFrequencies, errs)
+		if errs.HasAny() {
+			return apiresponse.ValidationError(c, errs)
+		}
 	}
 	uid, err := requestutil.UserID(c)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	u, err := h.service.User.UpdateReminderSettings(c.Context(), uid, req.Enabled, req.Time, req.Frequency)
+	u, err := h.service.User.UpdateReminderSettings(c.Context(), uid, req.Enabled, normalizedTime, normalizedFrequency)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}

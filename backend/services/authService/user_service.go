@@ -51,14 +51,8 @@ func (s *UserService) UpdatePassword(ctx context.Context, userID uuid.UUID, curr
 }
 
 func (s *UserService) UpdateReminderSettings(ctx context.Context, userID uuid.UUID, enabled bool, reminderTime, frequency string) (*user.User, error) {
-	reminderTime = strings.TrimSpace(reminderTime)
-	frequency = strings.TrimSpace(frequency)
-	if reminderTime == "" || !reminders.IsAllowedFrequency(frequency) {
-		return nil, customErr.ErrBadRequest
-	}
-	errs := validation.Errors{}
-	validation.TimeHHMM(reminderTime, "time", errs)
-	if errs.HasAny() {
+	reminderTime, frequency, ok := reminders.NormalizeAndValidateSettings(reminderTime, frequency)
+	if !ok {
 		return nil, customErr.ErrBadRequest
 	}
 	u, err := s.repo.GetByID(ctx, userID)

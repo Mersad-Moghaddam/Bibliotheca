@@ -12,7 +12,7 @@ const (
 	MaxPasswordLength = 72
 )
 
-var hhmmPattern = regexp.MustCompile(`^\d{2}:\d{2}$`)
+var hhmmPattern = regexp.MustCompile(`^(?:[01]\d|2[0-3]):[0-5]\d$`)
 
 type Errors map[string]string
 
