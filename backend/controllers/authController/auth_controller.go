@@ -52,7 +52,7 @@ func (h *AuthController) Register(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.Created(c, fiber.Map{"user": fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email}})
+	return apiresponse.Created(c, fiber.Map{"user": fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "role": u.Role}})
 }
 func (h *AuthController) Login(c *fiber.Ctx) error {
 	var req authSchema.LoginRequest
@@ -83,7 +83,7 @@ func (h *AuthController) Login(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	c.Set("X-RateLimit-Remaining", strconv.FormatInt(remaining, 10))
-	return apiresponse.OK(c, fiber.Map{"user": fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email}, "tokens": tokens}, nil)
+	return apiresponse.OK(c, fiber.Map{"user": fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "role": u.Role}, "tokens": tokens}, nil)
 }
 func (h *AuthController) Refresh(c *fiber.Ctx) error {
 	var req authSchema.RefreshRequest
@@ -119,5 +119,5 @@ func (h *AuthController) Me(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "createdAt": u.CreatedAt}, nil)
+	return apiresponse.OK(c, fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "role": u.Role, "createdAt": u.CreatedAt}, nil)
 }

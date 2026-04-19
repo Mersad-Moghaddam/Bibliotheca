@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Button } from '../../components/ui/button'
@@ -33,7 +34,7 @@ export function Coach() {
   const reminderQuery = useDashboardReminder()
   const saveGoal = useSaveGoalMutation()
 
-  const readingInsight = buildReadingInsight({
+  const readingInsight = useMemo(() => buildReadingInsight({
     books: booksQuery.data ?? [],
     analytics: analyticsQuery.data,
     goals: goalsQuery.data
@@ -58,7 +59,7 @@ export function Coach() {
         ]
       : [],
     sessions: sessionsQuery.data ?? []
-  })
+  }), [booksQuery.data, analyticsQuery.data, goalsQuery.data, sessionsQuery.data])
 
   const weeklyPagesRead = goalsQuery.data?.weekly.pagesRead ?? 0
   const weeklyPagesGoal = goalsQuery.data?.weekly.targetPages ?? 0

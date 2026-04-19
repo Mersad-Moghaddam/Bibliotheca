@@ -15,10 +15,14 @@ import (
 	"negar-backend/pkg/validation"
 	"negar-backend/repositories"
 	"negar-backend/services/apiErrCode"
+	"negar-backend/services/auditService"
 	"negar-backend/services/wishlistService"
 )
 
-type ServiceBridge struct{ Wishlist *wishlistService.Service }
+type ServiceBridge struct {
+	Wishlist *wishlistService.Service
+	Audit    *auditService.Service
+}
 
 type WishlistController struct{ service *ServiceBridge }
 
@@ -67,6 +71,9 @@ func (h *WishlistController) Create(c *fiber.Ctx) error {
 	if err := h.service.Wishlist.Create(c.Context(), w); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "wishlist.created", ResourceType: "wishlist", ResourceID: &w.ID, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	return apiresponse.Created(c, w)
 }
 func (h *WishlistController) Get(c *fiber.Ctx) error {
@@ -108,6 +115,9 @@ func (h *WishlistController) Update(c *fiber.Ctx) error {
 	if err = h.service.Wishlist.Update(c.Context(), item); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "wishlist.updated", ResourceType: "wishlist", ResourceID: &item.ID, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	return apiresponse.OK(c, item, nil)
 }
 func (h *WishlistController) Delete(c *fiber.Ctx) error {
@@ -121,6 +131,9 @@ func (h *WishlistController) Delete(c *fiber.Ctx) error {
 	}
 	if err := h.service.Wishlist.Delete(c.Context(), uid, id); err != nil {
 		return apiErrCode.RespondError(c, err)
+	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "wishlist.deleted", ResourceType: "wishlist", ResourceID: &id, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
 	}
 	return apiresponse.OK(c, fiber.Map{"message": "deleted"}, nil)
 }

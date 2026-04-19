@@ -11,8 +11,10 @@ const readyInsight: ReadingInsightModel = {
   state: 'ready',
   variant: 'positive',
   priority: 90,
+  confidence: 'high',
   titleKey: 'dashboard.insights.titles.nearCompletion',
   messageKey: 'dashboard.insights.messages.nearCompletion',
+  explanationKey: 'dashboard.insights.explanations.nearFinish',
   recommendationKey: 'dashboard.insights.recommendations.finishClosestBook',
   signals: [
     { labelKey: 'dashboard.insights.signals.closestBookProgress', value: 92, format: 'percent' },

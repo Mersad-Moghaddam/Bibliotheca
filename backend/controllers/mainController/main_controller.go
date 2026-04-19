@@ -73,7 +73,7 @@ func (c *MainController) DashboardSummary(ctx *fiber.Ctx) error {
 		"recentBooks":      bookview.SummaryList(recent),
 		"currentlyReading": bookview.SummaryList(readingBooks),
 		"goalProgress":     goals,
-		"nextReminderAt":   reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency),
+		"nextReminderAt":   reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency, u.ReminderTimezone),
 	}, nil)
 }
 

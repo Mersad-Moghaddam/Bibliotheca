@@ -10,10 +10,14 @@ import (
 	"negar-backend/pkg/requestutil"
 	"negar-backend/pkg/validation"
 	"negar-backend/services/apiErrCode"
+	"negar-backend/services/auditService"
 	"negar-backend/services/authService"
 )
 
-type ServiceBridge struct{ User *authService.UserService }
+type ServiceBridge struct {
+	User  *authService.UserService
+	Audit *auditService.Service
+}
 
 type UserController struct{ service *ServiceBridge }
 
@@ -37,6 +41,9 @@ func (h *UserController) UpdateProfile(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	u, err := h.service.User.UpdateName(c.Context(), uid, req.Name)
+	if err == nil && h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "user.profile.updated", ResourceType: "user", ResourceID: &uid, Metadata: map[string]any{"fields": []string{"name"}}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
@@ -61,6 +68,9 @@ func (h *UserController) UpdatePassword(c *fiber.Ctx) error {
 	if err := h.service.User.UpdatePassword(c.Context(), uid, req.CurrentPassword, req.NewPassword); err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "user.password.updated", ResourceType: "user", ResourceID: &uid, Metadata: map[string]any{"method": "password"}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
+	}
 	return apiresponse.OK(c, fiber.Map{"message": "password updated"}, nil)
 }
 
@@ -77,7 +87,8 @@ func (h *UserController) GetReminderSettings(c *fiber.Ctx) error {
 		"enabled":        u.ReminderEnabled,
 		"time":           u.ReminderTime,
 		"frequency":      u.ReminderFrequency,
-		"nextReminderAt": reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency),
+		"nextReminderAt": reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency, u.ReminderTimezone),
+		"timezone":       u.ReminderTimezone,
 	}, nil)
 }
 
@@ -92,7 +103,7 @@ func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	normalizedTime, normalizedFrequency, ok := reminders.NormalizeAndValidateSettings(req.Time, req.Frequency)
+	normalizedTime, normalizedFrequency, normalizedTimezone, ok := reminders.NormalizeAndValidateSettings(req.Time, req.Frequency, req.Timezone)
 	if !ok {
 		validation.TimeHHMM(req.Time, "time", errs)
 		validation.Enum(req.Frequency, "frequency", reminders.AllowedFrequencies, errs)
@@ -104,14 +115,18 @@ func (h *UserController) UpdateReminderSettings(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	u, err := h.service.User.UpdateReminderSettings(c.Context(), uid, req.Enabled, normalizedTime, normalizedFrequency)
+	u, err := h.service.User.UpdateReminderSettings(c.Context(), uid, req.Enabled, normalizedTime, normalizedFrequency, normalizedTimezone)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
+	}
+	if h.service.Audit != nil {
+		_ = h.service.Audit.Record(c.Context(), auditService.RecordInput{ActorUserID: uid, ActorRole: requestutil.UserRole(c), Action: "user.reminder.updated", ResourceType: "user", ResourceID: &uid, Metadata: map[string]any{"enabled": req.Enabled, "frequency": normalizedFrequency, "timezone": normalizedTimezone}, IPAddress: c.IP(), UserAgent: c.Get("User-Agent")})
 	}
 	return apiresponse.OK(c, fiber.Map{
 		"enabled":        u.ReminderEnabled,
 		"time":           u.ReminderTime,
 		"frequency":      u.ReminderFrequency,
-		"nextReminderAt": reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency),
+		"nextReminderAt": reminders.NextReminderAt(time.Now(), u.ReminderEnabled, u.ReminderTime, u.ReminderFrequency, u.ReminderTimezone),
+		"timezone":       u.ReminderTimezone,
 	}, nil)
 }

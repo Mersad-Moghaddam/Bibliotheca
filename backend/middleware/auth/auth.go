@@ -28,6 +28,7 @@ func AuthMiddleware(jwtSecret string, logger *zap.Logger) fiber.Handler {
 			return apiresponse.Error(c, fiber.StatusUnauthorized, "unauthorized", "Invalid access token", nil)
 		}
 		c.Locals("userID", claims.UserID)
+		c.Locals("userRole", claims.Role)
 		return c.Next()
 	}
 }

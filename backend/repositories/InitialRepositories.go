@@ -7,14 +7,16 @@ import (
 )
 
 type InitialRepositories struct {
-	Auth         AuthRepository
-	User         UserRepository
-	Book         BookRepository
-	Wishlist     WishlistRepository
-	PurchaseLink PurchaseLinkRepository
-	Reading      ReadingProgressRepository
-	db           *gorm.DB
-	redis        *redis.Client
+	Auth             AuthRepository
+	User             UserRepository
+	Book             BookRepository
+	Wishlist         WishlistRepository
+	PurchaseLink     PurchaseLinkRepository
+	Reading          ReadingProgressRepository
+	Audit            AuditRepository
+	ReminderDelivery ReminderDeliveryRepository
+	db               *gorm.DB
+	redis            *redis.Client
 }
 
 func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialRepositories {
@@ -24,14 +26,16 @@ func NewInitialRepositories(deps *initRepositories.Dependencies) *InitialReposit
 	purchaseRepo := NewPurchaseLinkRepo(deps.DB, wishlistRepo)
 
 	return &InitialRepositories{
-		Auth:         NewAuthRepo(deps.Redis),
-		User:         userRepo,
-		Book:         bookRepo,
-		Wishlist:     wishlistRepo,
-		PurchaseLink: purchaseRepo,
-		Reading:      NewReadingProgressRepo(deps.DB, bookRepo),
-		db:           deps.DB,
-		redis:        deps.Redis,
+		Auth:             NewAuthRepo(deps.Redis),
+		User:             userRepo,
+		Book:             bookRepo,
+		Wishlist:         wishlistRepo,
+		PurchaseLink:     purchaseRepo,
+		Reading:          NewReadingProgressRepo(deps.DB, bookRepo),
+		Audit:            NewAuditRepo(deps.DB),
+		ReminderDelivery: NewReminderDeliveryRepo(deps.DB),
+		db:               deps.DB,
+		redis:            deps.Redis,
 	}
 }
 

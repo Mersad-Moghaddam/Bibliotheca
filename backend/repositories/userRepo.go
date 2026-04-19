@@ -27,3 +27,12 @@ func (r *userRepo) GetByID(ctx context.Context, id uuid.UUID) (*user.User, error
 func (r *userRepo) Update(ctx context.Context, u *user.User) error {
 	return r.db.WithContext(ctx).Save(u).Error
 }
+
+func (r *userRepo) ListReminderEnabled(ctx context.Context) ([]user.User, error) {
+	var users []user.User
+	err := r.db.WithContext(ctx).
+		Select("id", "reminder_enabled", "reminder_time", "reminder_frequency", "reminder_timezone").
+		Where("reminder_enabled = ?", true).
+		Find(&users).Error
+	return users, err
+}

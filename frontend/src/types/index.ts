@@ -1,6 +1,6 @@
 export type BookStatus = 'inLibrary' | 'currentlyReading' | 'finished' | 'nextToRead'
 
-export type User = { id: string; name: string; email: string }
+export type User = { id: string; name: string; email: string; role?: 'reader' | 'admin' }
 
 export type Book = {
   id: string
@@ -142,6 +142,7 @@ export type ReminderSettings = {
   enabled: boolean
   time: string
   frequency: 'daily' | 'weekdays' | 'weekends' | 'weekly'
+  timezone?: string
   nextReminderAt?: string | null
 }
 

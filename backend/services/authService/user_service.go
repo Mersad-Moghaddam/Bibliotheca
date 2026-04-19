@@ -50,8 +50,8 @@ func (s *UserService) UpdatePassword(ctx context.Context, userID uuid.UUID, curr
 	return s.repo.Update(ctx, u)
 }
 
-func (s *UserService) UpdateReminderSettings(ctx context.Context, userID uuid.UUID, enabled bool, reminderTime, frequency string) (*user.User, error) {
-	reminderTime, frequency, ok := reminders.NormalizeAndValidateSettings(reminderTime, frequency)
+func (s *UserService) UpdateReminderSettings(ctx context.Context, userID uuid.UUID, enabled bool, reminderTime, frequency, timezone string) (*user.User, error) {
+	reminderTime, frequency, timezone, ok := reminders.NormalizeAndValidateSettings(reminderTime, frequency, timezone)
 	if !ok {
 		return nil, customErr.ErrBadRequest
 	}
@@ -62,5 +62,6 @@ func (s *UserService) UpdateReminderSettings(ctx context.Context, userID uuid.UU
 	u.ReminderEnabled = enabled
 	u.ReminderTime = reminderTime
 	u.ReminderFrequency = frequency
+	u.ReminderTimezone = timezone
 	return u, s.repo.Update(ctx, u)
 }

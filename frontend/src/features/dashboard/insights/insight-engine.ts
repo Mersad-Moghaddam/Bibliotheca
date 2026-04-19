@@ -2,6 +2,7 @@ import { Book, GoalProgress, ReadingAnalytics, ReadingSession } from '../../../t
 
 export type InsightState = 'loading' | 'empty' | 'ready' | 'error'
 export type InsightVariant = 'positive' | 'neutral' | 'warning' | 'inactive'
+export type InsightConfidence = 'low' | 'medium' | 'high'
 
 export type InsightSignal = {
   labelKey: string
@@ -13,8 +14,10 @@ export type ReadingInsightModel = {
   state: InsightState
   variant: InsightVariant
   priority: number
+  confidence: InsightConfidence
   titleKey: string
   messageKey: string
+  explanationKey: string
   recommendationKey?: string
   signals: InsightSignal[]
 }
@@ -56,6 +59,12 @@ function sumPagesInRange(sessions: ReadingSession[], minDaysAgo: number, maxDays
   }, 0)
 }
 
+function confidenceFromSignals(activitySignals: number): InsightConfidence {
+  if (activitySignals >= 3) return 'high'
+  if (activitySignals >= 2) return 'medium'
+  return 'low'
+}
+
 export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
   const now = new Date()
   const sessions = [...input.sessions]
@@ -69,6 +78,7 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     books.some((book) => book.currentPage > 0 || book.status === 'finished' || Boolean(book.completedAt)) ||
     (input.analytics?.base.totalPagesRead ?? 0) > 0
   const activeBooks = input.books.filter((book) => book.status === 'currentlyReading')
+  const backlogBooks = input.books.filter((book) => book.status === 'nextToRead' || book.status === 'inLibrary')
   const recentlyCompleted = books.filter((book) => {
     if (!book.completedAt) return false
     const completedAt = isValidDate(book.completedAt)
@@ -99,16 +109,18 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
   const weeklyGoal = input.goals.find((goal) => goal.period === 'weekly')
   const pagesLast7 = sumPagesInRange(input.sessions, 0, 6, now)
   const pagesPrev7 = sumPagesInRange(input.sessions, 7, 13, now)
-
-  const candidates: InsightCandidate[] = []
+  const finishedShortRatio = books.filter((b) => b.status === 'finished' && b.totalPages <= 280).length
+  const finishedCount = books.filter((b) => b.status === 'finished').length
 
   if (!hasAnyActivity) {
     return {
       state: 'empty',
       variant: 'inactive',
       priority: 100,
+      confidence: 'low',
       titleKey: 'dashboard.insights.empty.title',
       messageKey: 'dashboard.insights.empty.message',
+      explanationKey: 'dashboard.insights.explanations.noHistory',
       recommendationKey: 'dashboard.insights.recommendations.logFirstSession',
       signals: [
         { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' },
@@ -117,12 +129,16 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     }
   }
 
+  const candidates: InsightCandidate[] = []
+
   if (lastActivityDays !== null && lastActivityDays >= 10) {
     candidates.push({
       variant: 'warning',
       priority: 95,
+      confidence: confidenceFromSignals(3),
       titleKey: 'dashboard.insights.titles.inactive',
       messageKey: 'dashboard.insights.messages.inactive',
+      explanationKey: 'dashboard.insights.explanations.longGap',
       recommendationKey: 'dashboard.insights.recommendations.rebuildMomentum',
       signals: [
         { labelKey: 'dashboard.insights.signals.daysSinceLastActivity', value: lastActivityDays, format: 'number' },
@@ -141,8 +157,10 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     candidates.push({
       variant: 'inactive',
       priority: 92,
+      confidence: confidenceFromSignals(2),
       titleKey: 'dashboard.insights.titles.stuck',
       messageKey: 'dashboard.insights.messages.stuck',
+      explanationKey: 'dashboard.insights.explanations.stalledBooks',
       recommendationKey,
       signals: [
         { labelKey: 'dashboard.insights.signals.daysSinceLastActivity', value: lastActivityDays, format: 'number' },
@@ -155,8 +173,10 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     candidates.push({
       variant: 'positive',
       priority: 90,
+      confidence: confidenceFromSignals(3),
       titleKey: 'dashboard.insights.titles.nearCompletion',
       messageKey: 'dashboard.insights.messages.nearCompletion',
+      explanationKey: 'dashboard.insights.explanations.nearFinish',
       recommendationKey: 'dashboard.insights.recommendations.finishClosestBook',
       signals: [
         { labelKey: 'dashboard.insights.signals.closestBookProgress', value: Math.round(nearCompletionBook.progressPercentage), format: 'percent' },
@@ -165,12 +185,30 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     })
   }
 
+  if (finishedCount >= 3 && finishedShortRatio * 2 >= finishedCount && backlogBooks.length > 0) {
+    candidates.push({
+      variant: 'neutral',
+      priority: 87,
+      confidence: confidenceFromSignals(2),
+      titleKey: 'dashboard.insights.titles.goalAhead',
+      messageKey: 'dashboard.insights.messages.momentum',
+      explanationKey: 'dashboard.insights.explanations.shortBookPattern',
+      recommendationKey: 'dashboard.insights.recommendations.pickShortBook',
+      signals: [
+        { labelKey: 'dashboard.insights.signals.backlogSize', value: backlogBooks.length, format: 'number' },
+        { labelKey: 'dashboard.insights.signals.finishedShortBooks', value: finishedShortRatio, format: 'number' }
+      ]
+    })
+  }
+
   if (recentlyCompleted > 0) {
     candidates.push({
       variant: 'positive',
       priority: 88,
+      confidence: confidenceFromSignals(2),
       titleKey: 'dashboard.insights.titles.goalAhead',
       messageKey: 'dashboard.insights.messages.momentum',
+      explanationKey: 'dashboard.insights.explanations.recentFinish',
       recommendationKey: 'dashboard.insights.recommendations.maintainGoal',
       signals: [
         { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' },
@@ -179,12 +217,63 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     })
   }
 
+
+  if (weeklyGoal && weeklyGoal.pagesGoal > 0 && weeklyGoal.pagesPercent >= 100) {
+    candidates.push({
+      variant: 'positive',
+      priority: 86,
+      confidence: confidenceFromSignals(3),
+      titleKey: 'dashboard.insights.titles.goalAhead',
+      messageKey: 'dashboard.insights.messages.goalAhead',
+      explanationKey: 'dashboard.insights.explanations.consistentWeek',
+      recommendationKey: 'dashboard.insights.recommendations.maintainGoal',
+      signals: [
+        { labelKey: 'dashboard.insights.signals.goalProgress', value: weeklyGoal.pagesPercent, format: 'percent' },
+        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: weeklyGoal.pagesRead, format: 'number' }
+      ]
+    })
+  }
+
+  if (weeklyGoal && weeklyGoal.pagesGoal > 0 && weeklyGoal.pagesPercent < 60 && recent7.length > 0) {
+    candidates.push({
+      variant: 'warning',
+      priority: 78,
+      confidence: confidenceFromSignals(2),
+      titleKey: 'dashboard.insights.titles.goalBehind',
+      messageKey: 'dashboard.insights.messages.goalBehind',
+      explanationKey: 'dashboard.insights.explanations.goalRisk',
+      recommendationKey: 'dashboard.insights.recommendations.smallSessionToday',
+      signals: [
+        { labelKey: 'dashboard.insights.signals.goalProgress', value: weeklyGoal.pagesPercent, format: 'percent' },
+        { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' }
+      ]
+    })
+  }
+
+  if (activeBooks.length >= 3 && pagesLast7 < 80) {
+    candidates.push({
+      variant: 'neutral',
+      priority: 70,
+      confidence: confidenceFromSignals(2),
+      titleKey: 'dashboard.insights.titles.focus',
+      messageKey: 'dashboard.insights.messages.focus',
+      explanationKey: 'dashboard.insights.explanations.tooManyActive',
+      recommendationKey: 'dashboard.insights.recommendations.focusOneBook',
+      signals: [
+        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' },
+        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: pagesLast7, format: 'number' }
+      ]
+    })
+  }
+
   if (recent7.length > 0 && previous7.length === 0 && olderHistory.length > 0) {
     candidates.push({
       variant: 'positive',
       priority: 84,
+      confidence: confidenceFromSignals(2),
       titleKey: 'dashboard.insights.titles.resumed',
       messageKey: 'dashboard.insights.messages.resumed',
+      explanationKey: 'dashboard.insights.explanations.resumePattern',
       recommendationKey: 'dashboard.insights.recommendations.keepRhythm',
       signals: [
         { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' },
@@ -193,72 +282,18 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
     })
   }
 
-  if (activeDays7 >= 3) {
+  if (activeDays7 >= 3 || (pagesLast7 > pagesPrev7 && recent7.length >= 2)) {
     candidates.push({
       variant: 'positive',
       priority: 80,
+      confidence: confidenceFromSignals(activeDays7 >= 3 ? 3 : 2),
       titleKey: 'dashboard.insights.titles.consistency',
       messageKey: 'dashboard.insights.messages.consistency',
+      explanationKey: 'dashboard.insights.explanations.consistentWeek',
       recommendationKey: 'dashboard.insights.recommendations.keepRhythm',
       signals: [
         { labelKey: 'dashboard.insights.signals.activeDaysThisWeek', value: activeDays7, format: 'number' },
         { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' }
-      ]
-    })
-  }
-
-  if (pagesLast7 > pagesPrev7 && recent7.length >= 2) {
-    candidates.push({
-      variant: 'positive',
-      priority: 74,
-      titleKey: 'dashboard.insights.titles.momentum',
-      messageKey: 'dashboard.insights.messages.momentum',
-      recommendationKey: 'dashboard.insights.recommendations.keepRhythm',
-      signals: [
-        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: pagesLast7, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.pagesLastWeek', value: pagesPrev7, format: 'number' }
-      ]
-    })
-  }
-
-  if (weeklyGoal && weeklyGoal.pagesGoal > 0) {
-    if (weeklyGoal.pagesPercent >= 100) {
-      candidates.push({
-        variant: 'positive',
-        priority: 86,
-        titleKey: 'dashboard.insights.titles.goalAhead',
-        messageKey: 'dashboard.insights.messages.goalAhead',
-        recommendationKey: 'dashboard.insights.recommendations.maintainGoal',
-        signals: [
-          { labelKey: 'dashboard.insights.signals.goalProgress', value: weeklyGoal.pagesPercent, format: 'percent' },
-          { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: weeklyGoal.pagesRead, format: 'number' }
-        ]
-      })
-    } else if (weeklyGoal.pagesPercent < 60 && recent7.length > 0) {
-      candidates.push({
-        variant: 'warning',
-        priority: 78,
-        titleKey: 'dashboard.insights.titles.goalBehind',
-        messageKey: 'dashboard.insights.messages.goalBehind',
-        recommendationKey: 'dashboard.insights.recommendations.smallSessionToday',
-        signals: [
-          { labelKey: 'dashboard.insights.signals.goalProgress', value: weeklyGoal.pagesPercent, format: 'percent' },
-          { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' }
-        ]
-      })
-    }
-  }
-
-  if (activeBooks.length >= 3 && pagesLast7 < 80) {
-    candidates.push({
-      variant: 'neutral',
-      priority: 70,
-      titleKey: 'dashboard.insights.titles.focus',
-      messageKey: 'dashboard.insights.messages.focus',
-      recommendationKey: 'dashboard.insights.recommendations.focusOneBook',
-      signals: [
-        { labelKey: 'dashboard.insights.signals.activeBooks', value: activeBooks.length, format: 'number' },
-        { labelKey: 'dashboard.insights.signals.pagesThisWeek', value: pagesLast7, format: 'number' }
       ]
     })
   }
@@ -268,8 +303,10 @@ export function buildReadingInsight(input: InsightInput): ReadingInsightModel {
       state: 'ready',
       variant: 'neutral',
       priority: 10,
+      confidence: 'low',
       titleKey: 'dashboard.insights.titles.steady',
       messageKey: 'dashboard.insights.messages.steady',
+      explanationKey: 'dashboard.insights.explanations.steady',
       recommendationKey: 'dashboard.insights.recommendations.logProgressOnCurrent',
       signals: [
         { labelKey: 'dashboard.insights.signals.sessionsThisWeek', value: recent7.length, format: 'number' },

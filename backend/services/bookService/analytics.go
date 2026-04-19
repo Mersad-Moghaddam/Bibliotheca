@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"negar-backend/models/book"
 	"negar-backend/repositories"
 	"negar-backend/statics/constants"
 )
@@ -33,6 +34,10 @@ func (s *Service) Analytics(ctx context.Context, userID uuid.UUID) (*Analytics, 
 	if err != nil {
 		return nil, err
 	}
+	return buildAnalyticsFromBooks(books), nil
+}
+
+func buildAnalyticsFromBooks(books []book.Book) *Analytics {
 
 	now := time.Now()
 	monthly := make([]ActivityPoint, 0, 6)
@@ -113,18 +118,15 @@ func (s *Service) Analytics(ctx context.Context, userID uuid.UUID) (*Analytics, 
 		StatusDistribution:  statusDistribution,
 		MonthlyActivity:     monthly,
 		WeeklyActivity:      weekly,
-	}, nil
+	}
 }
 
 func (s *Service) Insights(ctx context.Context, userID uuid.UUID) ([]map[string]string, error) {
-	analytics, err := s.Analytics(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
 	books, _, err := s.repo.List(ctx, userID, repositories.BookFilter{})
 	if err != nil {
 		return nil, err
 	}
+	analytics := buildAnalyticsFromBooks(books)
 
 	insights := []map[string]string{}
 	if analytics.CurrentStreakWeeks >= 2 {
