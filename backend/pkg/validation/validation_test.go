@@ -28,3 +28,34 @@ func TestTimeHHMM(t *testing.T) {
 		})
 	}
 }
+
+func TestNormalizeMobile(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    string
+		expected string
+		valid    bool
+	}{
+		{name: "iran local mobile", value: "09123456789", expected: "+989123456789", valid: true},
+		{name: "iran intl digits", value: "989123456789", expected: "+989123456789", valid: true},
+		{name: "iran plus mobile", value: "+989123456789", expected: "+989123456789", valid: true},
+		{name: "persian digits", value: "۰۹۱۲۳۴۵۶۷۸۹", expected: "+989123456789", valid: true},
+		{name: "generic e164", value: "+447700900123", expected: "+447700900123", valid: true},
+		{name: "invalid short", value: "12345", valid: false},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := NormalizeMobile(tc.value)
+			if tc.valid && err != nil {
+				t.Fatalf("expected valid mobile, got error: %v", err)
+			}
+			if !tc.valid && err == nil {
+				t.Fatalf("expected invalid mobile for %q", tc.value)
+			}
+			if tc.valid && got != tc.expected {
+				t.Fatalf("expected %s, got %s", tc.expected, got)
+			}
+		})
+	}
+}

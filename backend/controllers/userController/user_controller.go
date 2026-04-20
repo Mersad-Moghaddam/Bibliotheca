@@ -47,7 +47,7 @@ func (h *UserController) UpdateProfile(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email}, nil)
+	return apiresponse.OK(c, fiber.Map{"id": u.ID, "name": u.Name, "mobile": u.MobileNumber, "email": u.Email}, nil)
 }
 func (h *UserController) UpdatePassword(c *fiber.Ctx) error {
 	var req userSchema.UpdatePasswordRequest

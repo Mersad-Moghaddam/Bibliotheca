@@ -9,6 +9,7 @@ var (
 	ErrConflict            = errors.New("conflict")
 	ErrRateLimited         = errors.New("rate limited")
 	ErrEmailAlreadyExists  = errors.New("email already exists")
+	ErrMobileAlreadyExists = errors.New("mobile already exists")
 	ErrInvalidCredentials  = errors.New("invalid credentials")
 	ErrInvalidRefreshToken = errors.New("invalid refresh token")
 )

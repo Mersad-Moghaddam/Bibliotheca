@@ -39,10 +39,6 @@ vi.mock('../../shared/i18n/i18n-provider', () => ({
   })
 }))
 
-vi.mock('../../components/ThemeToggle', () => ({
-  ThemeToggle: () => null
-}))
-
 describe('Login page', () => {
   beforeEach(() => {
     navigateMock.mockReset()
@@ -53,15 +49,15 @@ describe('Login page', () => {
   })
 
   it('submits credentials, stores auth, and redirects on success', async () => {
-    loginMutateAsyncMock.mockImplementation(async (payload: { email: string; password: string }) => {
+    loginMutateAsyncMock.mockImplementation(async (payload: { mobile: string; password: string }) => {
       expect(payload).toEqual({
-        email: 'ada@example.com',
+        mobile: '+989123456789',
         password: 'strong-pass'
       })
-      authStore.getState().setAuth({ id: 'u-1', email: 'ada@example.com', name: 'Ada' }, 'acc', 'ref')
+      authStore.getState().setAuth({ id: 'u-1', mobile: '+989123456789', name: 'Ada' }, 'acc', 'ref')
       return {
         data: {
-          user: { id: 'u-1', email: 'ada@example.com', name: 'Ada' },
+          user: { id: 'u-1', mobile: '+989123456789', name: 'Ada' },
           tokens: { accessToken: 'acc', refreshToken: 'ref' }
         }
       }
@@ -76,7 +72,8 @@ describe('Login page', () => {
       </ToastProvider>
     )
 
-    await user.type(screen.getByPlaceholderText('auth.email'), 'ada@example.com')
+    expect(screen.queryByLabelText('Toggle theme')).not.toBeInTheDocument()
+    await user.type(screen.getByPlaceholderText('auth.mobile'), '09123456789')
     await user.type(screen.getByPlaceholderText('auth.password'), 'strong-pass')
     await user.click(screen.getByRole('button', { name: 'auth.logIn' }))
 
@@ -101,7 +98,7 @@ describe('Login page', () => {
       </ToastProvider>
     )
 
-    await user.type(screen.getByPlaceholderText('auth.email'), 'ada@example.com')
+    await user.type(screen.getByPlaceholderText('auth.mobile'), '09123456789')
     await user.type(screen.getByPlaceholderText('auth.password'), 'strong-pass')
     await user.click(screen.getByRole('button', { name: 'auth.logIn' }))
 

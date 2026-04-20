@@ -3,7 +3,7 @@
 Negar is a full-stack reading tracker and productivity app for planning, tracking, and improving reading habits. It ships as a monorepo with a Go/Fiber backend and a React/Vite frontend.
 
 ## Features
-- JWT auth with access/refresh flow.
+- Mobile-number auth with password-based sign-in and JWT access/refresh flow.
 - Dashboard summary, analytics, and reading insights.
 - Library tracking (in-library, reading, finished, next-to-read).
 - Sessions, goals, and progress updates.

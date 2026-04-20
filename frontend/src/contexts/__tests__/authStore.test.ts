@@ -14,9 +14,10 @@ describe('authStore', () => {
   it('sets auth data and persists it', () => {
     authStore
       .getState()
-      .setAuth({ id: 'u-1', name: 'Ada', email: 'ada@example.com' }, 'access-1', 'refresh-1')
+      .setAuth({ id: 'u-1', name: 'Ada', mobile: '+989123456789', email: 'ada@example.com' }, 'access-1', 'refresh-1')
 
     const state = authStore.getState()
+    expect(state.user?.mobile).toBe('+989123456789')
     expect(state.user?.email).toBe('ada@example.com')
     expect(state.accessToken).toBe('access-1')
     expect(state.refreshToken).toBe('refresh-1')
@@ -29,7 +30,7 @@ describe('authStore', () => {
   it('refreshes only tokens while keeping user', () => {
     authStore
       .getState()
-      .setAuth({ id: 'u-2', name: 'Lin', email: 'lin@example.com' }, 'access-old', 'refresh-old')
+      .setAuth({ id: 'u-2', name: 'Lin', mobile: '+989122222222', email: 'lin@example.com' }, 'access-old', 'refresh-old')
 
     authStore.getState().setTokens('access-new', 'refresh-new')
 
@@ -43,7 +44,7 @@ describe('authStore', () => {
     authStore
       .getState()
       .setAuth(
-        { id: 'u-3', name: 'Kai', email: 'kai@example.com' },
+        { id: 'u-3', name: 'Kai', mobile: '+989133333333', email: 'kai@example.com' },
         'access-token',
         'refresh-token'
       )
@@ -61,7 +62,7 @@ describe('authStore', () => {
     localStorage.setItem(
       legacyStorageKey,
       JSON.stringify({
-        user: { id: 'u-4', name: 'Mina', email: 'mina@example.com' },
+        user: { id: 'u-4', name: 'Mina', mobile: '+989144444444', email: 'mina@example.com' },
         accessToken: 'legacy-access',
         refreshToken: 'legacy-refresh'
       })
@@ -70,6 +71,7 @@ describe('authStore', () => {
     authStore.getState().hydrate()
 
     const state = authStore.getState()
+    expect(state.user?.mobile).toBe('+989144444444')
     expect(state.user?.email).toBe('mina@example.com')
     expect(state.accessToken).toBe('legacy-access')
     expect(state.refreshToken).toBe('legacy-refresh')

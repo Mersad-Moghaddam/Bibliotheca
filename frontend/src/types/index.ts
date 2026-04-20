@@ -1,6 +1,12 @@
 export type BookStatus = 'inLibrary' | 'currentlyReading' | 'finished' | 'nextToRead'
 
-export type User = { id: string; name: string; email: string; role?: 'reader' | 'admin' }
+export type User = {
+  id: string
+  name: string
+  mobile?: string | null
+  email?: string | null
+  role?: 'reader' | 'admin'
+}
 
 export type Book = {
   id: string

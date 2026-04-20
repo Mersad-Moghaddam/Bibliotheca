@@ -4,6 +4,8 @@ info:
   version: 1.0.0
   description: |
     API for the Negar reading tracker. This spec mirrors the current Fiber routes under `/api/v1`.
+    Authentication is mobile-first: registration accepts `name + mobile + password` with optional email,
+    and login accepts `mobile + password` only.
 servers:
   - url: /api/v1
 security:
@@ -316,17 +318,17 @@ components:
         details: {type: object, additionalProperties: true}
     RegisterRequest:
       type: object
-      required: [name, email, password, confirmPassword]
+      required: [name, mobile, password]
       properties:
         name: {type: string, minLength: 2, maxLength: 120}
-        email: {type: string, format: email}
+        mobile: {type: string, pattern: '^\+[1-9]\d{9,14}$'}
+        email: {type: string, format: email, nullable: true}
         password: {type: string, minLength: 8, maxLength: 72}
-        confirmPassword: {type: string}
     LoginRequest:
       type: object
-      required: [email, password]
+      required: [mobile, password]
       properties:
-        email: {type: string, format: email}
+        mobile: {type: string, pattern: '^\+[1-9]\d{9,14}$'}
         password: {type: string}
     RefreshRequest:
       type: object

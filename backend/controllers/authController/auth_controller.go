@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"negar-backend/apiSchema/authSchema"
 	"negar-backend/middleware/requestctx"
+	"negar-backend/models/user"
 	"negar-backend/pkg/apiresponse"
 	"negar-backend/pkg/observability"
 	"negar-backend/pkg/requestutil"
@@ -29,6 +30,28 @@ func NewAuthController(service *ServiceBridge) *AuthController {
 	return &AuthController{service: service}
 }
 
+func userPayload(u *user.User) fiber.Map {
+	return fiber.Map{
+		"id":        u.ID,
+		"name":      u.Name,
+		"mobile":    publicContact(u.MobileNumber),
+		"email":     publicContact(u.Email),
+		"role":      u.Role,
+		"createdAt": u.CreatedAt,
+	}
+}
+
+func publicContact(value *string) any {
+	if value == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*value)
+	if trimmed == "" {
+		return nil
+	}
+	return trimmed
+}
+
 func (h *AuthController) Register(c *fiber.Ctx) error {
 	var req authSchema.RegisterRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -36,23 +59,24 @@ func (h *AuthController) Register(c *fiber.Ctx) error {
 	}
 	errs := validation.Errors{}
 	req.Name = validation.Required(req.Name, "name", errs)
-	req.Email = validation.Required(req.Email, "email", errs)
+	req.Mobile = validation.Required(req.Mobile, "mobile", errs)
+	req.Mobile = validation.Mobile(req.Mobile, "mobile", errs)
 	req.Password = validation.Required(req.Password, "password", errs)
 	validation.StringLength(req.Name, "name", 2, 120, errs)
-	validation.StringLength(req.Email, "email", 5, 160, errs)
 	validation.StringLength(req.Password, "password", validation.MinPasswordLength, validation.MaxPasswordLength, errs)
-	validation.Email(req.Email, "email", errs)
-	if req.Password != req.ConfirmPassword {
-		errs.Add("confirmPassword", "must match password")
+	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
+	if req.Email != "" {
+		validation.StringLength(req.Email, "email", 5, 160, errs)
+		validation.Email(req.Email, "email", errs)
 	}
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	u, err := h.service.Auth.Register(c.Context(), req.Name, req.Email, req.Password)
+	u, err := h.service.Auth.Register(c.Context(), req.Name, req.Mobile, req.Password, req.Email)
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.Created(c, fiber.Map{"user": fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "role": u.Role}})
+	return apiresponse.Created(c, fiber.Map{"user": userPayload(u)})
 }
 func (h *AuthController) Login(c *fiber.Ctx) error {
 	var req authSchema.LoginRequest
@@ -60,12 +84,13 @@ func (h *AuthController) Login(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	errs := validation.Errors{}
-	req.Email = validation.Required(req.Email, "email", errs)
+	req.Mobile = validation.Required(req.Mobile, "mobile", errs)
+	req.Mobile = validation.Mobile(req.Mobile, "mobile", errs)
 	req.Password = validation.Required(req.Password, "password", errs)
 	if errs.HasAny() {
 		return apiresponse.ValidationError(c, errs)
 	}
-	u, tokens, remaining, err := h.service.Auth.Login(c.Context(), c.IP(), req.Email, req.Password)
+	u, tokens, remaining, err := h.service.Auth.Login(c.Context(), c.IP(), req.Mobile, req.Password)
 	if err != nil {
 		reqLogger := requestctx.LoggerFromCtx(c, zap.NewNop())
 		switch {
@@ -83,7 +108,7 @@ func (h *AuthController) Login(c *fiber.Ctx) error {
 		return apiErrCode.RespondError(c, err)
 	}
 	c.Set("X-RateLimit-Remaining", strconv.FormatInt(remaining, 10))
-	return apiresponse.OK(c, fiber.Map{"user": fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "role": u.Role}, "tokens": tokens}, nil)
+	return apiresponse.OK(c, fiber.Map{"user": userPayload(u), "tokens": tokens}, nil)
 }
 func (h *AuthController) Refresh(c *fiber.Ctx) error {
 	var req authSchema.RefreshRequest
@@ -119,5 +144,5 @@ func (h *AuthController) Me(c *fiber.Ctx) error {
 	if err != nil {
 		return apiErrCode.RespondError(c, err)
 	}
-	return apiresponse.OK(c, fiber.Map{"id": u.ID, "name": u.Name, "email": u.Email, "role": u.Role, "createdAt": u.CreatedAt}, nil)
+	return apiresponse.OK(c, userPayload(u), nil)
 }

@@ -31,37 +31,66 @@ func New(users repositories.UserRepository, authRepo repositories.AuthRepository
 	return &Service{users: users, auth: authRepo, jwtSecret: jwtSecret, accessTTL: accessTTL, refreshTTL: refreshTTL, rateWindow: rateWindow, rateMax: rateMax}
 }
 
-func (s *Service) Register(ctx context.Context, name, email, password string) (*user.User, error) {
+func (s *Service) Register(ctx context.Context, name, mobile, password, email string) (*user.User, error) {
 	name = strings.TrimSpace(name)
-	email = strings.TrimSpace(strings.ToLower(email))
-	if name == "" || email == "" || len(password) < validation.MinPasswordLength || len(password) > validation.MaxPasswordLength {
+	mobile, err := validation.NormalizeMobile(mobile)
+	if err != nil || name == "" || len(password) < validation.MinPasswordLength || len(password) > validation.MaxPasswordLength {
 		return nil, customErr.ErrBadRequest
 	}
-	_, err := s.users.GetByEmail(ctx, email)
+	_, err = s.users.GetByMobile(ctx, mobile)
 	if err == nil {
-		return nil, customErr.ErrEmailAlreadyExists
+		return nil, customErr.ErrMobileAlreadyExists
 	}
 	if err != nil && !errorsIsRecordNotFound(err) {
 		return nil, err
+	}
+	normalizedEmail, hasEmail := normalizeOptionalEmail(email)
+	if hasEmail {
+		_, err = s.users.GetByEmail(ctx, normalizedEmail)
+		if err == nil {
+			return nil, customErr.ErrEmailAlreadyExists
+		}
+		if err != nil && !errorsIsRecordNotFound(err) {
+			return nil, err
+		}
 	}
 	hash, err := security.HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
-	u := &user.User{Name: name, Email: email, PasswordHash: hash}
+	mobileValue := mobile
+	u := &user.User{
+		Name:         name,
+		MobileNumber: &mobileValue,
+		PasswordHash: hash,
+	}
+	if hasEmail {
+		u.Email = &normalizedEmail
+	}
 	if err = s.users.Create(ctx, u); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return nil, customErr.ErrEmailAlreadyExists
+			if hasEmail {
+				return nil, customErr.ErrEmailAlreadyExists
+			}
+			return nil, customErr.ErrMobileAlreadyExists
 		}
 		if isMySQLDuplicateEntry(err) {
-			return nil, customErr.ErrEmailAlreadyExists
+			lowerErr := strings.ToLower(err.Error())
+			switch {
+			case strings.Contains(lowerErr, "mobile_number"):
+				return nil, customErr.ErrMobileAlreadyExists
+			case strings.Contains(lowerErr, "email"):
+				return nil, customErr.ErrEmailAlreadyExists
+			default:
+				return nil, customErr.ErrConflict
+			}
 		}
 		return nil, err
 	}
 	return u, nil
 }
 
-func (s *Service) Login(ctx context.Context, ip, email, password string) (*user.User, *auth.TokenPair, int64, error) {
+func (s *Service) Login(ctx context.Context, ip, mobile, password string) (*user.User, *auth.TokenPair, int64, error) {
 	ok, remaining, err := s.auth.CheckRateLimit(ctx, fmt.Sprintf("auth:login:%s", ip), s.rateMax, int64(s.rateWindow.Seconds()))
 	if err != nil {
 		return nil, nil, 0, err
@@ -69,7 +98,11 @@ func (s *Service) Login(ctx context.Context, ip, email, password string) (*user.
 	if !ok {
 		return nil, nil, 0, customErr.ErrRateLimited
 	}
-	u, err := s.users.GetByEmail(ctx, strings.ToLower(strings.TrimSpace(email)))
+	normalizedMobile, mobileErr := validation.NormalizeMobile(mobile)
+	if mobileErr != nil {
+		return nil, nil, remaining, customErr.ErrInvalidCredentials
+	}
+	u, err := s.users.GetByMobile(ctx, normalizedMobile)
 	if err != nil || security.ComparePassword(u.PasswordHash, password) != nil {
 		return nil, nil, remaining, customErr.ErrInvalidCredentials
 	}
@@ -124,4 +157,12 @@ func errorsIsRecordNotFound(err error) bool { return err == gorm.ErrRecordNotFou
 
 func isMySQLDuplicateEntry(err error) bool {
 	return strings.Contains(strings.ToLower(err.Error()), "duplicate entry")
+}
+
+func normalizeOptionalEmail(email string) (string, bool) {
+	trimmed := strings.TrimSpace(strings.ToLower(email))
+	if trimmed == "" {
+		return "", false
+	}
+	return trimmed, true
 }

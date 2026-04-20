@@ -19,6 +19,11 @@ func (r *userRepo) GetByEmail(ctx context.Context, email string) (*user.User, er
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&u).Error
 	return &u, err
 }
+func (r *userRepo) GetByMobile(ctx context.Context, mobile string) (*user.User, error) {
+	var u user.User
+	err := r.db.WithContext(ctx).Where("mobile_number = ?", mobile).First(&u).Error
+	return &u, err
+}
 func (r *userRepo) GetByID(ctx context.Context, id uuid.UUID) (*user.User, error) {
 	var u user.User
 	err := r.db.WithContext(ctx).First(&u, "id = ?", id).Error

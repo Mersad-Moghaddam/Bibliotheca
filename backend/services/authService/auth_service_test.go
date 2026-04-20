@@ -13,18 +13,27 @@ import (
 )
 
 type fakeUserRepo struct {
-	byEmail map[string]*user.User
-	created []*user.User
+	byEmail  map[string]*user.User
+	byMobile map[string]*user.User
+	created  []*user.User
 }
 
 func (f *fakeUserRepo) Create(_ context.Context, u *user.User) error {
 	if f.byEmail == nil {
 		f.byEmail = map[string]*user.User{}
 	}
+	if f.byMobile == nil {
+		f.byMobile = map[string]*user.User{}
+	}
 	if u.ID == uuid.Nil {
 		u.ID = uuid.New()
 	}
-	f.byEmail[u.Email] = u
+	if u.Email != nil {
+		f.byEmail[*u.Email] = u
+	}
+	if u.MobileNumber != nil {
+		f.byMobile[*u.MobileNumber] = u
+	}
 	f.created = append(f.created, u)
 	return nil
 }
@@ -37,8 +46,16 @@ func (f *fakeUserRepo) GetByEmail(_ context.Context, email string) (*user.User, 
 	return u, nil
 }
 
+func (f *fakeUserRepo) GetByMobile(_ context.Context, mobile string) (*user.User, error) {
+	u, ok := f.byMobile[mobile]
+	if !ok {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return u, nil
+}
+
 func (f *fakeUserRepo) GetByID(_ context.Context, id uuid.UUID) (*user.User, error) {
-	for _, u := range f.byEmail {
+	for _, u := range f.created {
 		if u.ID == id {
 			return u, nil
 		}
@@ -90,19 +107,23 @@ func newAuthServiceForTest(users *fakeUserRepo, auth *fakeAuthRepo) *Service {
 func TestRegisterLoginAndRefresh(t *testing.T) {
 	t.Parallel()
 
-	users := &fakeUserRepo{byEmail: map[string]*user.User{}}
+	users := &fakeUserRepo{byEmail: map[string]*user.User{}, byMobile: map[string]*user.User{}}
 	auth := &fakeAuthRepo{tokens: map[string]string{}}
 	svc := newAuthServiceForTest(users, auth)
 
-	created, err := svc.Register(context.Background(), "Ada", "ADA@Example.com ", "12345678")
+	email := "ADA@Example.com "
+	created, err := svc.Register(context.Background(), "Ada", "09123456789", "12345678", email)
 	if err != nil {
 		t.Fatalf("register failed: %v", err)
 	}
-	if created.Email != "ada@example.com" {
-		t.Fatalf("expected normalized email, got %s", created.Email)
+	if created.MobileNumber == nil || *created.MobileNumber != "+989123456789" {
+		t.Fatalf("expected normalized mobile, got %+v", created.MobileNumber)
+	}
+	if created.Email == nil || *created.Email != "ada@example.com" {
+		t.Fatalf("expected normalized email, got %+v", created.Email)
 	}
 
-	loggedInUser, pair, _, err := svc.Login(context.Background(), "127.0.0.1", "ada@example.com", "12345678")
+	loggedInUser, pair, _, err := svc.Login(context.Background(), "127.0.0.1", "+989123456789", "12345678")
 	if err != nil {
 		t.Fatalf("login failed: %v", err)
 	}
@@ -125,10 +146,40 @@ func TestRegisterLoginAndRefresh(t *testing.T) {
 func TestRegisterRejectsInvalidInput(t *testing.T) {
 	t.Parallel()
 
-	svc := newAuthServiceForTest(&fakeUserRepo{byEmail: map[string]*user.User{}}, &fakeAuthRepo{})
-	_, err := svc.Register(context.Background(), "", "", "123")
+	svc := newAuthServiceForTest(&fakeUserRepo{byEmail: map[string]*user.User{}, byMobile: map[string]*user.User{}}, &fakeAuthRepo{})
+	_, err := svc.Register(context.Background(), "", "", "", "")
 	if !errors.Is(err, customErr.ErrBadRequest) {
 		t.Fatalf("expected bad request error, got %v", err)
+	}
+}
+
+func TestRegisterDuplicateMobileReturnsConflict(t *testing.T) {
+	t.Parallel()
+
+	users := &fakeUserRepo{
+		byEmail: map[string]*user.User{
+			"ada@example.com": {
+				ID:           uuid.New(),
+				Name:         "Ada",
+				Email:        stringPtr("ada@example.com"),
+				MobileNumber: stringPtr("+989123456789"),
+				PasswordHash: "hashed",
+			},
+		},
+		byMobile: map[string]*user.User{
+			"+989123456789": {
+				ID:           uuid.New(),
+				Name:         "Ada",
+				Email:        stringPtr("ada@example.com"),
+				MobileNumber: stringPtr("+989123456789"),
+				PasswordHash: "hashed",
+			},
+		},
+	}
+	svc := newAuthServiceForTest(users, &fakeAuthRepo{})
+	_, err := svc.Register(context.Background(), "Ada", "09123456789", "12345678", "")
+	if !errors.Is(err, customErr.ErrMobileAlreadyExists) {
+		t.Fatalf("expected mobile exists error, got %v", err)
 	}
 }
 
@@ -140,13 +191,15 @@ func TestRegisterDuplicateEmailReturnsConflict(t *testing.T) {
 			"ada@example.com": {
 				ID:           uuid.New(),
 				Name:         "Ada",
-				Email:        "ada@example.com",
+				Email:        stringPtr("ada@example.com"),
+				MobileNumber: stringPtr("+989122222222"),
 				PasswordHash: "hashed",
 			},
 		},
+		byMobile: map[string]*user.User{},
 	}
 	svc := newAuthServiceForTest(users, &fakeAuthRepo{})
-	_, err := svc.Register(context.Background(), "Ada", "ada@example.com", "12345678")
+	_, err := svc.Register(context.Background(), "Ada", "09123456789", "12345678", "ada@example.com")
 	if !errors.Is(err, customErr.ErrEmailAlreadyExists) {
 		t.Fatalf("expected email exists error, got %v", err)
 	}
@@ -155,21 +208,46 @@ func TestRegisterDuplicateEmailReturnsConflict(t *testing.T) {
 func TestLoginInvalidCredentials(t *testing.T) {
 	t.Parallel()
 
-	users := &fakeUserRepo{byEmail: map[string]*user.User{}}
+	mobile := "+989123456789"
+	users := &fakeUserRepo{
+		byEmail: map[string]*user.User{},
+		byMobile: map[string]*user.User{
+			mobile: {
+				ID:           uuid.New(),
+				Name:         "Ada",
+				MobileNumber: &mobile,
+				PasswordHash: "$2a$10$invalid",
+			},
+		},
+	}
 	auth := &fakeAuthRepo{}
 	svc := newAuthServiceForTest(users, auth)
-	_, _, _, err := svc.Login(context.Background(), "127.0.0.1", "missing@example.com", "bad-pass")
+	_, _, _, err := svc.Login(context.Background(), "127.0.0.1", "09123456789", "654321")
 	if !errors.Is(err, customErr.ErrInvalidCredentials) {
 		t.Fatalf("expected invalid credentials error, got %v", err)
+	}
+}
+
+func TestLoginWithEmailIdentifierFails(t *testing.T) {
+	t.Parallel()
+
+	users := &fakeUserRepo{byEmail: map[string]*user.User{}, byMobile: map[string]*user.User{}}
+	auth := &fakeAuthRepo{}
+	svc := newAuthServiceForTest(users, auth)
+	_, _, _, err := svc.Login(context.Background(), "127.0.0.1", "ada@example.com", "12345678")
+	if !errors.Is(err, customErr.ErrInvalidCredentials) {
+		t.Fatalf("expected invalid credentials for email login, got %v", err)
 	}
 }
 
 func TestRefreshInvalidToken(t *testing.T) {
 	t.Parallel()
 
-	svc := newAuthServiceForTest(&fakeUserRepo{byEmail: map[string]*user.User{}}, &fakeAuthRepo{})
+	svc := newAuthServiceForTest(&fakeUserRepo{byEmail: map[string]*user.User{}, byMobile: map[string]*user.User{}}, &fakeAuthRepo{})
 	_, err := svc.Refresh(context.Background(), "not-a-jwt")
 	if !errors.Is(err, customErr.ErrInvalidRefreshToken) {
 		t.Fatalf("expected invalid refresh token error, got %v", err)
 	}
 }
+
+func stringPtr(value string) *string { return &value }

@@ -16,13 +16,15 @@ func RespondError(c *fiber.Ctx, err error) error {
 	case errors.Is(err, customErr.ErrUnauthorized):
 		return apiresponse.Error(c, fiber.StatusUnauthorized, "unauthorized", "Unauthorized.", nil)
 	case errors.Is(err, customErr.ErrInvalidCredentials):
-		return apiresponse.Error(c, fiber.StatusUnauthorized, "invalid_credentials", "Email or password is incorrect.", nil)
+		return apiresponse.Error(c, fiber.StatusUnauthorized, "invalid_credentials", "Mobile number or password is incorrect.", nil)
 	case errors.Is(err, customErr.ErrInvalidRefreshToken):
 		return apiresponse.Error(c, fiber.StatusUnauthorized, "invalid_refresh_token", "Refresh token is invalid or expired.", nil)
 	case errors.Is(err, customErr.ErrConflict):
 		return apiresponse.Error(c, fiber.StatusConflict, "conflict", "Resource conflict.", nil)
 	case errors.Is(err, customErr.ErrEmailAlreadyExists):
 		return apiresponse.Error(c, fiber.StatusConflict, "email_already_exists", "An account with this email already exists.", nil)
+	case errors.Is(err, customErr.ErrMobileAlreadyExists):
+		return apiresponse.Error(c, fiber.StatusConflict, "mobile_already_exists", "An account with this mobile number already exists.", nil)
 	case errors.Is(err, customErr.ErrNotFound), errors.Is(err, gorm.ErrRecordNotFound):
 		return apiresponse.Error(c, fiber.StatusNotFound, "not_found", "Resource not found.", nil)
 	case errors.Is(err, customErr.ErrRateLimited):

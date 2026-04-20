@@ -24,7 +24,7 @@ func AssertSchema(db *gorm.DB) error {
 		model   any
 		columns []string
 	}{
-		{&user.User{}, []string{"id", "name", "email", "password_hash", "role", "reminder_enabled", "reminder_time", "reminder_frequency", "reminder_timezone", "created_at", "updated_at"}},
+		{&user.User{}, []string{"id", "name", "mobile_number", "email", "password_hash", "role", "reminder_enabled", "reminder_time", "reminder_frequency", "reminder_timezone", "created_at", "updated_at"}},
 		{&book.Book{}, []string{"id", "user_id", "title", "author", "total_pages", "status", "current_page", "cover_url", "genre", "isbn", "completed_at", "finish_rating", "finish_reflection", "finish_highlight", "created_at", "updated_at"}},
 		{&wishlist.Wishlist{}, []string{"id", "user_id", "title", "author", "expected_price", "notes", "created_at", "updated_at"}},
 		{&purchaseLink.PurchaseLink{}, []string{"id", "wishlist_id", "label", "alias", "url", "created_at", "updated_at"}},

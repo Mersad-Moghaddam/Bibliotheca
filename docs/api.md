@@ -12,6 +12,13 @@ The spec documents:
 - profile/password/reminders
 - health and readiness
 
+## Auth Contract
+- `POST /auth/register`: `name`, `mobile`, `password`, optional `email`
+- `POST /auth/login`: `mobile`, `password`
+- `POST /auth/refresh`: rotate access/refresh tokens
+- `POST /auth/logout`: revoke the presented refresh token
+- `GET /auth/me`: current signed-in user
+
 ## How to view
 Use any OpenAPI viewer, for example:
 

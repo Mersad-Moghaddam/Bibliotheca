@@ -15,7 +15,8 @@ const (
 type User struct {
 	ID                uuid.UUID `gorm:"type:char(36);primaryKey" json:"id"`
 	Name              string    `gorm:"size:120;not null" json:"name"`
-	Email             string    `gorm:"size:160;uniqueIndex;not null" json:"email"`
+	MobileNumber      *string   `gorm:"column:mobile_number;size:20;uniqueIndex" json:"mobile"`
+	Email             *string   `gorm:"size:160;uniqueIndex" json:"email"`
 	PasswordHash      string    `gorm:"size:255;not null" json:"-"`
 	Role              string    `gorm:"size:24;not null;default:'reader'" json:"role"`
 	ReminderEnabled   bool      `gorm:"not null;default:false" json:"reminderEnabled"`

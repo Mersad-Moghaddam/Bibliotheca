@@ -142,14 +142,6 @@ export function Landing() {
   )
 }
 
-function AuthHeader() {
-  return (
-    <div className="mx-auto mb-3 flex w-full max-w-md justify-end gap-2 sm:mb-5">
-      <ThemeToggle />
-    </div>
-  )
-}
-
 function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <Card className={formCard}>
@@ -170,7 +162,7 @@ export function Register() {
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', confirmPassword: '' }
+    defaultValues: { name: '', mobile: '', email: '', password: '' }
   })
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -182,6 +174,7 @@ export function Register() {
     } catch (error) {
       const apiError = parseApiError(error)
       analytics.track(analyticsEvents.registerFailed, { code: apiError.code ?? 'unknown_error' })
+      if (apiError.code === 'mobile_already_exists') return toast.error(t('auth.mobileAlreadyExists'))
       if (apiError.code === 'email_already_exists') return toast.error(t('auth.emailAlreadyExists'))
       if (apiError.code === 'validation_error') return toast.error(t('auth.missingFields'))
       if (apiError.code === 'network_error') return toast.error(t('auth.networkFailure'))
@@ -191,7 +184,6 @@ export function Register() {
 
   return (
     <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
-      <AuthHeader />
       <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
         <form onSubmit={onSubmit} className="space-y-3" noValidate aria-busy={registerMutation.isPending}>
           <div>
@@ -199,16 +191,16 @@ export function Register() {
             <FieldError message={form.formState.errors.name?.message} />
           </div>
           <div>
-            <Input type="email" placeholder={t('auth.email')} {...form.register('email')} />
+            <Input type="tel" inputMode="tel" placeholder={t('auth.mobile')} {...form.register('mobile')} />
+            <FieldError message={form.formState.errors.mobile?.message} />
+          </div>
+          <div>
+            <Input type="email" placeholder={t('auth.emailOptional')} {...form.register('email')} />
             <FieldError message={form.formState.errors.email?.message} />
           </div>
           <div>
             <Input type="password" placeholder={t('auth.password')} {...form.register('password')} />
             <FieldError message={form.formState.errors.password?.message} />
-          </div>
-          <div>
-            <Input type="password" placeholder={t('auth.confirmPassword')} {...form.register('confirmPassword')} />
-            <FieldError message={form.formState.errors.confirmPassword?.message} />
           </div>
           <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
             {registerMutation.isPending ? t('common.save') : t('auth.signUp')}
@@ -233,7 +225,7 @@ export function Login() {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' }
+    defaultValues: { mobile: '', password: '' }
   })
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -254,12 +246,11 @@ export function Login() {
 
   return (
     <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
-      <AuthHeader />
       <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
         <form onSubmit={onSubmit} className="space-y-3" noValidate aria-busy={loginMutation.isPending}>
           <div>
-            <Input type="email" placeholder={t('auth.email')} {...form.register('email')} />
-            <FieldError message={form.formState.errors.email?.message} />
+            <Input type="tel" inputMode="tel" placeholder={t('auth.mobile')} {...form.register('mobile')} />
+            <FieldError message={form.formState.errors.mobile?.message} />
           </div>
           <div>
             <Input type="password" placeholder={t('auth.password')} {...form.register('password')} />

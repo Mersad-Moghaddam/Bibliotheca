@@ -49,6 +49,7 @@ type AuthRepository interface {
 type UserRepository interface {
 	Create(ctx context.Context, u *user.User) error
 	GetByEmail(ctx context.Context, email string) (*user.User, error)
+	GetByMobile(ctx context.Context, mobile string) (*user.User, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*user.User, error)
 	Update(ctx context.Context, u *user.User) error
 	ListReminderEnabled(ctx context.Context) ([]user.User, error)

@@ -2,6 +2,11 @@
 
 Production-hardened Fiber + MySQL + Redis backend for Negar.
 
+The active auth contract is mobile-first:
+- register with `name + mobile + password` and optional `email`
+- log in with `mobile + password`
+- preserve the existing access/refresh token lifecycle
+
 ## Key Runtime Guarantees
 
 - Migration-driven schema only (no runtime `AutoMigrate`).
@@ -46,6 +51,7 @@ Schema is managed under `migrations/`:
 - `000009_add_books_finish_flow_fields`
 - `000010_add_next_to_read_queue_fields`
 - `000011_phase3_foundations`
+- `000012_add_user_mobile_auth`
 
 ### Development workflow
 

@@ -1,14 +1,14 @@
 package authSchema
 
 type RegisterRequest struct {
-	Name            string `json:"name"`
-	Email           string `json:"email"`
-	Password        string `json:"password"`
-	ConfirmPassword string `json:"confirmPassword"`
+	Name     string `json:"name"`
+	Mobile   string `json:"mobile"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
+	Mobile   string `json:"mobile"`
 	Password string `json:"password"`
 }
 

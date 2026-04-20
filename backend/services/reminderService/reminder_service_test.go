@@ -16,6 +16,7 @@ type userRepoStub struct{ users []user.User }
 
 func (s userRepoStub) Create(context.Context, *user.User) error                 { return nil }
 func (s userRepoStub) GetByEmail(context.Context, string) (*user.User, error)   { return nil, nil }
+func (s userRepoStub) GetByMobile(context.Context, string) (*user.User, error)  { return nil, nil }
 func (s userRepoStub) GetByID(context.Context, uuid.UUID) (*user.User, error)   { return nil, nil }
 func (s userRepoStub) Update(context.Context, *user.User) error                 { return nil }
 func (s userRepoStub) ListReminderEnabled(context.Context) ([]user.User, error) { return s.users, nil }

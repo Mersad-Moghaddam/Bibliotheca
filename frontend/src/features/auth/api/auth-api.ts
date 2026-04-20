@@ -3,15 +3,15 @@ import { extractData } from '../../../api/http'
 import { User } from '../../../types'
 
 export type AuthPayload = {
-  email: string
+  mobile: string
   password: string
 }
 
 export type RegisterPayload = {
   name: string
-  email: string
+  mobile: string
   password: string
-  confirmPassword: string
+  email?: string
 }
 
 export async function login(payload: AuthPayload) {
