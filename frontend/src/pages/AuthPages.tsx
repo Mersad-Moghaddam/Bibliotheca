@@ -142,12 +142,12 @@ export function Landing() {
   )
 }
 
-function AuthFrame({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+function AuthFrame({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <Card className={formCard}>
-      <div className="space-y-2 border-b border-border pb-3">
+      <div className={cn('border-b border-border pb-3', subtitle ? 'space-y-2' : undefined)}>
         <h1 className="text-page-title">{title}</h1>
-        <p className="text-small text-mutedForeground">{subtitle}</p>
+        {subtitle ? <p className="text-small text-mutedForeground">{subtitle}</p> : null}
       </div>
       {children}
     </Card>
@@ -185,7 +185,7 @@ export function Register() {
 
   return (
     <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
-      <AuthFrame title={t('auth.createAccount')} subtitle={t('auth.registerSubtitle')}>
+      <AuthFrame title={t('auth.createAccount')}>
         <form onSubmit={onSubmit} className="space-y-3" noValidate aria-busy={registerMutation.isPending}>
           <div>
             <Input aria-label={t('auth.name')} placeholder={t('auth.name')} {...form.register('name')} />
@@ -256,7 +256,7 @@ export function Login() {
 
   return (
     <div className={cn(wrap, 'flex w-full flex-col items-center justify-center gap-3 sm:gap-4')}>
-      <AuthFrame title={t('auth.welcomeBack')} subtitle={t('auth.loginSubtitle')}>
+      <AuthFrame title={t('auth.welcomeBack')}>
         <form onSubmit={onSubmit} className="space-y-3" noValidate aria-busy={loginMutation.isPending}>
           <div>
             <Input
